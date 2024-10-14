@@ -68,6 +68,9 @@ class Draw_Character:
         self.framex = 0
         self.temp = 0
         self.image = load_image('HKCAWS_wait.png')
+        self.Hp = 20
+        self.max_Hp = 20
+        self.Hp_image = load_image('Hp.png')
 
     def update(self):
         global changing, change_time, Attack, attack_time, attack_delay
@@ -141,6 +144,37 @@ class Draw_Character:
                 self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
             elif not AttackRight and Attack:
                 self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
+
+    def take_damage(self, damage):
+        self.Hp -= damage
+        if self.Hp <= 0:
+            self.Hp = 0
+        self.show_Hp()
+
+    def heal(self, healpack):
+        self.Hp += healpack
+        if self.Hp > self.max_Hp:
+            self.Hp = self.max_Hp
+        self.show_Hp()
+
+    def plus_max_Hp(self, plusHp):
+        self.max_Hp += plusHp
+        self.Hp += plusHp
+        self.show_Hp()
+
+    def show_Hp(self):
+        heart_count = int(self.max_Hp / 2)
+        hx = 20
+        hy = 780
+
+        for i in range(heart_count):
+            if self.Hp >= (i + 1) * 2:
+                self.Hp_image.clip_composite_draw(0, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
+            elif self.Hp == (i * 2) + 1:
+                self.Hp_image.clip_composite_draw(120, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
+            else:
+                self.Hp_image.clip_composite_draw(240, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
+
 
 def handle_events():
     global running, MoveRight, Walking, Attack, AttackRight, position, changing, change_time, attack_time, a_pressed, d_pressed, mouse_x, mouse_y
@@ -217,7 +251,7 @@ def update_world():
         x += dx
 
     background.update(dx)
-
+    
     for o in world:
         o.update()
 
@@ -226,6 +260,7 @@ def render_world():
     background.draw()
     for o in world:
         o.draw()
+    character.show_Hp()
     update_canvas()
 
 def reset_world():
