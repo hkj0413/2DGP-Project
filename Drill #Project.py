@@ -268,6 +268,8 @@ def handle_events():
         # d 손 땔시 오른쪽 이동 멈춤
         elif event.type == SDL_KEYUP and event.key == SDLK_d:
             d_pressed = False
+            if a_pressed:
+                MoveRight = False
             if not a_pressed:
                 Walking = False
 
@@ -280,6 +282,8 @@ def handle_events():
         # a 손 땔시 왼쪽 이동 멈춤
         elif event.type == SDL_KEYUP and event.key == SDLK_a:
             a_pressed = False
+            if d_pressed:
+                MoveRight = True
             if not d_pressed:
                 Walking = False
 
