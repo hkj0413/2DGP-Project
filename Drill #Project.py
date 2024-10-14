@@ -67,47 +67,56 @@ class Draw_Character:
     def __init__(self):
         self.framex = 0
         self.temp = 0
-        self.image = load_image('HKCAWS_wait.png')                 # 기본 캐릭터 그림
+        self.image = load_image('HKCAWS_wait.png')                   # 기본 캐릭터 그림
         self.Hp = 20
         self.max_Hp = 20
-        self.Hp_image = load_image('Hp.png')                       # 체력 그림
+        self.Hp_image = load_image('Hp.png')                         # 체력 그림
 
     def update(self):
         global changing, change_time, Attack, attack_time, attack_delay
         self.temp += 1
-        if Attack:                                                 # 공격 모션
+        if Attack:                                                   # 공격 모션
             if attack_time == 15:
                 self.framex = 0
             if self.temp % 4 == 0:
                 if position == 0:
                     self.framex = (self.framex + 1) % 15
-                    self.image = load_image('HKCAWS_attack.png')   # 샷건
+                    self.image = load_image('HKCAWS_attack.png')     # 샷건
                 elif position == 1:
                     self.framex = (self.framex + 1) % 7
-                    self.image = load_image('R93_attack.png')      # 라이플
+                    self.image = load_image('R93_attack.png')        # 라이플
                 elif position == 2:
                     self.framex = (self.framex + 1) % 5
-                    self.image = load_image('GSH18Mod_attack.png') # 핸드건
-        elif not Walking:           # 대기 모션
+                    self.image = load_image('GSH18Mod_attack.png')   # 핸드건
+        elif not Walking:                                            # 대기 모션
             if self.temp % 3 == 0:
                 if position == 0:
-                    self.framex = (self.framex + 1) % 14
-                    self.image = load_image('HKCAWS_wait.png')     # 샷건
+                    if state == 0:
+                        self.framex = (self.framex + 1) % 14
+                        self.image = load_image('HKCAWS_wait.png')   # 샷건
+                    elif state == 1:
+                        self.framex = (self.framex + 1) % 14
+                        self.image = load_image('HKCAWS_shield.png') # 샷건 방패 들기
                 elif position == 1:
                     self.framex = (self.framex + 1) % 14
-                    self.image = load_image('R93_wait.png')        # 라이플
+                    self.image = load_image('R93_wait.png')          # 라이플
                 elif position == 2:
                     self.framex = (self.framex + 1) % 11
-                    self.image = load_image('GSH18Mod_wait.png')   # 핸드건
-        elif Walking:               # 이동 모션
-            if self.temp % 4 == 0:
-                self.framex = (self.framex + 1) % 6
-                if position == 0:
-                    self.image = load_image('HKCAWS_move.png')     # 샷건
-                elif position == 1:
-                    self.image = load_image('R93_move.png')        # 라이플
-                elif position == 2:
-                    self.image = load_image('GSH18Mod_move.png')   # 핸드건
+                    self.image = load_image('GSH18Mod_wait.png')     # 핸드건
+        elif Walking:                                                # 이동 모션
+            if position == 0 and state == 1:
+                if self.temp % 3 == 0:
+                    self.framex = (self.framex + 1) % 14
+                    self.image = load_image('HKCAWS_shield.png')     # 샷건 방패 들기
+            else:
+                if self.temp % 4 == 0:
+                    self.framex = (self.framex + 1) % 6
+                    if position == 0 and state == 0:
+                        self.image = load_image('HKCAWS_move.png')   # 샷건
+                    elif position == 1:
+                        self.image = load_image('R93_move.png')      # 라이플
+                    elif position == 2:
+                        self.image = load_image('GSH18Mod_move.png') # 핸드건
         if changing:                     # 폼 체인지 중에는 그림이 그려 지지 않아 깜빡임 구현
             change_time -= 1
             if change_time <= 0:
@@ -177,7 +186,7 @@ class Draw_Character:
 
 
 def handle_events():
-    global running, MoveRight, Walking, Attack, AttackRight, position, changing, change_time, attack_time, a_pressed, d_pressed, mouse_x, mouse_y
+    global running, MoveRight, Walking, Attack, AttackRight, position, state, changing, change_time, attack_time, a_pressed, d_pressed, mouse_x, mouse_y
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -211,8 +220,8 @@ def handle_events():
             if not d_pressed:
                 Walking = False
 
-        # 샷건 -> 라이플 -> 핸드건 -> 샷건 폼 체인지
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_z:
+        # 샷건 -> 라이플 -> 핸드건 -> 샷건 폼 체인지, 스킬 사용 중에는 불가
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_z and state == 0:
             if position == 2:
                 position = 0
             else:
@@ -220,8 +229,8 @@ def handle_events():
             changing = True
             change_time = 2
 
-        # 샷건 -> 핸드건 -> 라이플 -> 샷건 폼 체인지
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_x:
+        # 샷건 -> 핸드건 -> 라이플 -> 샷건 폼 체인지, 스킬 사용 중에는 불가
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_x and state == 0:
             if position == 0:
                 position = 2
             else:
@@ -232,19 +241,33 @@ def handle_events():
         # 마우스 좌클릭 공격 (라이플은 이동 중에 공격 불가)
         elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT and not Attack and attack_delay == 0:
             mouse_x, mouse_y = event.x, event.y
-            if not (position == 1 and Walking):
-                if not Attack and attack_delay == 0: # attack_delay = 공격 속도
-                    Attack = True
-                    attack_time = 15
+            if position == 0 and state == 1: # 샷건이 방패를 들고 있을 경우
+                if mouse_x < x:              # 캐릭터 보다 왼쪽 좌클릭 시 공격은 못 하지만 왼쪽 을 바라 봄
+                    MoveRight = False
+                elif mouse_x > x:            # 캐릭터 보다 오른쪽 좌클릭 시 공격은 못 하지만 오른쪽 을 바라 봄
+                    MoveRight = True
+            else:
+                if not (position == 1 and Walking):
+                    if not Attack and attack_delay == 0:  # attack_delay = 공격 속도
+                        Attack = True
+                        attack_time = 15
 
-                if mouse_x < x:     # 캐릭터 보다 왼쪽 좌클릭 시 왼쪽 공격, 오른쪽 이동 중 에는 왼쪽 공격후 오른쪽 을 다시 바라 봄
-                    AttackRight = False
-                    if not Walking: # 이동 중 공격이 아니면 공격 후 왼쪽 을 바라 봄
-                        MoveRight = False
-                elif mouse_x > x:   # 캐릭터 보다 오른쪽 좌클릭 시 오른쪽 공격, 왼쪽 이동 중 에는 오른쪽 공격후 왼쪽 을 다시 바라 봄
-                    AttackRight = True
-                    if not Walking: # 이동 중 공격이 아니면 공격 후 오른쪽 을 바라 봄
-                        MoveRight = True
+                    if mouse_x < x:      # 캐릭터 보다 왼쪽 좌클릭 시 왼쪽 공격, 오른쪽 이동 중 에는 왼쪽 공격후 오른쪽 을 다시 바라 봄
+                        AttackRight = False
+                        if not Walking:  # 이동 중 공격이 아니면 공격 후 왼쪽 을 바라 봄
+                            MoveRight = False
+                    elif mouse_x > x:    # 캐릭터 보다 오른쪽 좌클릭 시 오른쪽 공격, 왼쪽 이동 중 에는 오른쪽 공격후 왼쪽 을 다시 바라 봄
+                        AttackRight = True
+                        if not Walking:  # 이동 중 공격이 아니면 공격 후 오른쪽 을 바라 봄
+                            MoveRight = True
+
+        # 샷건 일때 우클릭 중 일시 방패를 듬
+        elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_RIGHT and not Attack and position == 0 and state == 0:
+            state = 1
+
+        # 샷건 일때 우클릭 땔시 방패를 내림
+        elif event.type == SDL_MOUSEBUTTONUP and event.button == SDL_BUTTON_RIGHT and position == 0 and state == 1:
+            state = 0
 
         # t 누를시 hp - 4
         elif event.type == SDL_KEYDOWN and event.key == SDLK_t:
@@ -264,6 +287,8 @@ def update_world():
     if MoveRight and Walking:                # 오른쪽 으로 이동
         if position == 0 and state == 0:     # 샷건 이동 속도, 방패를 들지 않을 경우
             dx = 3
+        elif position == 0 and state == 1:   # 샷건 이동 속도, 방패를 들고 있을 경우
+            dx = 1
         elif position == 1 and state == 0:   # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
             dx = 4
         elif position == 2:                  # 핸드건 이동 속도
@@ -272,6 +297,8 @@ def update_world():
     elif not MoveRight and Walking:          # 왼쪽 으로 이동
         if position == 0 and state == 0:     # 샷건 이동 속도, 방패를 들지 않을 경우
             dx = -3
+        elif position == 0 and state == 1:   # 샷건 이동 속도, 방패를 들고 있을 경우
+            dx = -1
         elif position == 1 and state == 0:   # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
             dx = -4
         elif position == 2:                  # 핸드건 이동 속도
