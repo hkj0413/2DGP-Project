@@ -74,7 +74,12 @@ class Draw_Character:
         self.Hp = 20
         self.max_Hp = 20
         self.Hp_image = load_image('Hp.png')                         # 체력 그림
-
+        self.Bullet_shotgun = 5
+        self.Bullet_shotgun_image = load_image('5.56mm.png')         # 샷건 총알 그림
+        self.Bullet_rifle = 10
+        self.Bullet_rifle_image = load_image('7.62mm.png')           # 라이플 총알 그림
+        self.Bullet_handgun = 15
+        self.Bullet_handgun_image = load_image('9mm.png')            # 핸드건 총알 그림
 
     def update(self):
         global changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay
@@ -161,9 +166,7 @@ class Draw_Character:
                     Hit = False
                     hit_delay = 0
     def draw(self):
-        if changing:
-            pass
-        else:
+        if not changing:
             if Hit:
                 if MoveRight:                                            # 오른쪽 피격 그림
                     self.image.clip_composite_draw(0, 0, 340, 340, 0, '', x, y, 170, 170)
@@ -220,6 +223,30 @@ class Draw_Character:
             else:                                  # 하트 1개당 체력0일 경우 빈칸 그림
                 self.Hp_image.clip_composite_draw(240, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
 
+    def show_Bullet(self):
+        global changing
+        bx = 1060
+        by = 770
+
+        if not changing:
+            if position == 0:
+                for i in range(5):                 # 샷건 최대 총알
+                    if i < self.Bullet_shotgun:    # 샷건 현재 총알 수 만큼 그리고 없으면 빈칸
+                        self.Bullet_shotgun_image.clip_composite_draw(0, 0, 27, 49, 0, '', bx - i * 27, by, 27, 49)
+                    else:
+                        self.Bullet_shotgun_image.clip_composite_draw(27, 0, 27, 49, 0, '', bx - i * 27, by, 27, 49)
+            elif position == 1:
+                for i in range(10):                # 라이플 최대 총알
+                    if i < self.Bullet_rifle:      # 라이플 현재 총알 수 만큼 그리고 없으면 빈칸
+                        self.Bullet_rifle_image.clip_composite_draw(0, 0, 27, 59, 0, '', bx - i * 27, by - 10, 27, 59)
+                    else:
+                        self.Bullet_rifle_image.clip_composite_draw(27, 0, 27, 59, 0, '', bx - i * 27, by - 10, 27, 59)
+            elif position == 2:
+                for i in range(15):                # 핸드건 최대 총알
+                    if i < self.Bullet_handgun:    # 핸드건 최대 총알 수 만큼 그리고 없으면 빈칸
+                        self.Bullet_handgun_image.clip_composite_draw(0, 0, 28, 28, 0, '', bx - i * 28, by + 11, 28, 28)
+                    else:
+                        self.Bullet_handgun_image.clip_composite_draw(28, 0, 28, 28, 0, '', bx - i * 28, by + 11, 28, 28)
 
 def handle_events():
     global running, MoveRight, Walking, Attack, AttackRight, position, state, changing, change_time, attack_time, a_pressed, d_pressed, mouse_x, mouse_y
@@ -352,6 +379,7 @@ def render_world():
     for o in world:
         o.draw()
     character.show_Hp()
+    character.show_Bullet()
     update_canvas()
 
 def reset_world():
