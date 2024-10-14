@@ -305,7 +305,7 @@ def handle_events():
             changing = True
             change_time = 3
 
-        # 마우스 좌클릭 공격 (라이플은 이동 중에 공격 불가)
+        # 마우스 좌클릭 공격 (라이플은 이동 중에 공격 불가), attack_delay == 공격 속도
         elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT and not Attack and attack_delay == 0:
             mouse_x, mouse_y = event.x, event.y
             if position == 0 and state == 1: # 샷건이 방패를 들고 있을 경우
@@ -313,20 +313,30 @@ def handle_events():
                     MoveRight = False
                 elif mouse_x > x:            # 캐릭터 보다 오른쪽 좌클릭 시 공격은 못 하지만 오른쪽 을 바라 봄
                     MoveRight = True
-            else:
-                if not (position == 1 and Walking):
-                    if not Attack and attack_delay == 0:  # attack_delay = 공격 속도
-                        Attack = True
-                        attack_time = 15
 
-                    if mouse_x < x:      # 캐릭터 보다 왼쪽 좌클릭 시 왼쪽 공격, 오른쪽 이동 중 에는 왼쪽 공격후 오른쪽 을 다시 바라 봄
-                        AttackRight = False
-                        if not Walking:  # 이동 중 공격이 아니면 공격 후 왼쪽 을 바라 봄
-                            MoveRight = False
-                    elif mouse_x > x:    # 캐릭터 보다 오른쪽 좌클릭 시 오른쪽 공격, 왼쪽 이동 중 에는 오른쪽 공격후 왼쪽 을 다시 바라 봄
-                        AttackRight = True
-                        if not Walking:  # 이동 중 공격이 아니면 공격 후 오른쪽 을 바라 봄
-                            MoveRight = True
+            elif (                           # 나머지 경우
+                    (position == 0 and state == 0 and character.Bullet_shotgun > 0) or
+                    (position == 1 and not Walking and character.Bullet_rifle > 0) or
+                    (position == 2 and state == 0 and character.Bullet_handgun > 0)
+            ):
+                if position == 0:    # 샷건 총알 감소
+                    character.Bullet_shotgun -= 1
+                elif position == 1:  # 라이플 총알 감소
+                    character.Bullet_rifle -= 1
+                elif position == 2:  # 핸드건 총알 감소
+                    character.Bullet_handgun -= 1
+
+                Attack = True
+                attack_time = 15
+
+                if mouse_x < x:      # 캐릭터 보다 왼쪽 좌클릭 시 왼쪽 공격, 오른쪽 이동 중 에는 왼쪽 공격후 오른쪽 을 다시 바라 봄
+                    AttackRight = False
+                    if not Walking:  # 이동 중 공격이 아니면 공격 후 왼쪽 을 바라 봄
+                        MoveRight = False
+                elif mouse_x > x:    # 캐릭터 보다 오른쪽 좌클릭 시 오른쪽 공격, 왼쪽 이동 중 에는 오른쪽 공격후 왼쪽 을 다시 바라 봄
+                    AttackRight = True
+                    if not Walking:  # 이동 중 공격이 아니면 공격 후 오른쪽 을 바라 봄
+                        MoveRight = True
 
         # 샷건 일때 우클릭 중 일시 방패를 듬
         elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_RIGHT and not Attack and position == 0 and state == 0:
