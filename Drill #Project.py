@@ -75,6 +75,7 @@ class Draw_Character:
         self.max_Hp = 20
         self.Hp_image = load_image('Hp.png')                         # 체력 그림
 
+
     def update(self):
         global changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay
         self.temp += 1
@@ -142,11 +143,11 @@ class Draw_Character:
             if attack_time <= 0:
                 Attack = False
                 if position == 0:
-                    attack_delay = 16    # 샷건 공격 속도
+                    attack_delay = 30    # 샷건 공격 속도 0.5초 (60 FPS)
                 elif position == 1:
-                    attack_delay = 15    # 라이플 공격 속도
+                    attack_delay = 60    # 라이플 공격 속도 1초 (60 FPS)
                 elif position == 2:
-                    attack_delay = 6     # 권총 공격 속도
+                    attack_delay = 12     # 권총 공격 속도 0.2초 (60 FPS)
         if not attack_delay == 0:        # 공격 속도 attack_delay == 0 이 되기 전까지 공격 불가
             if attack_delay > 1:
                 attack_delay -= 1
@@ -190,7 +191,7 @@ class Draw_Character:
             else:
                 self.Hp -= damage
             Hit = True
-            hit_delay = 11
+            hit_delay = 30           # 0.5초 무적 (60 FPS)
             if self.Hp <= 0:
                 self.Hp = 0
             self.show_Hp()
