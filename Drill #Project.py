@@ -259,7 +259,7 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             running = False
 
-        # d 누를시 오른쪽 으로 이동
+        # d 누를시 오른쪽 으로 이동, a를 누르는 중에 눌러도 오른쪽 으로 이동
         elif event.type == SDL_KEYDOWN and event.key == SDLK_d:
             MoveRight = True
             Walking = True
@@ -268,12 +268,12 @@ def handle_events():
         # d 손 땔시 오른쪽 이동 멈춤
         elif event.type == SDL_KEYUP and event.key == SDLK_d:
             d_pressed = False
-            if a_pressed:
+            if a_pressed:     # a키를 누르 면서 d를 땔시 다시 왼쪽 으로 이동
                 MoveRight = False
-            if not a_pressed:
+            if not a_pressed: # 아닌 경우 멈춤
                 Walking = False
 
-        # a 누를시 왼쪽 으로 이동
+        # a 누를시 왼쪽 으로 이동, d를 누르는 중에 눌러도 왼쪽 으로 이동
         elif event.type == SDL_KEYDOWN and event.key == SDLK_a:
             MoveRight = False
             Walking = True
@@ -282,9 +282,9 @@ def handle_events():
         # a 손 땔시 왼쪽 이동 멈춤
         elif event.type == SDL_KEYUP and event.key == SDLK_a:
             a_pressed = False
-            if d_pressed:
+            if d_pressed:     # d키를 누르 면서 a를 땔시 다시 오른쪽 으로 이동
                 MoveRight = True
-            if not d_pressed:
+            if not d_pressed: # 아닌 경우 멈춤
                 Walking = False
 
         # 샷건 -> 라이플 -> 핸드건 -> 샷건 폼 체인지, 스킬 사용 중에는 불가
@@ -327,7 +327,7 @@ def handle_events():
                     character.Bullet_handgun -= 1
 
                 Attack = True
-                attack_time = 15
+                attack_time = 15     # 공격 모션 시간
 
                 if mouse_x < x:      # 캐릭터 보다 왼쪽 좌클릭 시 왼쪽 공격, 오른쪽 이동 중 에는 왼쪽 공격후 오른쪽 을 다시 바라 봄
                     AttackRight = False
