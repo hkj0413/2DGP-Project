@@ -71,14 +71,14 @@ class Draw_Character:
         self.framex = 0
         self.temp = 0
         self.image = load_image('HKCAWS_wait.png')                   # 기본 캐릭터 그림
-        self.Hp = 20
-        self.max_Hp = 20
+        self.Hp = 20                                                 # 현재 체력
+        self.max_Hp = 20                                             # 최대 체력
         self.Hp_image = load_image('Hp.png')                         # 체력 그림
-        self.Bullet_shotgun = 5
+        self.Bullet_shotgun = 7                                      # 샷건 총알 개수
         self.Bullet_shotgun_image = load_image('5.56mm.png')         # 샷건 총알 그림
-        self.Bullet_rifle = 10
+        self.Bullet_rifle = 12                                       # 라이플 총알 개수
         self.Bullet_rifle_image = load_image('7.62mm.png')           # 라이플 총알 그림
-        self.Bullet_handgun = 15
+        self.Bullet_handgun = 20                                     # 핸드건 총알 개수
         self.Bullet_handgun_image = load_image('9mm.png')            # 핸드건 총알 그림
 
     def update(self):
@@ -152,7 +152,7 @@ class Draw_Character:
                 elif position == 1:
                     attack_delay = 60    # 라이플 공격 속도 1초 (60 FPS)
                 elif position == 2:
-                    attack_delay = 12     # 권총 공격 속도 0.2초 (60 FPS)
+                    attack_delay = 12    # 권총 공격 속도 0.2초 (60 FPS)
         if not attack_delay == 0:        # 공격 속도 attack_delay == 0 이 되기 전까지 공격 불가
             if attack_delay > 1:
                 attack_delay -= 1
@@ -230,19 +230,19 @@ class Draw_Character:
 
         if not changing:
             if position == 0:
-                for i in range(5):                 # 샷건 최대 총알
+                for i in range(7):                 # 샷건 최대 총알
                     if i < self.Bullet_shotgun:    # 샷건 현재 총알 수 만큼 그리고 없으면 빈칸
                         self.Bullet_shotgun_image.clip_composite_draw(0, 0, 27, 49, 0, '', bx - i * 27, by, 27, 49)
                     else:
                         self.Bullet_shotgun_image.clip_composite_draw(27, 0, 27, 49, 0, '', bx - i * 27, by, 27, 49)
             elif position == 1:
-                for i in range(10):                # 라이플 최대 총알
+                for i in range(12):                # 라이플 최대 총알
                     if i < self.Bullet_rifle:      # 라이플 현재 총알 수 만큼 그리고 없으면 빈칸
                         self.Bullet_rifle_image.clip_composite_draw(0, 0, 27, 59, 0, '', bx - i * 27, by - 10, 27, 59)
                     else:
                         self.Bullet_rifle_image.clip_composite_draw(27, 0, 27, 59, 0, '', bx - i * 27, by - 10, 27, 59)
             elif position == 2:
-                for i in range(15):                # 핸드건 최대 총알
+                for i in range(20):                # 핸드건 최대 총알
                     if i < self.Bullet_handgun:    # 핸드건 최대 총알 수 만큼 그리고 없으면 빈칸
                         self.Bullet_handgun_image.clip_composite_draw(0, 0, 28, 28, 0, '', bx - i * 28, by + 11, 28, 28)
                     else:
