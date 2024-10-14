@@ -155,7 +155,10 @@ class Draw_Character:
                 self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
 
     def take_damage(self, damage):
-        self.Hp -= damage
+        if position == 0 and state == 1:
+            self.Hp -= int(damage / 2)
+        else:
+            self.Hp -= damage
         if self.Hp <= 0:
             self.Hp = 0
         self.show_Hp()
