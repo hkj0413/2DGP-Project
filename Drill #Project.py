@@ -229,6 +229,12 @@ def handle_events():
                     AttackRight = True
                     if not Walking:
                         MoveRight = True
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_t:
+            character.take_damage(4)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_y:
+            character.heal(1)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_u:
+            character.plus_max_Hp(4)
 
 def update_world():
     global x, y
@@ -251,7 +257,7 @@ def update_world():
         x += dx
 
     background.update(dx)
-    
+
     for o in world:
         o.update()
 
