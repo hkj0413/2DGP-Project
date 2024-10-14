@@ -182,18 +182,19 @@ def handle_events():
             change_time = 2
         elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT and not Attack and attack_delay == 0:
             mouse_x, mouse_y = event.x, event.y
-            if not Attack and attack_delay == 0:
-                Attack = True
-                attack_time = 15
+            if not (position == 1 and Walking):
+                if not Attack and attack_delay == 0:
+                    Attack = True
+                    attack_time = 15
 
-            if mouse_x < x:
-                AttackRight = False
-                if not Walking:
-                    MoveRight = False
-            elif mouse_x > x:
-                AttackRight = True
-                if not Walking:
-                    MoveRight = True
+                if mouse_x < x:
+                    AttackRight = False
+                    if not Walking:
+                        MoveRight = False
+                elif mouse_x > x:
+                    AttackRight = True
+                    if not Walking:
+                        MoveRight = True
 
 def update_world():
     global x, y
