@@ -11,12 +11,15 @@ MoveRight = True
 Walking = False
 Attack = False
 AttackRight = True
+Hit = False
 
 changing = False
 change_time = 0
 
 attack_time = 0
 attack_delay = 0
+
+hit_delay = 0
 
 d_pressed = False
 a_pressed = False
@@ -73,51 +76,64 @@ class Draw_Character:
         self.Hp_image = load_image('Hp.png')                         # 체력 그림
 
     def update(self):
-        global changing, change_time, Attack, attack_time, attack_delay
+        global changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay
         self.temp += 1
-        if Attack:                                                   # 공격 모션
+        if Hit:
+            if position == 0 and state == 1:
+                if self.temp % 3 == 0:
+                    self.framex = (self.framex + 1) % 14
+                    self.image = load_image('HKCAWS_shield.png')     # 샷건 방패 들기 피격
+            else:
+                self.framex = 0
+                if position == 0:
+                    self.image = load_image('HKCAWS_damage.png')     # 샷건 피격
+                elif position == 1:
+                    self.image = load_image('R93_damage.png')        # 라이플 피격
+                elif position == 2:
+                    self.image = load_image('GSH18Mod_damage.png')   # 핸드건 피격
+        elif Attack:                                                 # 공격 모션
             if attack_time == 15:
                 self.framex = 0
             if self.temp % 4 == 0:
                 if position == 0:
                     self.framex = (self.framex + 1) % 15
-                    self.image = load_image('HKCAWS_attack.png')     # 샷건
+                    self.image = load_image('HKCAWS_attack.png')     # 샷건 공격
                 elif position == 1:
                     self.framex = (self.framex + 1) % 7
-                    self.image = load_image('R93_attack.png')        # 라이플
+                    self.image = load_image('R93_attack.png')        # 라이플 공격
                 elif position == 2:
                     self.framex = (self.framex + 1) % 5
-                    self.image = load_image('GSH18Mod_attack.png')   # 핸드건
+                    self.image = load_image('GSH18Mod_attack.png')   # 핸드건 공격
         elif not Walking:                                            # 대기 모션
             if self.temp % 3 == 0:
                 if position == 0:
                     if state == 0:
                         self.framex = (self.framex + 1) % 14
-                        self.image = load_image('HKCAWS_wait.png')   # 샷건
+                        self.image = load_image('HKCAWS_wait.png')   # 샷건 대기
                     elif state == 1:
                         self.framex = (self.framex + 1) % 14
-                        self.image = load_image('HKCAWS_shield.png') # 샷건 방패 들기
+                        self.image = load_image('HKCAWS_shield.png') # 샷건 방패 들기 대기
                 elif position == 1:
                     self.framex = (self.framex + 1) % 14
-                    self.image = load_image('R93_wait.png')          # 라이플
+                    self.image = load_image('R93_wait.png')          # 라이플 대기
                 elif position == 2:
                     self.framex = (self.framex + 1) % 11
-                    self.image = load_image('GSH18Mod_wait.png')     # 핸드건
+                    self.image = load_image('GSH18Mod_wait.png')     # 핸드건 대기
         elif Walking:                                                # 이동 모션
             if position == 0 and state == 1:
                 if self.temp % 3 == 0:
                     self.framex = (self.framex + 1) % 14
-                    self.image = load_image('HKCAWS_shield.png')     # 샷건 방패 들기
+                    self.image = load_image('HKCAWS_shield.png')     # 샷건 방패 들기 이동
             else:
                 if self.temp % 4 == 0:
                     self.framex = (self.framex + 1) % 6
                     if position == 0 and state == 0:
-                        self.image = load_image('HKCAWS_move.png')   # 샷건
+                        self.image = load_image('HKCAWS_move.png')   # 샷건 이동
                     elif position == 1:
-                        self.image = load_image('R93_move.png')      # 라이플
+                        self.image = load_image('R93_move.png')      # 라이플 이동
                     elif position == 2:
-                        self.image = load_image('GSH18Mod_move.png') # 핸드건
-        if changing:                     # 폼 체인지 중에는 그림이 그려 지지 않아 깜빡임 구현
+                        self.image = load_image('GSH18Mod_move.png') # 핸드건 이동
+        if changing:                     # 폼 체인지 중에는 그림이 그려 지지 않아서 깜빡임 구현
             change_time -= 1
             if change_time <= 0:
                 changing = False
@@ -131,37 +147,53 @@ class Draw_Character:
                     attack_delay = 15    # 라이플 공격 속도
                 elif position == 2:
                     attack_delay = 6     # 권총 공격 속도
-        if not attack_delay == 0:        # 공격 속도 attack_delay == 0이 되기 전까지 공격 불가
+        if not attack_delay == 0:        # 공격 속도 attack_delay == 0 이 되기 전까지 공격 불가
             if attack_delay > 1:
                 attack_delay -= 1
             elif attack_delay == 1:
                 attack_delay = 0
-
+        if Hit:
+            if not hit_delay == 0:       # 피격 면역 hit_delay == 0 이 되기 전까지 무적
+                if hit_delay > 1:
+                    hit_delay -= 1
+                elif hit_delay == 1:
+                    Hit = False
+                    hit_delay = 0
     def draw(self):
         if changing:
             pass
         else:
-            if MoveRight and not Walking and not Attack:            # 오른쪽 대기 그림
-                self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
-            elif not MoveRight and not Walking and not Attack:      # 왼쪽 대기 그림
-                self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
-            elif MoveRight and Walking and not Attack:              # 오른쪽 이동 그림
-                self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
-            elif not MoveRight and Walking and not Attack:          # 왼쪽 이동 그림
-                self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
-            elif AttackRight and Attack:                            # 오른쪽 공격 그림
-                self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
-            elif not AttackRight and Attack:                         # 왼쪽 공격 그림
-                self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
+            if Hit:
+                if MoveRight:                                            # 오른쪽 피격 그림
+                    self.image.clip_composite_draw(0, 0, 340, 340, 0, '', x, y, 170, 170)
+                elif not MoveRight:                                      # 왼쪽 피격 그림
+                    self.image.clip_composite_draw(0, 0, 340, 340, 0, 'h', x, y, 170, 170)
+            else:
+                if MoveRight and not Walking and not Attack:             # 오른쪽 대기 그림
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
+                elif not MoveRight and not Walking and not Attack:       # 왼쪽 대기 그림
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
+                elif MoveRight and Walking and not Attack:               # 오른쪽 이동 그림
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
+                elif not MoveRight and Walking and not Attack:           # 왼쪽 이동 그림
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
+                elif AttackRight and Attack:                             # 오른쪽 공격 그림
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
+                elif not AttackRight and Attack:                         # 왼쪽 공격 그림
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
 
     def take_damage(self, damage):
-        if position == 0 and state == 1:
-            self.Hp -= int(damage / 2)
-        else:
-            self.Hp -= damage
-        if self.Hp <= 0:
-            self.Hp = 0
-        self.show_Hp()
+        global Hit, hit_delay
+        if not Hit and hit_delay == 0:
+            if position == 0 and state == 1:
+                self.Hp -= int(damage / 2)
+            else:
+                self.Hp -= damage
+            Hit = True
+            hit_delay = 11
+            if self.Hp <= 0:
+                self.Hp = 0
+            self.show_Hp()
 
     def heal(self, healpack):
         self.Hp += healpack
@@ -230,7 +262,7 @@ def handle_events():
             else:
                 position += 1
             changing = True
-            change_time = 2
+            change_time = 3
 
         # 샷건 -> 핸드건 -> 라이플 -> 샷건 폼 체인지, 스킬 사용 중에는 불가
         elif event.type == SDL_KEYDOWN and event.key == SDLK_x and state == 0:
@@ -239,7 +271,7 @@ def handle_events():
             else:
                 position -= 1
             changing = True
-            change_time = 2
+            change_time = 3
 
         # 마우스 좌클릭 공격 (라이플은 이동 중에 공격 불가)
         elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT and not Attack and attack_delay == 0:
