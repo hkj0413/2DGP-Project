@@ -72,7 +72,7 @@ class Grass:
         pass
 
     def draw(self):
-        self.image.draw(self.x, 45, 30, 30)
+        self.image.draw(self.x - bg_x, 45 - bg_y, 30, 30)
 
 class Ground:
     image = None
@@ -86,7 +86,7 @@ class Ground:
         pass
 
     def draw(self):
-        self.image.draw(self.x, 15, 30, 30)
+        self.image.draw(self.x - bg_x, 15 - bg_y, 30, 30)
 
 class Draw_Character:
     image_Hp = None
@@ -255,23 +255,23 @@ class Draw_Character:
 
         if MoveRight and Walking:  # 오른쪽 으로 이동
             if position == 0 and state == 0 and not Reload:  # 샷건 이동 속도, 방패를 들지 않을 경우
-                dx = 3
+                dx = 2
             elif position == 0 and (state == 1 or Reload):  # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
                 dx = 1
             elif position == 1 and state == 0:  # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
-                dx = 4
+                dx = 3
             elif position == 2:  # 핸드건 이동 속도
-                dx = 5
+                dx = 4
             x += dx
         elif not MoveRight and Walking:  # 왼쪽 으로 이동
             if position == 0 and state == 0 and not Reload:  # 샷건 이동 속도, 방패를 들지 않을 경우
-                dx = -3
+                dx = -2
             elif position == 0 and (state == 1 or Reload):  # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
                 dx = -1
             elif position == 1 and state == 0:  # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
-                dx = -4
+                dx = -3
             elif position == 2:  # 핸드건 이동 속도
-                dx = -5
+                dx = -4
             x += dx
 
         if x < 34:                       # 화면 왼쪽 경계 이동 불가
@@ -545,10 +545,10 @@ def reset_world():
 
     background = Background()
 
-    ground = [Ground(i) for i in range(0, 35 + 1) if not 30 <= i <= 33]
+    ground = [Ground(i) for i in range(0, 68 + 1) if (i < 30 or i > 33) and (i < 44 or i > 49)]
     world += ground
 
-    grass = [Grass(i) for i in range(0, 35 + 1) if not 30 <= i <= 33]
+    grass = [Grass(i) for i in range(0, 68 + 1) if (i < 30 or i > 33) and (i < 44 or i > 49)]
     world += grass
 
     character = Draw_Character()
