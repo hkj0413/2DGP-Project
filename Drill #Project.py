@@ -447,7 +447,7 @@ def handle_events():
                 reload_time = 80
 
         # 샷건 -> 라이플 -> 핸드건 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프 중에는 불가능
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_z and state == 0 and not Attack and not Reload:
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_z and state == 0 and not Attack and not Reload and not Jump and not Fall:
             if position == 2:
                 position = 0
             else:
@@ -456,7 +456,7 @@ def handle_events():
             change_time = 3
 
         # 샷건 -> 핸드건 -> 라이플 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프 중에는 불가능
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_x and state == 0 and not Attack and not Reload:
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_x and state == 0 and not Attack and not Reload and not Jump and not Fall:
             if position == 0:
                 position = 2
             else:
