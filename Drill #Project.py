@@ -8,6 +8,7 @@ x, y = 40, 110
 
 position = 0
 state = 0
+shield_enhance = 1
 
 MoveRight = True
 Walking = False
@@ -103,6 +104,7 @@ class Draw_Character:
 
     def update(self):
         global changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay, Reload, reload_time
+
         self.temp += 1
         if Reload:
             if reload_time == 80:
@@ -201,7 +203,7 @@ class Draw_Character:
                 elif position == 1:
                     self.Bullet_rifle = 12
                 elif position == 2:
-                    self.Buller_handgun = 20
+                    self.Bullet_handgun = 20
 
     def draw(self):
         if not changing:
@@ -235,7 +237,7 @@ class Draw_Character:
         global Hit, hit_delay
         if not Hit and hit_delay == 0:
             if position == 0 and (state == 1 or Reload):
-                self.Hp -= int(damage / 2)
+                self.Hp -= max(damage - shield_enhance, 0)
             else:
                 self.Hp -= damage
             Hit = True
@@ -439,6 +441,11 @@ def update_world():
         elif position == 2:                                 # 핸드건 이동 속도
             dx = -5
         x += dx
+
+    if x < 34:                                               # 화면 왼쪽 경계 이동 불가
+        x = 34
+    elif x > WIDTH - 34:                                     # 화면 오른쪽 경계 이동 불가
+        x = WIDTH - 34
 
     background.update(dx)
 
