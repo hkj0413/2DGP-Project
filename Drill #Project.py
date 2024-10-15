@@ -51,9 +51,12 @@ class Background:
         self.image.clip_draw(bg_x, bg_y, WIDTH, HEIGHT, WIDTH // 2, HEIGHT // 2)
 
 class Grass:
+    image = None
+
     def __init__(self, i = 0):
         self.x = i * 30 + 15
-        self.image = load_image('grass.png')
+        if Grass.image == None:
+            Grass.image = load_image('grass.png')
 
     def update(self):
         pass
@@ -62,9 +65,12 @@ class Grass:
         self.image.draw(self.x, 45, 30, 30)
 
 class Ground:
+    image = None
+
     def __init__(self, i = 0):
         self.x = i * 30 + 15
-        self.image = load_image('ground.png')
+        if Ground.image == None:
+            Ground.image = load_image('ground.png')
 
     def update(self):
         pass
@@ -90,7 +96,14 @@ class Draw_Character:
     def update(self):
         global changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay, Reload, reload_time
         self.temp += 1
-        if Hit:
+        if Reload:
+            if reload_time == 80:
+                self.framex = 0
+            if self.temp % 5 == 0:
+                if position == 0:
+                    self.framex = (self.framex + 1) % 16
+                    self.image = load_image('HKCAWS_reload.png')
+        elif Hit:
             if position == 0 and state == 1:
                 if self.temp % 3 == 0:
                     self.framex = (self.framex + 1) % 14
@@ -103,13 +116,6 @@ class Draw_Character:
                     self.image = load_image('R93_damage.png')        # 라이플 피격
                 elif position == 2:
                     self.image = load_image('GSH18Mod_damage.png')   # 핸드건 피격
-        elif Reload:
-            if reload_time == 64:
-                self.framex = 0
-            if self.temp % 4 == 0:
-                if position == 0:
-                    self.framex = (self.framex + 1) % 16
-                    self.image = load_image('HKCAWS_reload.png')
         elif Attack:
             if attack_time == 15:
                 self.framex = 0
@@ -182,19 +188,25 @@ class Draw_Character:
             reload_time -= 1
             if reload_time <= 0:
                 Reload = False
+                if position == 0:
+                    self.Bullet_shotgun = 7
+                elif position == 1:
+                    self.Bullet_rifle = 12
+                elif position == 2:
+                    self.Buller_handgun = 20
 
     def draw(self):
         if not changing:
-            if Hit:
-                if MoveRight:            # 오른쪽 피격 그림
-                    self.image.clip_composite_draw(0, 0, 340, 340, 0, '', x, y, 170, 170)
-                elif not MoveRight:      # 왼쪽 피격 그림
-                    self.image.clip_composite_draw(0, 0, 340, 340, 0, 'h', x, y, 170, 170)
-            elif Reload:
+            if Reload:
                 if MoveRight:            # 오른쪽 장전 그림
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
                 elif not MoveRight:      # 왼쪽 장전 그림
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
+            elif Hit:
+                if MoveRight:            # 오른쪽 피격 그림
+                    self.image.clip_composite_draw(0, 0, 340, 340, 0, '', x, y, 170, 170)
+                elif not MoveRight:      # 왼쪽 피격 그림
+                    self.image.clip_composite_draw(0, 0, 340, 340, 0, 'h', x, y, 170, 170)
             elif Attack:
                 if AttackRight:          # 오른쪽 공격 그림
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
@@ -214,12 +226,12 @@ class Draw_Character:
     def take_damage(self, damage):
         global Hit, hit_delay
         if not Hit and hit_delay == 0:
-            if position == 0 and state == 1:
+            if position == 0 and (state == 1 or Reload):
                 self.Hp -= int(damage / 2)
             else:
                 self.Hp -= damage
             Hit = True
-            hit_delay = 30           # 0.5초 무적 (60 FPS)
+            hit_delay = 30               # 0.5초 무적 (60 FPS)
             if self.Hp <= 0:
                 self.Hp = 0
             self.show_Hp()
@@ -317,7 +329,7 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and not Reload:
             if position == 0 and character.Bullet_shotgun == 0:
                 Reload = True
-                reload_time = 64
+                reload_time = 80
 
         # 샷건 -> 라이플 -> 핸드건 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전 중에는 불가능
         elif event.type == SDL_KEYDOWN and event.key == SDLK_z and state == 0 and not Attack and not Reload:
@@ -390,27 +402,33 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_u:
             character.plus_max_Hp(4)
 
+        # i 누를시 모든 탄창 비우기
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_i:
+            character.Bullet_shotgun = 0
+            character.Bullet_rifle = 0
+            character.Bullet_handgun = 0
+
 def update_world():
     global x, y
     dx = 0
-    if MoveRight and Walking:                # 오른쪽 으로 이동
-        if position == 0 and state == 0:     # 샷건 이동 속도, 방패를 들지 않을 경우
+    if MoveRight and Walking:                               # 오른쪽 으로 이동
+        if position == 0 and state == 0 and not Reload:     # 샷건 이동 속도, 방패를 들지 않을 경우
             dx = 3
-        elif position == 0 and state == 1:   # 샷건 이동 속도, 방패를 들고 있을 경우
+        elif position == 0 and (state == 1 or Reload):      # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
             dx = 1
-        elif position == 1 and state == 0:   # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
+        elif position == 1 and state == 0:                  # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
             dx = 4
-        elif position == 2:                  # 핸드건 이동 속도
+        elif position == 2:                                 # 핸드건 이동 속도
             dx = 5
         x += dx
-    elif not MoveRight and Walking:          # 왼쪽 으로 이동
-        if position == 0 and state == 0:     # 샷건 이동 속도, 방패를 들지 않을 경우
+    elif not MoveRight and Walking:                         # 왼쪽 으로 이동
+        if position == 0 and state == 0 and not Reload:     # 샷건 이동 속도, 방패를 들지 않을 경우
             dx = -3
-        elif position == 0 and state == 1:   # 샷건 이동 속도, 방패를 들고 있을 경우
+        elif position == 0 and (state == 1 or Reload):      # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
             dx = -1
-        elif position == 1 and state == 0:   # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
+        elif position == 1 and state == 0:                  # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
             dx = -4
-        elif position == 2:                  # 핸드건 이동 속도
+        elif position == 2:                                 # 핸드건 이동 속도
             dx = -5
         x += dx
 
@@ -436,10 +454,10 @@ def reset_world():
 
     background = Background()
 
-    ground = [Ground(i) for i in range(0, 35 + 1)]
+    ground = [Ground(i) for i in range(0, 35 + 1) if not 30 <= i <= 33]
     world += ground
 
-    grass = [Grass(i) for i in range(0, 35 + 1)]
+    grass = [Grass(i) for i in range(0, 35 + 1) if not 30 <= i <= 33]
     world += grass
 
     character = Draw_Character()
