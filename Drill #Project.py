@@ -1,7 +1,4 @@
-from random import randint
-
 from pico2d import *
-import random
 
 WIDTH, HEIGHT = 1080, 800
 x, y = 40, 110
@@ -39,19 +36,26 @@ a_pressed = False
 BG_WIDTH, BG_HEIGHT = 2060, 1200
 bg_x = 0
 bg_y = 0
+dx = 0
+dy = 0
 
 class Background:
     def __init__(self):
         self.image = load_image('1stage.png')
 
-    def update(self, dx):
-        global bg_x
+    def update(self, dx, dy):
+        global bg_x, bg_y
         bg_x += dx
+        bg_y += dy
 
         if bg_x < 0:
             bg_x = 0
         if bg_x > BG_WIDTH - WIDTH:
             bg_x = BG_WIDTH - WIDTH
+        if bg_y < 0:
+            bg_y = 0
+        if bg_y > BG_HEIGHT - HEIGHT:
+            bg_y = BG_HEIGHT - HEIGHT
 
     def draw(self):
         self.image.clip_draw(bg_x, bg_y, WIDTH, HEIGHT, WIDTH // 2, HEIGHT // 2)
@@ -93,7 +97,6 @@ class Draw_Character:
     def __init__(self):
         self.framex = 0
         self.temp = 0
-        self.image = load_image('HKCAWS_wait.png')                   # 기본 캐릭터 그림
         self.Hp = 20                                                 # 현재 체력
         self.max_Hp = 20                                             # 최대 체력
         if Draw_Character.image_Hp == None:
@@ -108,9 +111,28 @@ class Draw_Character:
         if Draw_Character.image_Bullet_handgun == None:
             self.Bullet_handgun_image = load_image('9mm.png')        # 핸드건 총알 그림
 
+        self.images = {                                              # 이미지 미리 로드 하기
+            "wait_shotgun": load_image('HKCAWS_wait.png'),
+            "wait_rifle": load_image('R93_wait.png'),
+            "wait_handgun": load_image('GSH18Mod_wait.png'),
+            "move_shotgun": load_image('HKCAWS_move.png'),
+            "move_rifle": load_image('R93_move.png'),
+            "move_handgun": load_image('GSH18Mod_move.png'),
+            "attack_shotgun": load_image('HKCAWS_attack.png'),
+            "attack_rifle": load_image('R93_attack.png'),
+            "attack_handgun": load_image('GSH18Mod_attack.png'),
+            "damage_shotgun": load_image('HKCAWS_damage.png'),
+            "damage_rifle": load_image('R93_damage.png'),
+            "damage_handgun": load_image('GSH18Mod_damage.png'),
+            "reload_shotgun": load_image('HKCAWS_reload.png'),
+            "shield_shotgun": load_image('HKCAWS_shield.png'),
+        }
+
+        self.image = self.images["wait_shotgun"]                     # 기본 캐릭터 그림
+
     def update(self):
         global changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay, Reload, reload_time
-
+        global x, y, dx, dy, Jump, jump_velocity, Fall, fall_velocity
         self.temp += 1
         if Reload:
             if reload_time == 80:
@@ -118,80 +140,80 @@ class Draw_Character:
             if self.temp % 5 == 0:
                 if position == 0:
                     self.framex = (self.framex + 1) % 16
-                    self.image = load_image('HKCAWS_reload.png')
+                    self.image = self.images["reload_shotgun"]
         elif Hit:
             if position == 0 and state == 1:
                 if self.temp % 3 == 0:
                     self.framex = (self.framex + 1) % 14
-                    self.image = load_image('HKCAWS_shield.png')         # 샷건 방패 들기 피격
+                    self.image = self.images["shield_shotgun"]           # 샷건 방패 들기 피격
             else:
                 self.framex = 0
                 if position == 0:
-                    self.image = load_image('HKCAWS_damage.png')         # 샷건 피격
+                    self.image = self.images["damage_shotgun"]           # 샷건 피격
                 elif position == 1:
-                    self.image = load_image('R93_damage.png')            # 라이플 피격
+                    self.image = self.images["damage_rifle"]             # 라이플 피격
                 elif position == 2: \
-                    self.image = load_image('GSH18Mod_damage.png')       # 핸드건 피격
+                    self.image = self.images["damage_handgun"]           # 핸드건 피격
         elif Attack:
             if attack_time == 15:
                 self.framex = 0
             if self.temp % 4 == 0:
                 if position == 0:
                     self.framex = (self.framex + 1) % 15
-                    self.image = load_image('HKCAWS_attack.png')         # 샷건 공격
+                    self.image = self.images["attack_shotgun"]           # 샷건 공격
                 elif position == 1:
                     self.framex = (self.framex + 1) % 7
-                    self.image = load_image('R93_attack.png')            # 라이플 공격
+                    self.image = self.images["attack_rifle"]             # 라이플 공격
                 elif position == 2:
                     self.framex = (self.framex + 1) % 5
-                    self.image = load_image('GSH18Mod_attack.png')       # 핸드건 공격
+                    self.image = self.images["attack_handgun"]           # 핸드건 공격
         elif not Walking:
             if Jump or Fall:
                 self.framex = 0
                 if position == 0:
-                    self.image = load_image('HKCAWS_move.png')           # 샷건 점프, 추락
+                    self.image = self.images["move_shotgun"]             # 샷건 점프, 추락
                 elif position == 1:
-                    self.image = load_image('R93_move.png')              # 라이플 점프, 추락
+                    self.image = self.images["move_rifle"]               # 라이플 점프, 추락
                 elif position == 2:
-                    self.image = load_image('GSH18Mod_move.png')         # 핸드건 점프, 추락
+                    self.image = self.images["move_handgun"]             # 핸드건 점프, 추락
             else:
                 if self.temp % 3 == 0:
                     if position == 0:
                         if state == 0:
                             self.framex = (self.framex + 1) % 14
-                            self.image = load_image('HKCAWS_wait.png')   # 샷건 대기
+                            self.image = self.images["wait_shotgun"]     # 샷건 대기
                         elif state == 1:
                             self.framex = (self.framex + 1) % 14
-                            self.image = load_image('HKCAWS_shield.png') # 샷건 방패 들기 대기
+                            self.image = self.images["shield_shotgun"]   # 샷건 방패 들기 대기
                     elif position == 1:
                         self.framex = (self.framex + 1) % 14
-                        self.image = load_image('R93_wait.png')          # 라이플 대기
+                        self.image = self.images["wait_rifle"]           # 라이플 대기
                     elif position == 2:
                         self.framex = (self.framex + 1) % 11
-                        self.image = load_image('GSH18Mod_wait.png')     # 핸드건 대기
+                        self.image = self.images["wait_handgun"]         # 핸드건 대기
         elif Walking:
             if Jump or Fall:
                 self.framex = 0
                 if position == 0:
-                    self.image = load_image('HKCAWS_move.png')           # 샷건 점프, 추락 이동
+                    self.image = self.images["move_shotgun"]             # 샷건 점프, 추락 이동
                 elif position == 1:
-                    self.image = load_image('R93_move.png')              # 라이플 점프, 추락 이동
+                    self.image = self.images["move_rifle"]               # 라이플 점프, 추락 이동
                 elif position == 2:
-                    self.image = load_image('GSH18Mod_move.png')         # 핸드건 점프, 추락 이동
+                    self.image = self.images["move_handgun"]             # 핸드건 점프, 추락 이동
             else:
                 if position == 0 and state == 1:
                     if self.temp % 3 == 0:
                         self.framex = (self.framex + 1) % 14
-                        self.image = load_image('HKCAWS_shield.png')     # 샷건 방패 들기 이동
+                        self.image = self.images["shield_shotgun"]       # 샷건 방패 들기 이동
                 else:
                     if self.temp % 4 == 0:
                         self.framex = (self.framex + 1) % 6
                         if position == 0 and state == 0:
-                            self.image = load_image('HKCAWS_move.png')   # 샷건 이동
+                            self.image = self.images["move_shotgun"]     # 샷건 이동
                         elif position == 1:
-                            self.image = load_image('R93_move.png')      # 라이플 이동
+                            self.image = self.images["move_rifle"]       # 라이플 이동
                         elif position == 2:
-                            self.image = load_image('GSH18Mod_move.png') # 핸드건 이동
+                            self.image = self.images["move_handgun"]     # 핸드건 이동
         if changing:                     # 폼 체인지 중에는 그림이 그려 지지 않아서 깜빡임 구현
             change_time -= 1
             if change_time <= 0:
@@ -228,6 +250,60 @@ class Draw_Character:
                     self.Bullet_rifle = 12
                 elif position == 2:
                     self.Bullet_handgun = 20
+
+        dx = 0
+
+        if MoveRight and Walking:  # 오른쪽 으로 이동
+            if position == 0 and state == 0 and not Reload:  # 샷건 이동 속도, 방패를 들지 않을 경우
+                dx = 3
+            elif position == 0 and (state == 1 or Reload):  # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
+                dx = 1
+            elif position == 1 and state == 0:  # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
+                dx = 4
+            elif position == 2:  # 핸드건 이동 속도
+                dx = 5
+            x += dx
+        elif not MoveRight and Walking:  # 왼쪽 으로 이동
+            if position == 0 and state == 0 and not Reload:  # 샷건 이동 속도, 방패를 들지 않을 경우
+                dx = -3
+            elif position == 0 and (state == 1 or Reload):  # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
+                dx = -1
+            elif position == 1 and state == 0:  # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
+                dx = -4
+            elif position == 2:  # 핸드건 이동 속도
+                dx = -5
+            x += dx
+
+        if x < 34:                       # 화면 왼쪽 경계 이동 불가
+            x = 34
+        if x > WIDTH - 34:             # 화면 오른쪽 경계 이동 불가
+            x = WIDTH - 34
+
+        dy = 0
+
+        if not jump_velocity == 0.0:     # 점프 중력 가속도
+            if jump_velocity > 0.5:
+                y += jump_velocity
+                dy += int(jump_velocity / 2)
+                jump_velocity -= gravity
+            elif jump_velocity == 0.5:
+                y += jump_velocity
+                dy += int(jump_velocity / 2)
+                Jump = False
+                Fall = True
+                jump_velocity = 0.0
+                fall_velocity = 0.5
+
+        if not fall_velocity == 0.0:     # 추락 중력 가속도
+            if fall_velocity < 10.0:
+                y -= fall_velocity
+                dy -= int(fall_velocity / 2)
+                fall_velocity += gravity
+            elif fall_velocity == 10.0:
+                y -= fall_velocity
+                dy -= int(fall_velocity / 2)
+                Fall = False
+                fall_velocity = 0.0
 
     def draw(self):
         if not changing:
@@ -360,7 +436,7 @@ def handle_events():
                 Walking = False
 
         # space 누를시 점프
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE and not Jump:
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE and not Jump and not Fall and not state == 1:
             Jump = True
             jump_velocity = 10.0
 
@@ -448,56 +524,7 @@ def handle_events():
             character.Bullet_handgun = 0
 
 def update_world():
-    global x, y, Jump, jump_velocity, Fall, fall_velocity
-    dx = 0
-    if MoveRight and Walking:                               # 오른쪽 으로 이동
-        if position == 0 and state == 0 and not Reload:     # 샷건 이동 속도, 방패를 들지 않을 경우
-            dx = 3
-        elif position == 0 and (state == 1 or Reload):      # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
-            dx = 1
-        elif position == 1 and state == 0:                  # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
-            dx = 4
-        elif position == 2:                                 # 핸드건 이동 속도
-            dx = 5
-        x += dx
-    elif not MoveRight and Walking:                         # 왼쪽 으로 이동
-        if position == 0 and state == 0 and not Reload:     # 샷건 이동 속도, 방패를 들지 않을 경우
-            dx = -3
-        elif position == 0 and (state == 1 or Reload):      # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
-            dx = -1
-        elif position == 1 and state == 0:                  # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
-            dx = -4
-        elif position == 2:                                 # 핸드건 이동 속도
-            dx = -5
-        x += dx
-
-    if x < 34:                                               # 화면 왼쪽 경계 이동 불가
-        x = 34
-    elif x > WIDTH - 34:                                     # 화면 오른쪽 경계 이동 불가
-        x = WIDTH - 34
-
-    if not jump_velocity == 0.0:
-        if jump_velocity > 0.5:
-            y += jump_velocity
-            jump_velocity -= gravity
-        elif jump_velocity == 0.5:
-            y += jump_velocity
-            Jump = False
-            Fall = True
-            jump_velocity = 0.0
-            fall_velocity = 0.5
-
-    if not fall_velocity == 0.0:
-        if fall_velocity < 10.0:
-            y -= fall_velocity
-            fall_velocity += gravity
-        elif fall_velocity == 10.0:
-            y -= fall_velocity
-            Fall = False
-            fall_velocity = 0.0
-
-    background.update(dx)
-
+    background.update(dx, dy)
     for o in world:
         o.update()
 
