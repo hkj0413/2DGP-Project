@@ -256,50 +256,47 @@ class Draw_Character:
         if MoveRight and Walking:  # 오른쪽 으로 이동
             if position == 0 and state == 0 and not Reload:  # 샷건 이동 속도, 방패를 들지 않을 경우
                 dx = 2
-            elif position == 0 and (state == 1 or Reload):  # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
+            elif position == 0 and (state == 1 or Reload):   # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
                 dx = 1
-            elif position == 1 and state == 0:  # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
+            elif position == 1 and state == 0:               # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
                 dx = 3
-            elif position == 2:  # 핸드건 이동 속도
+            elif position == 2:                              # 핸드건 이동 속도
                 dx = 4
             x += dx
         elif not MoveRight and Walking:  # 왼쪽 으로 이동
             if position == 0 and state == 0 and not Reload:  # 샷건 이동 속도, 방패를 들지 않을 경우
                 dx = -2
-            elif position == 0 and (state == 1 or Reload):  # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
+            elif position == 0 and (state == 1 or Reload):   # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
                 dx = -1
-            elif position == 1 and state == 0:  # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
+            elif position == 1 and state == 0:               # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
                 dx = -3
-            elif position == 2:  # 핸드건 이동 속도
+            elif position == 2:                              # 핸드건 이동 속도
                 dx = -4
             x += dx
 
-        if x < 34:                       # 화면 왼쪽 경계 이동 불가
+        if x < 34:                                           # 화면 왼쪽 경계 이동 불가
             x = 34
-        if x > WIDTH - 34:             # 화면 오른쪽 경계 이동 불가
+        if x > WIDTH - 34:                                   # 화면 오른쪽 경계 이동 불가
             x = WIDTH - 34
 
         dy = 0
 
-        if not jump_velocity == 0.0:     # 점프 중력 가속도
-            if jump_velocity > 0.5:
-                y += jump_velocity
-                dy += int(jump_velocity / 2)
-                jump_velocity -= gravity
-            elif jump_velocity == 0.5:
+        if Jump:
+            y += jump_velocity                               # 점프 가속도
+            dy += int(jump_velocity / 2)
+            jump_velocity -= gravity
+            if jump_velocity == 0.0:
                 y += jump_velocity
                 dy += int(jump_velocity / 2)
                 Jump = False
                 Fall = True
-                jump_velocity = 0.0
-                fall_velocity = 0.5
+                jump_velocity = 10.0
 
-        if not fall_velocity == 0.0:     # 추락 중력 가속도
-            if fall_velocity < 10.0:
-                y -= fall_velocity
-                dy -= int(fall_velocity / 2)
-                fall_velocity += gravity
-            elif fall_velocity == 10.0:
+        if Fall:
+            y -= fall_velocity                               # 추락 가속도
+            dy -= int(fall_velocity / 2)
+            fall_velocity += gravity
+            if fall_velocity == 10.0:
                 y -= fall_velocity
                 dy -= int(fall_velocity / 2)
                 Fall = False
