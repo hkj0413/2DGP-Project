@@ -1,6 +1,5 @@
 from random import randint
 
-from numpy import character
 from pico2d import *
 import random
 
@@ -79,19 +78,28 @@ class Ground:
         self.image.draw(self.x, 15, 30, 30)
 
 class Draw_Character:
+    image_Hp = None
+    image_Bullet_shotgun = None
+    image_Bullet_rifle = None
+    image_Bullet_handgun = None
+
     def __init__(self):
         self.framex = 0
         self.temp = 0
         self.image = load_image('HKCAWS_wait.png')                   # 기본 캐릭터 그림
         self.Hp = 20                                                 # 현재 체력
         self.max_Hp = 20                                             # 최대 체력
-        self.Hp_image = load_image('Hp.png')                         # 체력 그림
+        if Draw_Character.image_Hp == None:
+            self.Hp_image = load_image('Hp.png')                     # 체력 그림
         self.Bullet_shotgun = 7                                      # 샷건 총알 개수
-        self.Bullet_shotgun_image = load_image('5.56mm.png')         # 샷건 총알 그림
+        if Draw_Character.image_Bullet_shotgun == None:
+            self.Bullet_shotgun_image = load_image('5.56mm.png')     # 샷건 총알 그림
         self.Bullet_rifle = 12                                       # 라이플 총알 개수
-        self.Bullet_rifle_image = load_image('7.62mm.png')           # 라이플 총알 그림
+        if Draw_Character.image_Bullet_rifle == None:
+            self.Bullet_rifle_image = load_image('7.62mm.png')       # 라이플 총알 그림
         self.Bullet_handgun = 20                                     # 핸드건 총알 개수
-        self.Bullet_handgun_image = load_image('9mm.png')            # 핸드건 총알 그림
+        if Draw_Character.image_Bullet_handgun == None:
+            self.Bullet_handgun_image = load_image('9mm.png')        # 핸드건 총알 그림
 
     def update(self):
         global changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay, Reload, reload_time
