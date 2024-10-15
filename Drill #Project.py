@@ -33,32 +33,37 @@ gravity = 0.5
 d_pressed = False
 a_pressed = False
 
-BG_WIDTH, BG_HEIGHT = 2060, 1200
-bg_x = 0
-bg_y = 0
+BG_WIDTH, BG_HEIGHT = 3240, 1200
+ox = 0
+oy = 0
 dx = 0
 dy = 0
 
 class Background:
     def __init__(self):
+        self.x = 0
+        self.y = 0
         self.image = load_image('1stage.png')
 
     def update(self, dx, dy):
-        global bg_x, bg_y
-        bg_x += dx
-        bg_y += dy
+        global ox, oy
+        ox += dx
+        oy += dy
 
-        if bg_x < 0:
-            bg_x = 0
-        if bg_x > BG_WIDTH - WIDTH:
-            bg_x = BG_WIDTH - WIDTH
-        if bg_y < 0:
-            bg_y = 0
-        if bg_y > BG_HEIGHT - HEIGHT:
-            bg_y = BG_HEIGHT - HEIGHT
+        if ox < 0:
+            ox = 0
+        if ox > BG_WIDTH - WIDTH:
+            ox = BG_WIDTH - WIDTH
+        if oy < 0:
+            oy = 0
+        if oy > BG_HEIGHT - HEIGHT:
+            oy = BG_HEIGHT - HEIGHT
+
+        self.x = ox
+        self.y = oy
 
     def draw(self):
-        self.image.clip_draw(bg_x, bg_y, WIDTH, HEIGHT, WIDTH // 2, HEIGHT // 2)
+        self.image.clip_draw(self.x, self.y + 200, WIDTH, HEIGHT, WIDTH // 2, HEIGHT // 2)
 
 class Grass:
     image = None
@@ -72,7 +77,7 @@ class Grass:
         pass
 
     def draw(self):
-        self.image.draw(self.x - bg_x, 45 - bg_y, 30, 30)
+        self.image.draw(self.x - ox, 45 - oy, 30, 30)
 
 class Ground:
     image = None
@@ -86,7 +91,7 @@ class Ground:
         pass
 
     def draw(self):
-        self.image.draw(self.x - bg_x, 15 - bg_y, 30, 30)
+        self.image.draw(self.x - ox, 15 - oy, 30, 30)
 
 class Draw_Character:
     image_Hp = None
@@ -152,7 +157,7 @@ class Draw_Character:
                     self.image = self.images["damage_shotgun"]           # 샷건 피격
                 elif position == 1:
                     self.image = self.images["damage_rifle"]             # 라이플 피격
-                elif position == 2: \
+                elif position == 2:
                     self.image = self.images["damage_handgun"]           # 핸드건 피격
         elif Attack:
             if attack_time == 15:
@@ -253,36 +258,54 @@ class Draw_Character:
 
         dx = 0
 
-        if MoveRight and Walking:  # 오른쪽 으로 이동
-            if position == 0 and state == 0 and not Reload:  # 샷건 이동 속도, 방패를 들지 않을 경우
-                dx = 2
-            elif position == 0 and (state == 1 or Reload):   # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
-                dx = 1
-            elif position == 1 and state == 0:               # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
-                dx = 3
-            elif position == 2:                              # 핸드건 이동 속도
-                dx = 4
-            x += dx
-        elif not MoveRight and Walking:  # 왼쪽 으로 이동
-            if position == 0 and state == 0 and not Reload:  # 샷건 이동 속도, 방패를 들지 않을 경우
-                dx = -2
-            elif position == 0 and (state == 1 or Reload):   # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
-                dx = -1
-            elif position == 1 and state == 0:               # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
-                dx = -3
-            elif position == 2:                              # 핸드건 이동 속도
-                dx = -4
-            x += dx
+        if MoveRight and Walking:
+            if x > 580 and not ox == BG_WIDTH - WIDTH:           # 오른쪽 으로 캐릭터 제외 모든 객체 이동
+                if position == 0 and state == 0 and not Reload:
+                    dx = 3
+                elif position == 0 and (state == 1 or Reload):
+                    dx = 1
+                elif position == 1 and state == 0:
+                    dx = 4
+                elif position == 2:
+                    dx = 5
+            else:                                                 # 오른쪽 으로 캐릭터 이동
+                if position == 0 and state == 0 and not Reload:   # 샷건 이동 속도, 방패를 들지 않을 경우
+                    x += 3
+                elif position == 0 and (state == 1 or Reload):    # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
+                    x += 1
+                elif position == 1 and state == 0:                # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
+                    x += 4
+                elif position == 2:                               # 핸드건 이동 속도
+                    x += 5
+        elif not MoveRight and Walking:
+            if x < 500 and not ox == 0:                           # 왼쪽 으로 캐릭터 제외 모든 객체 이동
+                if position == 0 and state == 0 and not Reload:
+                    dx = -3
+                elif position == 0 and (state == 1 or Reload):
+                    dx = -1
+                elif position == 1 and state == 0:
+                    dx = -4
+                elif position == 2:
+                    dx = -5
+            else:                                                 # 왼쪽 으로 캐릭터 이동
+                if position == 0 and state == 0 and not Reload:   # 샷건 이동 속도, 방패를 들지 않을 경우
+                    x += -3
+                elif position == 0 and (state == 1 or Reload):    # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
+                    x += -1
+                elif position == 1 and state == 0:                # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
+                    x += -4
+                elif position == 2:                               # 핸드건 이동 속도
+                    x += -5
 
-        if x < 34:                                           # 화면 왼쪽 경계 이동 불가
+        if x < 34:                                                # 화면 왼쪽 경계 이동 불가
             x = 34
-        if x > WIDTH - 34:                                   # 화면 오른쪽 경계 이동 불가
+        if x > WIDTH - 34:                                        # 화면 오른쪽 경계 이동 불가
             x = WIDTH - 34
 
         dy = 0
 
         if Jump:
-            y += jump_velocity                               # 점프 가속도
+            y += jump_velocity                                    # 점프 가속도
             dy += int(jump_velocity / 2)
             jump_velocity -= gravity
             if jump_velocity == 0.0:
@@ -293,7 +316,7 @@ class Draw_Character:
                 jump_velocity = 10.0
 
         if Fall:
-            y -= fall_velocity                               # 추락 가속도
+            y -= fall_velocity                                    # 추락 가속도
             dy -= int(fall_velocity / 2)
             fall_velocity += gravity
             if fall_velocity == 10.0:
@@ -338,7 +361,7 @@ class Draw_Character:
             else:
                 self.Hp -= damage
             Hit = True
-            hit_delay = 30               # 0.5초 무적 (60 FPS)
+            hit_delay = 30                                 # 0.5초 무적 (60 FPS)
             if self.Hp <= 0:
                 self.Hp = 0
             self.show_Hp()
