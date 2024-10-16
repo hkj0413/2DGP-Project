@@ -1,7 +1,7 @@
 from pico2d import *
 
 WIDTH, HEIGHT = 1080, 800
-x, y = 40, 110
+x, y = 40, 140
 
 position = 0
 state = 0
@@ -68,8 +68,9 @@ class Background:
 class Grass:
     image = None
 
-    def __init__(self, i = 0):
+    def __init__(self, i = 0, j = 0):
         self.x = i * 30 + 15
+        self.y = j * 30 + 15
         if Grass.image == None:
             Grass.image = load_image('grass.png')
 
@@ -77,13 +78,14 @@ class Grass:
         pass
 
     def draw(self):
-        self.image.draw(self.x - ox, 45 - oy, 30, 30)
+        self.image.draw(self.x - ox, self.y - oy, 30, 30)
 
 class Ground:
     image = None
 
-    def __init__(self, i = 0):
+    def __init__(self, i = 0, j = 0):
         self.x = i * 30 + 15
+        self.y = j * 30 + 15
         if Ground.image == None:
             Ground.image = load_image('ground.png')
 
@@ -91,7 +93,7 @@ class Ground:
         pass
 
     def draw(self):
-        self.image.draw(self.x - ox, 15 - oy, 30, 30)
+        self.image.draw(self.x - ox, self.y - oy, 30, 30)
 
 class Draw_Character:
     image_Hp = None
@@ -565,10 +567,11 @@ def reset_world():
 
     background = Background()
 
-    ground = [Ground(i) for i in range(0, 68 + 1) if (i < 30 or i > 33) and (i < 44 or i > 49)]
-    world += ground
+    for j in range(0, 1 + 1):
+        ground = [Ground(i, j) for i in range(0, 108 + 1) if (i < 30 or i > 33) and (i < 44 or i > 49)]
+        world += ground
 
-    grass = [Grass(i) for i in range(0, 68 + 1) if (i < 30 or i > 33) and (i < 44 or i > 49)]
+    grass = [Grass(i, 2) for i in range(0, 108 + 1) if (i < 30 or i > 33) and (i < 44 or i > 49)]
     world += grass
 
     character = Draw_Character()
