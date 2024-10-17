@@ -38,68 +38,58 @@ a_pressed = False
 
 BG_WIDTH, BG_HEIGHT = 3240, 1200
 ox = 0
-oy = 0.0
 dx = 0
-dy = 0.0
 xpos = 0
 
 class Background:
     def __init__(self):
         self.x = 0
-        self.y = 0.0
+        self.y = 0
         self.image = load_image('1stage.png')
 
-    def update(self, dx, dy):
-        global ox, oy
+    def update(self, dx):
+        global ox
         ox += dx
-        oy += dy
 
         if ox < 0:
             ox = 0
         if ox > BG_WIDTH - WIDTH:
             ox = BG_WIDTH - WIDTH
-        if oy < 0.0:
-            oy = 0.0
-        if oy > BG_HEIGHT - HEIGHT:
-            oy = BG_HEIGHT - HEIGHT
 
         self.x = ox
-        self.y = float(oy)
 
     def draw(self):
-        self.image.clip_draw(self.x, int(self.y), WIDTH, HEIGHT, WIDTH // 2, HEIGHT // 2)
+        self.image.clip_draw(self.x, self.y, WIDTH, HEIGHT, WIDTH // 2, HEIGHT // 2)
 
 class Grass:
     image = None
 
     def __init__(self, i = 0, j = 0):
         self.base_x = i * 30 + 15
-        self.base_y = j * 30.0 + 15.0
+        self.y  = j * 30 + 15
         if Grass.image == None:
             Grass.image = load_image('grass.png')
 
     def update(self):
         self.x = self.base_x - ox
-        self.y = self.base_y - float(oy)
 
     def draw(self):
-        self.image.draw(self.x, int(self.y), 30, 30)
+        self.image.draw(self.x, self.y, 30, 30)
 
 class Ground:
     image = None
 
     def __init__(self, i = 0, j = 0):
         self.base_x = i * 30 + 15
-        self.base_y = j * 30.0 + 15.0
+        self.y  = j * 30 + 15
         if Ground.image == None:
             Ground.image = load_image('ground.png')
 
     def update(self):
         self.x = self.base_x - ox
-        self.y = self.base_y - float(oy)
 
     def draw(self):
-        self.image.draw(self.x, int(self.y), 30, 30)
+        self.image.draw(self.x, self.y, 30, 30)
 
 class Draw_Character:
     image_Hp = None
@@ -144,8 +134,8 @@ class Draw_Character:
         self.image = self.images["wait_shotgun"]                     # 기본 캐릭터 그림
 
     def update(self):
-        global changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay, Reload, reload_time, Die, die_time
-        global x, y, dx, dy, ox, xpos, Jump, jump_velocity, Fall, fall_velocity
+        global MoveRight, Walking, changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay, Reload, reload_time, Die, die_time
+        global x, y, dx, ox, xpos, Jump, jump_velocity, Fall, fall_velocity, a_pressed, d_pressed
         self.temp += 1
         if Reload:
             if reload_time == 80:
@@ -269,82 +259,82 @@ class Draw_Character:
         if MoveRight and Walking:
             if x > 580 and not ox == BG_WIDTH - WIDTH:           # 오른쪽 으로 캐릭터 제외 모든 객체 이동
                 if position == 0 and state == 0 and not Reload:
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         dx = 0
                     else:
                         dx = 3
                 elif position == 0 and (state == 1 or Reload):
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         dx = 0
                     else:
                         dx = 1
                 elif position == 1 and state == 0:
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         dx = 0
                     else:
                         dx = 4
                 elif position == 2:
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         dx = 0
                     else:
                         dx = 5
             else:                                                 # 오른쪽 으로 캐릭터 이동
                 if position == 0 and state == 0 and not Reload:   # 샷건 이동 속도, 방패를 들지 않을 경우
                     x += 3
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         x += -3
                 elif position == 0 and (state == 1 or Reload):    # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
                     x += 1
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         x += -1
                 elif position == 1 and state == 0:                # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
                     x += 4
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         x += -4
                 elif position == 2:                               # 핸드건 이동 속도
                     x += 5
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         x += -5
 
 
         elif not MoveRight and Walking:
             if x < 500 and not ox == 0:                           # 왼쪽 으로 캐릭터 제외 모든 객체 이동
                 if position == 0 and state == 0 and not Reload:
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         dx = 0
                     else:
                         dx = -3
                 elif position == 0 and (state == 1 or Reload):
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         dx = 0
                     else:
                         dx = -1
                 elif position == 1 and state == 0:
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         dx = 0
                     else:
                         dx = -4
                 elif position == 2:
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         dx = 0
                     else:
                         dx = -5
             else:                                                 # 왼쪽 으로 캐릭터 이동
                 if position == 0 and state == 0 and not Reload:   # 샷건 이동 속도, 방패를 들지 않을 경우
                     x += -3
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         x += 3
                 elif position == 0 and (state == 1 or Reload):    # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
                     x += -1
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         x += 1
                 elif position == 1 and state == 0:                # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
                     x += -4
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         x += 4
                 elif position == 2:                               # 핸드건 이동 속도
                     x += -5
-                    if check_collide(world) and not Jump and not Fall:
+                    if check_collide(world):
                         x += 5
 
         xpos += dx
@@ -354,15 +344,16 @@ class Draw_Character:
         if x > WIDTH - 34:                                        # 화면 오른쪽 경계 이동 불가
             x = WIDTH - 34
 
-        dy = 0.0
-
         if Jump:
             y += jump_velocity                                    # 점프 가속도
-            dy += jump_velocity / 2
             jump_velocity -= gravity
             if jump_velocity <= 0.0:
                 y += jump_velocity
-                dy += jump_velocity / 2
+                Jump = False
+                Fall = True
+                jump_velocity = 10.0
+            elif check_collide_jump(Grass):
+                y = bottom_o - 18
                 Jump = False
                 Fall = True
                 jump_velocity = 10.0
@@ -370,18 +361,34 @@ class Draw_Character:
         if Fall:
             y -= fall_velocity                                    # 추락 가속도
             fall_velocity += gravity
-            if check_collide_fall(world):
-                y = top_o + 50.0
+            if check_collide_fall(Grass):
+                y = top_o + 50
                 Fall = False
                 fall_velocity = 0.0
             elif y < -68:
                 Fall = False
                 Die = True
                 fall_velocity = 0.0
-            else:
-                dy -= fall_velocity / 2
 
         if Die:
+            if die_time == 60:
+                MoveRight = True
+                Walking = False
+                Attack = False
+                Reload = False
+                Hit = False
+                Jump = False
+                Fall = False
+                a_pressed = False
+                d_pressed = False
+                change_time = 0
+                attack_time = 0
+                attack_delay = 0
+                hit_delay = 0
+                reload_time = 0
+                jump_velocity = 0.0
+                fall_velocity = 0.0
+                self.framex = 0
             die_time -= 1
             if die_time == 0:
                 x = 34
@@ -613,9 +620,9 @@ def handle_events():
                 character.Bullet_rifle = 0
                 character.Bullet_handgun = 0
 
-def check_collide(world):
-    for o in world:
-        if not o == ground and collide(x, y, o):
+def check_collide(object):
+    for o in object:
+        if collide(x, y, o):
             return True
     return False
 
@@ -626,15 +633,37 @@ def collide(cx, cy, o):
 
     left_o, right_o = o.x - 15, o.x + 15
 
-    top_o, bottom_o = o.y + 15.0, o.y - 15.0
+    top_o, bottom_o = o.y + 15, o.y - 15
 
     if left_c < right_o and bottom_c < top_o and right_c > left_o and top_c > bottom_o:
         return True
     return False
 
-def check_collide_fall(world):
-    for o in world:
-        if not o == ground and collide_fall(x, y, o):
+def check_collide_jump(object):
+    check_object = [o for o in world if isinstance(o, object)]
+    for o in check_object:
+        if collide_jump(x, y, o):
+            return True
+    return False
+
+def collide_jump(cx, cy, o):
+    global bottom_o
+    left_c, right_c = cx - 17, cx + 17
+
+    top_c, bottom_c = cy + 18.0, cy - 50.0
+
+    left_o, right_o = o.x - 15, o.x + 15
+
+    top_o, bottom_o = o.y + 15, o.y - 15
+
+    if left_c < right_o and top_c > bottom_o and right_c > left_o and top_c - jump_velocity < bottom_o:
+        return True, bottom_o
+    return False
+
+def check_collide_fall(object):
+    check_object = [o for o in world if isinstance(o, object)]
+    for o in check_object:
+        if collide_fall(x, y, o):
             return True
     return False
 
@@ -646,14 +675,14 @@ def collide_fall(cx, cy, o):
 
     left_o, right_o = o.x - 15, o.x + 15
 
-    top_o, bottom_o = o.y + 15.0, o.y - 15.0
+    top_o, bottom_o = o.y + 15, o.y - 15
 
-    if left_c < right_o and bottom_c < top_o and right_c > left_o and bottom_c + fall_velocity > bottom_o:
-        return True
+    if left_c < right_o and bottom_c < top_o and right_c > left_o and bottom_c + fall_velocity > top_o:
+        return True, top_o
     return False
 
 def update_world():
-    background.update(dx, dy)
+    background.update(dx)
     for o in world:
         o.update()
     character.update()
@@ -676,7 +705,7 @@ def reset_world():
 
     background = Background()
 
-    grass = [Grass(i, 7) for i in range(18, 23 + 1)]
+    grass = [Grass(i, 6) for i in range(18, 23 + 1)]
     world += grass
 
     grass = [Grass(i, 3) for i in range(10, 27 + 1) if (i < 16 or i > 20)]
