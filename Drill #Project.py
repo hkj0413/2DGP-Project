@@ -15,6 +15,7 @@ Hit = False
 Reload = False
 Jump = False
 Fall = False
+Die = False
 
 changing = False
 change_time = 0
@@ -25,6 +26,8 @@ attack_delay = 0
 hit_delay = 0
 
 reload_time = 0
+
+die_time = 60
 
 jump_velocity = 0.0
 fall_velocity = 0.0
@@ -38,6 +41,7 @@ ox = 0
 oy = 0.0
 dx = 0
 dy = 0.0
+xpos = 0
 
 class Background:
     def __init__(self):
@@ -140,8 +144,8 @@ class Draw_Character:
         self.image = self.images["wait_shotgun"]                     # 기본 캐릭터 그림
 
     def update(self):
-        global changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay, Reload, reload_time
-        global x, y, dx, dy, Jump, jump_velocity, Fall, fall_velocity
+        global changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay, Reload, reload_time, Die, die_time
+        global x, y, dx, dy, ox, xpos, Jump, jump_velocity, Fall, fall_velocity
         self.temp += 1
         if Reload:
             if reload_time == 80:
@@ -343,6 +347,8 @@ class Draw_Character:
                     if check_collide(world) and not Jump and not Fall:
                         x += 5
 
+        xpos += dx
+
         if x < 34:                                                # 화면 왼쪽 경계 이동 불가
             x = 34
         if x > WIDTH - 34:                                        # 화면 오른쪽 경계 이동 불가
@@ -364,12 +370,29 @@ class Draw_Character:
         if Fall:
             y -= fall_velocity                                    # 추락 가속도
             fall_velocity += gravity
-            if check_collide(world):
+            if check_collide_fall(world):
                 y = top_o + 50.0
                 Fall = False
                 fall_velocity = 0.0
+            elif y < -68:
+                Fall = False
+                Die = True
+                fall_velocity = 0.0
             else:
                 dy -= fall_velocity / 2
+
+        if Die:
+            die_time -= 1
+            if die_time == 0:
+                x = 34
+                y = 140.0
+                ox -= xpos
+                for o in world:
+                    o.x -= xpos
+                xpos = 0
+                self.Hp = self.max_Hp
+                Die = False
+                die_time = 60
 
     def draw(self):
         if not changing:
@@ -473,130 +496,130 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             running = False
 
-        # d 누를시 오른쪽 으로 이동, a를 누르는 중에 눌러도 오른쪽 으로 이동
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_d:
-            MoveRight = True
-            Walking = True
-            d_pressed = True
-
-        # d 손 땔시 오른쪽 이동 멈춤
-        elif event.type == SDL_KEYUP and event.key == SDLK_d:
-            d_pressed = False
-            if a_pressed:     # a키를 누르 면서 d를 땔시 다시 왼쪽 으로 이동
-                MoveRight = False
-            if not a_pressed: # 아닌 경우 멈춤
-                Walking = False
-
-        # a 누를시 왼쪽 으로 이동, d를 누르는 중에 눌러도 왼쪽 으로 이동
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_a:
-            MoveRight = False
-            Walking = True
-            a_pressed = True
-
-        # a 손 땔시 왼쪽 이동 멈춤
-        elif event.type == SDL_KEYUP and event.key == SDLK_a:
-            a_pressed = False
-            if d_pressed:     # d키를 누르 면서 a를 땔시 다시 오른쪽 으로 이동
+        if not Die:
+            # d 누를시 오른쪽 으로 이동, a를 누르는 중에 눌러도 오른쪽 으로 이동
+            if event.type == SDL_KEYDOWN and event.key == SDLK_d:
                 MoveRight = True
-            if not d_pressed: # 아닌 경우 멈춤
-                Walking = False
+                Walking = True
+                d_pressed = True
 
-        # space 누를시 점프
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE and not Jump and not Fall and not state == 1:
-            Jump = True
-            jump_velocity = 10.0
-
-        # r 누를시 재장전
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and not Reload:
-            if position == 0 and character.Bullet_shotgun == 0:
-                Reload = True
-                reload_time = 80
-
-        # 샷건 -> 라이플 -> 핸드건 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프 중에는 불가능
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_z and state == 0 and not Attack and not Reload and not Jump and not Fall:
-            if position == 2:
-                position = 0
-            else:
-                position += 1
-            changing = True
-            change_time = 3
-
-        # 샷건 -> 핸드건 -> 라이플 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프 중에는 불가능
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_x and state == 0 and not Attack and not Reload and not Jump and not Fall:
-            if position == 0:
-                position = 2
-            else:
-                position -= 1
-            changing = True
-            change_time = 3
-
-        # 마우스 좌클릭 공격 (라이플 은 이동, 점프, 추락 중에 공격 불가), attack_delay == 공격 속도
-        elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT and not Attack and attack_delay == 0:
-            mouse_x, mouse_y = event.x, event.y
-            if position == 0 and state == 1: # 샷건이 방패를 들고 있을 경우
-                if mouse_x < x:              # 캐릭터 보다 왼쪽 좌클릭 시 공격은 못 하지만 왼쪽 을 바라 봄
+            # d 손 땔시 오른쪽 이동 멈춤
+            elif event.type == SDL_KEYUP and event.key == SDLK_d:
+                d_pressed = False
+                if a_pressed:       # a키를 누르 면서 d를 땔시 다시 왼쪽 으로 이동
                     MoveRight = False
-                elif mouse_x > x:            # 캐릭터 보다 오른쪽 좌클릭 시 공격은 못 하지만 오른쪽 을 바라 봄
+                if not a_pressed:   # 아닌 경우 멈춤
+                    Walking = False
+
+            # a 누를시 왼쪽 으로 이동, d를 누르는 중에 눌러도 왼쪽 으로 이동
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_a:
+                MoveRight = False
+                Walking = True
+                a_pressed = True
+
+            # a 손 땔시 왼쪽 이동 멈춤
+            elif event.type == SDL_KEYUP and event.key == SDLK_a:
+                a_pressed = False
+                if d_pressed:       # d키를 누르 면서 a를 땔시 다시 오른쪽 으로 이동
                     MoveRight = True
+                if not d_pressed:   # 아닌 경우 멈춤
+                    Walking = False
 
-            elif (                           # 나머지 경우
-                    (position == 0 and state == 0 and character.Bullet_shotgun > 0) or
-                    (position == 1 and not Walking and not Jump and not Fall and character.Bullet_rifle > 0) or
-                    (position == 2 and state == 0 and character.Bullet_handgun > 0)
-            ):
-                if position == 0:    # 샷건 총알 감소
-                    character.Bullet_shotgun -= 1
-                elif position == 1:  # 라이플 총알 감소
-                    character.Bullet_rifle -= 1
-                elif position == 2:  # 핸드건 총알 감소
-                    character.Bullet_handgun -= 1
+            # space 누를시 점프
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE and not Jump and not Fall and not state == 1:
+                Jump = True
+                jump_velocity = 10.0
 
-                Attack = True
-                attack_time = 15     # 공격 모션 시간
+            # r 누를시 재장전
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and not Reload:
+                if position == 0 and character.Bullet_shotgun == 0:
+                    Reload = True
+                    reload_time = 80
 
-                if mouse_x < x:      # 캐릭터 보다 왼쪽 좌클릭 시 왼쪽 공격, 오른쪽 이동 중 에는 왼쪽 공격후 오른쪽 을 다시 바라 봄
-                    AttackRight = False
-                    if not Walking:  # 이동 중 공격이 아니면 공격 후 왼쪽 을 바라 봄
+            # 샷건 -> 라이플 -> 핸드건 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프 중에는 불가능
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_z and state == 0 and not Attack and not Reload and not Jump and not Fall:
+                if position == 2:
+                    position = 0
+                else:
+                    position += 1
+                changing = True
+                change_time = 3
+
+            # 샷건 -> 핸드건 -> 라이플 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프 중에는 불가능
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_x and state == 0 and not Attack and not Reload and not Jump and not Fall:
+                if position == 0:
+                    position = 2
+                else:
+                    position -= 1
+                changing = True
+                change_time = 3
+
+            # 마우스 좌클릭 공격 (라이플 은 이동, 점프, 추락 중에 공격 불가), attack_delay == 공격 속도
+            elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT and not Attack and attack_delay == 0:
+                mouse_x, mouse_y = event.x, event.y
+                if position == 0 and state == 1:  # 샷건이 방패를 들고 있을 경우
+                    if mouse_x < x:               # 캐릭터 보다 왼쪽 좌클릭 시 공격은 못 하지만 왼쪽 을 바라 봄
                         MoveRight = False
-                elif mouse_x > x:    # 캐릭터 보다 오른쪽 좌클릭 시 오른쪽 공격, 왼쪽 이동 중 에는 오른쪽 공격후 왼쪽 을 다시 바라 봄
-                    AttackRight = True
-                    if not Walking:  # 이동 중 공격이 아니면 공격 후 오른쪽 을 바라 봄
+                    elif mouse_x > x:             # 캐릭터 보다 오른쪽 좌클릭 시 공격은 못 하지만 오른쪽 을 바라 봄
                         MoveRight = True
 
-        # 샷건 일때 우클릭 중 일시 방패를 듬
-        elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_RIGHT and not Attack and position == 0 and state == 0:
-            state = 1
+                elif (  # 나머지 경우
+                        (position == 0 and state == 0 and character.Bullet_shotgun > 0) or
+                        (position == 1 and not Walking and not Jump and not Fall and character.Bullet_rifle > 0) or
+                        (position == 2 and state == 0 and character.Bullet_handgun > 0)
+                ):
+                    if position == 0:             # 샷건 총알 감소
+                        character.Bullet_shotgun -= 1
+                    elif position == 1:           # 라이플 총알 감소
+                        character.Bullet_rifle -= 1
+                    elif position == 2:           # 핸드건 총알 감소
+                        character.Bullet_handgun -= 1
 
-        # 샷건 일때 우클릭 땔시 방패를 내림
-        elif event.type == SDL_MOUSEBUTTONUP and event.button == SDL_BUTTON_RIGHT and position == 0 and state == 1:
-            state = 0
+                    Attack = True
+                    attack_time = 15              # 공격 모션 시간
 
-        # t 누를시 hp - 4
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_t:
-            character.take_damage(4)
+                    if mouse_x < x:               # 캐릭터 보다 왼쪽 좌클릭 시 왼쪽 공격, 오른쪽 이동 중 에는 왼쪽 공격후 오른쪽 을 다시 바라 봄
+                        AttackRight = False
+                        if not Walking:           # 이동 중 공격이 아니면 공격 후 왼쪽 을 바라 봄
+                            MoveRight = False
+                    elif mouse_x > x:             # 캐릭터 보다 오른쪽 좌클릭 시 오른쪽 공격, 왼쪽 이동 중 에는 오른쪽 공격후 왼쪽 을 다시 바라 봄
+                        AttackRight = True
+                        if not Walking:           # 이동 중 공격이 아니면 공격 후 오른쪽 을 바라 봄
+                            MoveRight = True
 
-        # y 누를시 hp + 1
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_y:
-            character.heal(1)
+            # 샷건 일때 우클릭 중 일시 방패를 듬
+            elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_RIGHT and not Attack and position == 0 and state == 0:
+                state = 1
 
-        # u 누를시 max hp + 4
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_u:
-            character.plus_max_Hp(4)
+            # 샷건 일때 우클릭 땔시 방패를 내림
+            elif event.type == SDL_MOUSEBUTTONUP and event.button == SDL_BUTTON_RIGHT and position == 0 and state == 1:
+                state = 0
 
-        # i 누를시 모든 탄창 비우기
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_i:
-            character.Bullet_shotgun = 0
-            character.Bullet_rifle = 0
-            character.Bullet_handgun = 0
+            # t 누를시 hp - 4
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_t:
+                character.take_damage(4)
+
+            # y 누를시 hp + 1
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_y:
+                character.heal(1)
+
+            # u 누를시 max hp + 4
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_u:
+                character.plus_max_Hp(4)
+
+            # i 누를시 모든 탄창 비우기
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_i:
+                character.Bullet_shotgun = 0
+                character.Bullet_rifle = 0
+                character.Bullet_handgun = 0
 
 def check_collide(world):
     for o in world:
-        if collide(x, y, o):
+        if not o == ground and collide(x, y, o):
             return True
     return False
 
 def collide(cx, cy, o):
-    global top_o, bottom_o
     left_c, right_c = cx - 17, cx + 17
 
     top_c, bottom_c = cy + 18.0, cy - 50.0
@@ -606,8 +629,26 @@ def collide(cx, cy, o):
     top_o, bottom_o = o.y + 15.0, o.y - 15.0
 
     if left_c < right_o and bottom_c < top_o and right_c > left_o and top_c > bottom_o:
-        #print(f"캐릭터 좌표: ({left_c}, {right_c}), ({top_c}, {bottom_c})")
-        #print(f"객체 좌표: ({left_o}, {right_o}), ({top_o}, {bottom_o})")
+        return True
+    return False
+
+def check_collide_fall(world):
+    for o in world:
+        if not o == ground and collide_fall(x, y, o):
+            return True
+    return False
+
+def collide_fall(cx, cy, o):
+    global top_o
+    left_c, right_c = cx - 17, cx + 17
+
+    top_c, bottom_c = cy + 18.0, cy - 50.0
+
+    left_o, right_o = o.x - 15, o.x + 15
+
+    top_o, bottom_o = o.y + 15.0, o.y - 15.0
+
+    if left_c < right_o and bottom_c < top_o and right_c > left_o and bottom_c + fall_velocity > bottom_o:
         return True
     return False
 
