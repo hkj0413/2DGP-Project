@@ -27,7 +27,7 @@ hit_delay = 0
 
 reload_time = 0
 
-die_time = 60
+die_time = 120
 
 jump_velocity = 0.0
 fall_velocity = 0.0
@@ -263,38 +263,54 @@ class Draw_Character:
                         dx = 0
                     else:
                         dx = 3
+                        if check_collide_ad(world, 3) and not Jump and not Fall:
+                            Fall = True
                 elif position == 0 and (state == 1 or Reload):
                     if check_collide(world):
                         dx = 0
                     else:
                         dx = 1
+                        if check_collide_ad(world, 1) and not Jump and not Fall:
+                            Fall = True
                 elif position == 1 and state == 0:
                     if check_collide(world):
                         dx = 0
                     else:
                         dx = 4
+                        if check_collide_ad(world, 4) and not Jump and not Fall:
+                            Fall = True
                 elif position == 2:
                     if check_collide(world):
                         dx = 0
                     else:
                         dx = 5
+                        if check_collide_ad(world, 5) and not Jump and not Fall:
+                            Fall = True
             else:                                                 # 오른쪽 으로 캐릭터 이동
                 if position == 0 and state == 0 and not Reload:   # 샷건 이동 속도, 방패를 들지 않을 경우
                     x += 3
                     if check_collide(world):
                         x += -3
+                    elif check_collide_ad(world, 3) and not Jump and not Fall:
+                        Fall = True
                 elif position == 0 and (state == 1 or Reload):    # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
                     x += 1
                     if check_collide(world):
                         x += -1
+                    elif check_collide_ad(world, 1) and not Jump and not Fall:
+                        Fall = True
                 elif position == 1 and state == 0:                # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
                     x += 4
                     if check_collide(world):
                         x += -4
+                    elif check_collide_ad(world, 4) and not Jump and not Fall:
+                        Fall = True
                 elif position == 2:                               # 핸드건 이동 속도
                     x += 5
                     if check_collide(world):
                         x += -5
+                    elif check_collide_ad(world, 5) and not Jump and not Fall:
+                        Fall = True
 
 
         elif not MoveRight and Walking:
@@ -304,38 +320,54 @@ class Draw_Character:
                         dx = 0
                     else:
                         dx = -3
+                        if check_collide_ad(world, 3) and not Jump and not Fall:
+                            Fall = True
                 elif position == 0 and (state == 1 or Reload):
                     if check_collide(world):
                         dx = 0
                     else:
                         dx = -1
+                        if check_collide_ad(world, 1) and not Jump and not Fall:
+                            Fall = True
                 elif position == 1 and state == 0:
                     if check_collide(world):
                         dx = 0
                     else:
                         dx = -4
+                        if check_collide_ad(world, 4) and not Jump and not Fall:
+                            Fall = True
                 elif position == 2:
                     if check_collide(world):
                         dx = 0
                     else:
                         dx = -5
+                        if check_collide_ad(world, 5) and not Jump and not Fall:
+                            Fall = True
             else:                                                 # 왼쪽 으로 캐릭터 이동
                 if position == 0 and state == 0 and not Reload:   # 샷건 이동 속도, 방패를 들지 않을 경우
                     x += -3
                     if check_collide(world):
                         x += 3
+                    elif check_collide_ad(world, 3) and not Jump and not Fall:
+                        Fall = True
                 elif position == 0 and (state == 1 or Reload):    # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
                     x += -1
                     if check_collide(world):
                         x += 1
+                    elif check_collide_ad(world, 1) and not Jump and not Fall:
+                        Fall = True
                 elif position == 1 and state == 0:                # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
                     x += -4
                     if check_collide(world):
                         x += 4
+                    elif check_collide_ad(world, 4) and not Jump and not Fall:
+                        Fall = True
                 elif position == 2:                               # 핸드건 이동 속도
                     x += -5
                     if check_collide(world):
                         x += 5
+                    elif check_collide_ad(world, 5) and not Jump and not Fall:
+                        Fall = True
 
         xpos += dx
 
@@ -371,7 +403,7 @@ class Draw_Character:
                 fall_velocity = 0.0
 
         if Die:
-            if die_time == 60:
+            if die_time == 120:                                   # 사망 시간
                 MoveRight = True
                 Walking = False
                 Attack = False
@@ -399,7 +431,7 @@ class Draw_Character:
                 xpos = 0
                 self.Hp = self.max_Hp
                 Die = False
-                die_time = 60
+                die_time = 120
 
     def draw(self):
         if not changing:
@@ -635,8 +667,39 @@ def collide(cx, cy, o):
 
     top_o, bottom_o = o.y + 15, o.y - 15
 
+    # 사각 충돌 체크
     if left_c < right_o and bottom_c < top_o and right_c > left_o and top_c > bottom_o:
         return True
+    return False
+
+def check_collide_ad(object, speed):
+    for o in object:
+        if collide_ad(x, y, o, object, speed):
+            return True
+    return False
+
+def collide_ad(cx, cy, o, object, speed):
+    left_c, right_c = cx - 17, cx + 17
+
+    top_c, bottom_c = cy + 18.0, cy - 50.0
+
+    left_o, right_o = o.x - 15, o.x + 15
+
+    top_o, bottom_o = o.y + 15, o.y - 15
+
+    # 오른 쪽에 바닥이 있으면 안 떨어짐
+    if MoveRight:
+        if left_c + speed > right_o and left_c - speed < right_o and bottom_c == top_o:
+            if any(o2.x - 15 <= left_c + speed <= o2.x + 15 and bottom_c == o2.y + 15 for o2 in object if o2 != o):
+                return False
+            return True
+
+    # 왼 쪽에 바닥이 있으면 안 떨어짐
+    elif not MoveRight:
+        if right_c - speed < left_o and right_c + speed > left_o and bottom_c == top_o:
+            if any(o2.x - 15 <= right_c - speed <= o2.x + 15 and bottom_c == o2.y + 15 for o2 in object if o2 != o):
+                return False
+            return True
     return False
 
 def check_collide_jump(object):
@@ -656,6 +719,7 @@ def collide_jump(cx, cy, o):
 
     top_o, bottom_o = o.y + 15, o.y - 15
 
+    # 천장에 캐릭터 머리가 부딫힘
     if left_c < right_o and top_c > bottom_o and right_c > left_o and top_c - jump_velocity < bottom_o:
         return True, bottom_o
     return False
@@ -677,6 +741,7 @@ def collide_fall(cx, cy, o):
 
     top_o, bottom_o = o.y + 15, o.y - 15
 
+    # 바닥에 캐릭터가 닿음
     if left_c < right_o and bottom_c < top_o and right_c > left_o and bottom_c + fall_velocity > top_o:
         return True, top_o
     return False
