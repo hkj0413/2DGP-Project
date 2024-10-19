@@ -269,13 +269,12 @@ class Draw_Character:
             elif attack_delay == 1:
                 attack_delay = 0
 
-        if Hit:
-            if not hit_delay == 0:                         # 피격 면역 hit_delay == 0 이 되기 전까지 무적
-                if hit_delay > 1:
-                    hit_delay -= 1
-                elif hit_delay == 1:
-                    Hit = False
-                    hit_delay = 0
+        if not hit_delay == 0:                              # 피격 면역 hit_delay == 0 이 되기 전까지 무적
+            if hit_delay > 1:
+                hit_delay -= 1
+            elif hit_delay == 1:
+                hit_delay = 0
+
 
         if Reload:
             reload_time -= 1
@@ -474,17 +473,17 @@ class Draw_Character:
     def draw(self):
         if not changing:
             if Die:
-                if position == 0:
+                if position == 0:        # 샷건
                     if MoveRight:        # 오른쪽 사망 그림
                         self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x - 48, y, 170, 170)
                     elif not MoveRight:  # 왼쪽 사망 그림
                         self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x + 48, y, 170, 170)
-                elif position == 1:
+                elif position == 1:      # 라이플
                     if MoveRight:        # 오른쪽 사망 그림
                         self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x - 11, y, 170, 170)
                     elif not MoveRight:  # 왼쪽 사망 그림
                         self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x + 11, y, 170, 170)
-                elif position == 2:
+                elif position == 2:      # 핸드건
                     if MoveRight:        # 오른쪽 사망 그림
                         self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
                     elif not MoveRight:  # 왼쪽 사망 그림
@@ -517,7 +516,7 @@ class Draw_Character:
 
     def take_damage(self, damage):
         global Walking, a_pressed, d_pressed, Hit, hit_delay, Jump, jump_velocity, Fall, Die, die_time
-        if not Hit and hit_delay == 0:
+        if hit_delay == 0:
             if position == 0 and (state == 1 or Reload):
                 self.Hp -= max(damage - shield_enhance, 0) # 데미지 가 감소량 보다 작을 경우 0의 피해를 받음
             else:
@@ -596,7 +595,7 @@ class Draw_Character:
 
 
 def handle_events():
-    global running, MoveRight, Walking, Attack, AttackRight, position, state, Reload, reload_time, Jump, jump_velocity
+    global running, MoveRight, Walking, Attack, AttackRight, position, state, Reload, reload_time, Jump, jump_velocity, Hit
     global changing, change_time, attack_time, a_pressed, d_pressed
     events = get_events()
     for event in events:
@@ -613,10 +612,12 @@ def handle_events():
                 MoveRight = True
                 Walking = True
                 d_pressed = True
+                Hit = False
 
             # d 손 땔시 오른쪽 이동 멈춤
             elif event.type == SDL_KEYUP and event.key == SDLK_d:
                 d_pressed = False
+                Hit = False
                 if a_pressed:       # a키를 누르 면서 d를 땔시 다시 왼쪽 으로 이동
                     MoveRight = False
                 if not a_pressed:   # 아닌 경우 멈춤
@@ -627,10 +628,12 @@ def handle_events():
                 MoveRight = False
                 Walking = True
                 a_pressed = True
+                Hit = False
 
             # a 손 땔시 왼쪽 이동 멈춤
             elif event.type == SDL_KEYUP and event.key == SDLK_a:
                 a_pressed = False
+                Hit = False
                 if d_pressed:       # d키를 누르 면서 a를 땔시 다시 오른쪽 으로 이동
                     MoveRight = True
                 if not d_pressed:   # 아닌 경우 멈춤
@@ -640,15 +643,17 @@ def handle_events():
             elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE and not Jump and not Fall and not state == 1:
                 Jump = True
                 jump_velocity = 10.0
+                Hit = False
 
             # r 누를시 재장전
             elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and not Reload:
+                Hit = False
                 if position == 0 and character.Bullet_shotgun == 0:
                     Reload = True
                     reload_time = 80
 
-            # 샷건 -> 라이플 -> 핸드건 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프 중에는 불가능
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_z and state == 0 and not Attack and not Reload and not Jump and not Fall:
+            # 샷건 -> 라이플 -> 핸드건 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프, 피격 중에는 불가능
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_z and state == 0 and not Attack and not Reload and not Jump and not Fall and hit_delay == 0:
                 if position == 2:
                     position = 0
                 else:
@@ -656,8 +661,8 @@ def handle_events():
                 changing = True
                 change_time = 3
 
-            # 샷건 -> 핸드건 -> 라이플 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프 중에는 불가능
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_x and state == 0 and not Attack and not Reload and not Jump and not Fall:
+            # 샷건 -> 핸드건 -> 라이플 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프, 피격 중에는 불가능
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_x and state == 0 and not Attack and not Reload and not Jump and not Fall and hit_delay == 0:
                 if position == 0:
                     position = 2
                 else:
@@ -668,6 +673,7 @@ def handle_events():
             # 마우스 좌클릭 공격 (라이플 은 이동, 점프, 추락 중에 공격 불가), attack_delay == 공격 속도
             elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT and not Attack and attack_delay == 0:
                 mouse_x, mouse_y = event.x, event.y
+                Hit = False
                 if position == 0 and state == 1:  # 샷건이 방패를 들고 있을 경우
                     if mouse_x < x:               # 캐릭터 보다 왼쪽 좌클릭 시 공격은 못 하지만 왼쪽 을 바라 봄
                         MoveRight = False
