@@ -151,15 +151,15 @@ class Draw_Character:
                     if self.temp % 3 == 0:
                         if position == 0:
                             self.framex = (self.framex + 1) % 18
-                            self.image = self.images["die_shotgun"]  # 샷건 사망
+                            self.image = self.images["die_shotgun"]    # 샷건 사망
                         elif position == 1:
                             self.framex = (self.framex + 1) % 18
-                            self.image = self.images["die_rifle"]  # 라이플 사망
+                            self.image = self.images["die_rifle"]      # 라이플 사망
             else:
-                if die_time > 48:
-                    if self.temp % 4 == 0:
-                        self.framex = (self.framex + 1) % 18
-                        self.image = self.images["die_handgun"]  # 핸드건 사망
+                if die_time > 15:
+                    if self.temp % 5 == 0:
+                        self.framex = (self.framex + 1) % 21
+                        self.image = self.images["die_handgun"]        # 핸드건 사망
 
         elif Reload:
             if reload_time == 80:
@@ -274,6 +274,7 @@ class Draw_Character:
                 hit_delay -= 1
             elif hit_delay == 1:
                 hit_delay = 0
+                Hit = False
 
 
         if Reload:
@@ -714,7 +715,7 @@ def handle_events():
 
             # t 누를시 hp - 4
             elif event.type == SDL_KEYDOWN and event.key == SDLK_t:
-                character.take_damage(4)
+                character.take_damage(8)
 
             # y 누를시 hp + 1
             elif event.type == SDL_KEYDOWN and event.key == SDLK_y:
