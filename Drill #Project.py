@@ -18,6 +18,7 @@ Reload = False
 Jump = False
 Fall = False
 Die = False
+Dash = False
 
 changing = False
 change_time = 0
@@ -29,7 +30,9 @@ hit_delay = 0
 
 reload_time = 0
 
-die_time = 120
+die_time = 0      # 120 2초 (60 FPS)
+
+dash_cooldown = 0 # 600 10초 (60 FPS)
 
 jump_velocity = 0.0
 fall_velocity = 0.0
@@ -143,11 +146,11 @@ class Draw_Character:
         global x, y, dx, ox, xpos, Jump, jump_velocity, Fall, fall_velocity, a_pressed, d_pressed, state
         self.temp += 1
         if Die:
-            if die_time == 120:
+            if die_time == 180:
                 self.temp = 0
                 self.framex = 0
             if not position == 2:
-                if die_time > 66:
+                if die_time > 129:
                     if self.temp % 3 == 0:
                         if position == 0:
                             self.framex = (self.framex + 1) % 18
@@ -155,11 +158,15 @@ class Draw_Character:
                         elif position == 1:
                             self.framex = (self.framex + 1) % 18
                             self.image = self.images["die_rifle"]      # 라이플 사망
-            else:
-                if die_time > 15:
+                else:
+                    self.framex = 18
+            elif position == 2:
+                if die_time > 80:
                     if self.temp % 5 == 0:
                         self.framex = (self.framex + 1) % 21
                         self.image = self.images["die_handgun"]        # 핸드건 사망
+                else:
+                    self.framex = 21
 
         elif Reload:
             if reload_time == 80:
@@ -275,7 +282,6 @@ class Draw_Character:
             elif hit_delay == 1:
                 hit_delay = 0
                 Hit = False
-
 
         if Reload:
             reload_time -= 1
@@ -436,7 +442,7 @@ class Draw_Character:
                 fall_velocity = 0.0
 
         if Die:
-            if die_time == 120:                                   # 사망 시간
+            if die_time == 180:                                   # 사망 시간
                 Walking = False
                 Attack = False
                 Reload = False
@@ -453,10 +459,10 @@ class Draw_Character:
                 reload_time = 0
                 jump_velocity = 0.0
                 fall_velocity = 0.0
-                self.framex = 0
             die_time -= 1
-            if die_time == 0:
+            if die_time <= 0:
                 MoveRight = True
+                Die = False
                 x = 34
                 y = 140.0
                 ox -= xpos
@@ -468,8 +474,7 @@ class Draw_Character:
                     self.Bullet_shotgun = 7
                     self.Bullet_rifle = 12
                     self.Bullet_handgun = handgun_max_bullet
-                Die = False
-                die_time = 120
+                die_time = 180
 
     def draw(self):
         if not changing:
@@ -533,7 +538,7 @@ class Draw_Character:
             if self.Hp <= 0:
                 self.Hp = 0
                 Die =  True
-                die_time = 120
+                die_time = 180
             self.show_Hp()
 
     def heal(self, healpack):
@@ -597,7 +602,7 @@ class Draw_Character:
 
 def handle_events():
     global running, MoveRight, Walking, Attack, AttackRight, position, state, Reload, reload_time, Jump, jump_velocity, Hit
-    global changing, change_time, attack_time, a_pressed, d_pressed
+    global changing, change_time, attack_time, a_pressed, d_pressed, Dash, dash_cooldown
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -652,6 +657,11 @@ def handle_events():
                 if position == 0 and character.Bullet_shotgun == 0:
                     Reload = True
                     reload_time = 80
+
+            elif event.type == SDL_KEYUP and event.key == SDLK_LSHIFT and dash_cooldown == 600:
+                Dash = True
+                dash_cooldown = 0
+
 
             # 샷건 -> 라이플 -> 핸드건 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프, 피격 중에는 불가능
             elif event.type == SDL_KEYDOWN and event.key == SDLK_z and state == 0 and not Attack and not Reload and not Jump and not Fall and hit_delay == 0:
