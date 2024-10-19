@@ -6,6 +6,8 @@ x, y = 34, 140.0
 position = 0
 state = 0
 shield_enhance = 1
+handgun_max_bullet = 20
+handgun_attack_speed = 12
 
 MoveRight = True
 Walking = False
@@ -110,7 +112,7 @@ class Draw_Character:
         self.Bullet_rifle = 12                                       # 라이플 총알 개수
         if Draw_Character.image_Bullet_rifle == None:
             self.Bullet_rifle_image = load_image('7.62mm.png')       # 라이플 총알 그림
-        self.Bullet_handgun = 20                                     # 핸드건 총알 개수
+        self.Bullet_handgun = handgun_max_bullet                     # 핸드건 총알 개수
         if Draw_Character.image_Bullet_handgun == None:
             self.Bullet_handgun_image = load_image('9mm.png')        # 핸드건 총알 그림
 
@@ -129,21 +131,45 @@ class Draw_Character:
             "damage_handgun": load_image('GSH18Mod_damage.png'),
             "reload_shotgun": load_image('HKCAWS_reload.png'),
             "shield_shotgun": load_image('HKCAWS_shield.png'),
+            "die_shotgun": load_image('HKCAWS_die.png'),
+            "die_rifle": load_image('R93_die.png'),
+            "die_handgun": load_image('GSH18Mod_die.png'),
         }
 
         self.image = self.images["wait_shotgun"]                     # 기본 캐릭터 그림
 
     def update(self):
         global MoveRight, Walking, changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay, Reload, reload_time, Die, die_time
-        global x, y, dx, ox, xpos, Jump, jump_velocity, Fall, fall_velocity, a_pressed, d_pressed
+        global x, y, dx, ox, xpos, Jump, jump_velocity, Fall, fall_velocity, a_pressed, d_pressed, state
         self.temp += 1
-        if Reload:
+        if Die:
+            if die_time == 120:
+                self.temp = 0
+                self.framex = 0
+            if not position == 2:
+                if die_time > 66:
+                    if self.temp % 3 == 0:
+                        if position == 0:
+                            self.framex = (self.framex + 1) % 18
+                            self.image = self.images["die_shotgun"]  # 샷건 사망
+                        elif position == 1:
+                            self.framex = (self.framex + 1) % 18
+                            self.image = self.images["die_rifle"]  # 라이플 사망
+            else:
+                if die_time > 48:
+                    if self.temp % 4 == 0:
+                        self.framex = (self.framex + 1) % 18
+                        self.image = self.images["die_handgun"]  # 핸드건 사망
+
+        elif Reload:
             if reload_time == 80:
+                self.temp = 0
                 self.framex = 0
             if self.temp % 5 == 0:
                 if position == 0:
                     self.framex = (self.framex + 1) % 16
                     self.image = self.images["reload_shotgun"]
+
         elif Hit:
             if position == 0 and state == 1:
                 if self.temp % 3 == 0:
@@ -157,8 +183,10 @@ class Draw_Character:
                     self.image = self.images["damage_rifle"]             # 라이플 피격
                 elif position == 2:
                     self.image = self.images["damage_handgun"]           # 핸드건 피격
+
         elif Attack:
             if attack_time == 15:
+                self.temp = 0
                 self.framex = 0
             if self.temp % 4 == 0:
                 if position == 0:
@@ -170,6 +198,7 @@ class Draw_Character:
                 elif position == 2:
                     self.framex = (self.framex + 1) % 5
                     self.image = self.images["attack_handgun"]           # 핸드건 공격
+
         elif not Walking:
             if Jump or Fall:
                 self.framex = 0
@@ -194,6 +223,7 @@ class Draw_Character:
                     elif position == 2:
                         self.framex = (self.framex + 1) % 11
                         self.image = self.images["wait_handgun"]         # 핸드건 대기
+
         elif Walking:
             if Jump or Fall:
                 self.framex = 0
@@ -217,32 +247,36 @@ class Draw_Character:
                             self.image = self.images["move_rifle"]       # 라이플 이동
                         elif position == 2:
                             self.image = self.images["move_handgun"]     # 핸드건 이동
+
         if changing:                     # 폼 체인지 중에는 그림이 그려 지지 않아서 깜빡임 구현
             change_time -= 1
             if change_time <= 0:
                 changing = False
+
         if Attack:
             attack_time -= 1
             if attack_time <= 0:
                 Attack = False
                 if position == 0:
-                    attack_delay = 30    # 샷건 공격 속도 0.5초 (60 FPS)
+                    attack_delay = 30                      # 샷건 공격 속도 0.5초 (60 FPS)
                 elif position == 1:
-                    attack_delay = 60    # 라이플 공격 속도 1초 (60 FPS)
+                    attack_delay = 60                      # 라이플 공격 속도 1초 (60 FPS)
                 elif position == 2:
-                    attack_delay = 12    # 권총 공격 속도 0.2초 (60 FPS)
-        if not attack_delay == 0:        # 공격 속도 attack_delay == 0 이 되기 전까지 공격 불가
+                    attack_delay = handgun_attack_speed    # 권총 공격 속도 0.2초 (60 FPS)
+        if not attack_delay == 0:                          # 공격 속도 attack_delay == 0 이 되기 전까지 공격 불가
             if attack_delay > 1:
                 attack_delay -= 1
             elif attack_delay == 1:
                 attack_delay = 0
+
         if Hit:
-            if not hit_delay == 0:       # 피격 면역 hit_delay == 0 이 되기 전까지 무적
+            if not hit_delay == 0:                         # 피격 면역 hit_delay == 0 이 되기 전까지 무적
                 if hit_delay > 1:
                     hit_delay -= 1
                 elif hit_delay == 1:
                     Hit = False
                     hit_delay = 0
+
         if Reload:
             reload_time -= 1
             if reload_time <= 0:
@@ -252,7 +286,7 @@ class Draw_Character:
                 elif position == 1:
                     self.Bullet_rifle = 12
                 elif position == 2:
-                    self.Bullet_handgun = 20
+                    self.Bullet_handgun = handgun_max_bullet
 
         dx = 0
 
@@ -311,7 +345,6 @@ class Draw_Character:
                         x += -5
                     elif check_collide_ad(world, 5) and not Jump and not Fall:
                         Fall = True
-
 
         elif not MoveRight and Walking:
             if x < 500 and not ox == 0:                           # 왼쪽 으로 캐릭터 제외 모든 객체 이동
@@ -404,7 +437,6 @@ class Draw_Character:
 
         if Die:
             if die_time == 120:                                   # 사망 시간
-                MoveRight = True
                 Walking = False
                 Attack = False
                 Reload = False
@@ -413,6 +445,7 @@ class Draw_Character:
                 Fall = False
                 a_pressed = False
                 d_pressed = False
+                state = 0
                 change_time = 0
                 attack_time = 0
                 attack_delay = 0
@@ -423,28 +456,38 @@ class Draw_Character:
                 self.framex = 0
             die_time -= 1
             if die_time == 0:
+                MoveRight = True
                 x = 34
                 y = 140.0
                 ox -= xpos
                 for o in world:
                     o.x -= xpos
                 xpos = 0
-                self.Hp = self.max_Hp
+                if self.Hp == 0:
+                    self.Hp = self.max_Hp
+                    self.Bullet_shotgun = 7
+                    self.Bullet_rifle = 12
+                    self.Bullet_handgun = handgun_max_bullet
                 Die = False
                 die_time = 120
 
     def draw(self):
         if not changing:
-            if Reload:
+            if Die:
+                if MoveRight:            # 오른쪽 사망 그림
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
+                elif not MoveRight:      # 왼쪽 사망 그림
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
+            elif Reload:
                 if MoveRight:            # 오른쪽 장전 그림
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
                 elif not MoveRight:      # 왼쪽 장전 그림
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
             elif Hit:
                 if MoveRight:            # 오른쪽 피격 그림
-                    self.image.clip_composite_draw(0, 0, 340, 340, 0, '', x, y, 170, 170)
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
                 elif not MoveRight:      # 왼쪽 피격 그림
-                    self.image.clip_composite_draw(0, 0, 340, 340, 0, 'h', x, y, 170, 170)
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
             elif Attack:
                 if AttackRight:          # 오른쪽 공격 그림
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
@@ -462,16 +505,24 @@ class Draw_Character:
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
 
     def take_damage(self, damage):
-        global Hit, hit_delay
+        global Walking, a_pressed, d_pressed, Hit, hit_delay, Jump, jump_velocity, Fall, Die, die_time
         if not Hit and hit_delay == 0:
             if position == 0 and (state == 1 or Reload):
                 self.Hp -= max(damage - shield_enhance, 0) # 데미지 가 감소량 보다 작을 경우 0의 피해를 받음
             else:
                 self.Hp -= damage
+                Jump = False
+                jump_velocity = 10.0
+                Fall = True
+                Walking = False
+                a_pressed = False
+                d_pressed = False
             Hit = True
             hit_delay = 30                                 # 0.5초 무적 (60 FPS)
             if self.Hp <= 0:
                 self.Hp = 0
+                Die =  True
+                die_time = 120
             self.show_Hp()
 
     def heal(self, healpack):
@@ -486,42 +537,52 @@ class Draw_Character:
         self.show_Hp()
 
     def show_Hp(self):
-        heart_count = int(self.max_Hp / 2)         # 하트 개수 = 최대 체력 / 2
+        heart_count = int(self.max_Hp / 2)          # 하트 개수 = 최대 체력 / 2
         hx = 20
         hy = 780
 
         for i in range(heart_count):
-            if self.Hp >= (i + 1) * 2:             # 하트 1개당 체력2일 경우 한칸 그림
+            if self.Hp >= (i + 1) * 2:              # 하트 1개당 체력2일 경우 한칸 그림
                 self.Hp_image.clip_composite_draw(0, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
-            elif self.Hp == (i * 2) + 1:           # 하트 1개당 체력1일 경우 반칸 그림
+            elif self.Hp == (i * 2) + 1:            # 하트 1개당 체력1일 경우 반칸 그림
                 self.Hp_image.clip_composite_draw(120, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
-            else:                                  # 하트 1개당 체력0일 경우 빈칸 그림
+            else:                                   # 하트 1개당 체력0일 경우 빈칸 그림
                 self.Hp_image.clip_composite_draw(240, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
 
     def show_Bullet(self):
-        global changing
         bx = 1060
         by = 770
 
         if not changing:
             if position == 0:
-                for i in range(7):                 # 샷건 최대 총알
-                    if i < self.Bullet_shotgun:    # 샷건 현재 총알 수 만큼 그리고 없으면 빈칸
+                for i in range(7):                  # 샷건 최대 총알
+                    if i < self.Bullet_shotgun:     # 샷건 현재 총알 수 만큼 그리고 없으면 빈칸
                         self.Bullet_shotgun_image.clip_composite_draw(0, 0, 27, 49, 0, '', bx - i * 27, by, 27, 49)
                     else:
                         self.Bullet_shotgun_image.clip_composite_draw(27, 0, 27, 49, 0, '', bx - i * 27, by, 27, 49)
             elif position == 1:
-                for i in range(12):                # 라이플 최대 총알
-                    if i < self.Bullet_rifle:      # 라이플 현재 총알 수 만큼 그리고 없으면 빈칸
+                for i in range(12):                 # 라이플 최대 총알
+                    if i < self.Bullet_rifle:       # 라이플 현재 총알 수 만큼 그리고 없으면 빈칸
                         self.Bullet_rifle_image.clip_composite_draw(0, 0, 27, 59, 0, '', bx - i * 27, by - 10, 27, 59)
                     else:
                         self.Bullet_rifle_image.clip_composite_draw(27, 0, 27, 59, 0, '', bx - i * 27, by - 10, 27, 59)
             elif position == 2:
-                for i in range(20):                # 핸드건 최대 총알
-                    if i < self.Bullet_handgun:    # 핸드건 최대 총알 수 만큼 그리고 없으면 빈칸
-                        self.Bullet_handgun_image.clip_composite_draw(0, 0, 28, 28, 0, '', bx - i * 28, by + 11, 28, 28)
+                for i in range(handgun_max_bullet): # 핸드건 최대 총알
+                    if i < self.Bullet_handgun:     # 핸드건 최대 총알 수 만큼 그리고 없으면 빈칸
+                        if i >= 20:
+                            self.Bullet_handgun_image.clip_composite_draw(0, 0, 28, 28, 0, '', bx - (i - 20) * 28 , by - 45, 28, 28)
+                        elif i >= 10:
+                            self.Bullet_handgun_image.clip_composite_draw(0, 0, 28, 28, 0, '', bx - (i - 10) * 28 , by - 17, 28, 28)
+                        else:
+                            self.Bullet_handgun_image.clip_composite_draw(0, 0, 28, 28, 0, '', bx - i * 28, by + 11, 28, 28)
                     else:
-                        self.Bullet_handgun_image.clip_composite_draw(28, 0, 28, 28, 0, '', bx - i * 28, by + 11, 28, 28)
+                        if i >= 20:
+                            self.Bullet_handgun_image.clip_composite_draw(28, 0, 28, 28, 0, '', bx - (i - 20) * 28 , by - 45, 28, 28)
+                        elif i >= 10:
+                            self.Bullet_handgun_image.clip_composite_draw(28, 0, 28, 28, 0, '', bx - (i - 10) * 28, by - 17, 28, 28)
+                        else:
+                            self.Bullet_handgun_image.clip_composite_draw(28, 0, 28, 28, 0, '', bx - i * 28, by + 11, 28, 28)
+
 
 def handle_events():
     global running, MoveRight, Walking, Attack, AttackRight, position, state, Reload, reload_time, Jump, jump_velocity
@@ -683,21 +744,21 @@ def collide_ad(cx, cy, o, object, speed):
 
     top_c, bottom_c = cy + 18.0, cy - 50.0
 
-    left_o, right_o = o.x - 15, o.x + 15
+    left_o, right_o = o.x - 25, o.x + 25
 
     top_o, bottom_o = o.y + 15, o.y - 15
 
     # 오른 쪽에 바닥이 있으면 안 떨어짐
     if MoveRight:
-        if left_c + speed > right_o and left_c - speed < right_o and bottom_c == top_o:
-            if any(o2.x - 15 <= left_c + speed <= o2.x + 15 and bottom_c == o2.y + 15 for o2 in object if o2 != o):
+        if left_c > right_o and left_c - speed * 2 < right_o and bottom_c == top_o:
+            if any(o2.x - 15 <= left_c <= o2.x + 15 and bottom_c == o2.y + 15 for o2 in object if o2 != o):
                 return False
             return True
 
     # 왼 쪽에 바닥이 있으면 안 떨어짐
     elif not MoveRight:
-        if right_c - speed < left_o and right_c + speed > left_o and bottom_c == top_o:
-            if any(o2.x - 15 <= right_c - speed <= o2.x + 15 and bottom_c == o2.y + 15 for o2 in object if o2 != o):
+        if right_c < left_o and right_c + speed * 2 > left_o and bottom_c == top_o:
+            if any(o2.x - 15 <= right_c <= o2.x + 15 and bottom_c == o2.y + 15 for o2 in object if o2 != o):
                 return False
             return True
     return False
