@@ -474,10 +474,21 @@ class Draw_Character:
     def draw(self):
         if not changing:
             if Die:
-                if MoveRight:            # 오른쪽 사망 그림
-                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
-                elif not MoveRight:      # 왼쪽 사망 그림
-                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
+                if position == 0:
+                    if MoveRight:        # 오른쪽 사망 그림
+                        self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x - 48, y, 170, 170)
+                    elif not MoveRight:  # 왼쪽 사망 그림
+                        self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x + 48, y, 170, 170)
+                elif position == 1:
+                    if MoveRight:        # 오른쪽 사망 그림
+                        self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x - 11, y, 170, 170)
+                    elif not MoveRight:  # 왼쪽 사망 그림
+                        self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x + 11, y, 170, 170)
+                elif position == 2:
+                    if MoveRight:        # 오른쪽 사망 그림
+                        self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
+                    elif not MoveRight:  # 왼쪽 사망 그림
+                        self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
             elif Reload:
                 if MoveRight:            # 오른쪽 장전 그림
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
