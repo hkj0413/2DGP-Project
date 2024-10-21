@@ -408,37 +408,39 @@ class Draw_Character:
                         Fall = True
 
         if Dash:
+            if dash_cooldown < 595:
+                x += -20
+                Dash = False
+                Fall = True
+
             if x > 580 and not ox == BG_WIDTH - WIDTH and move == 0:
                 if check_collide(world):
                     dx = 0
-                    x = left_o - 17
+                    x += -20
                     Dash = False
                     Fall = True
                 else:
-                    dx = 10
+                    dx = 20
             elif move == 0:
-                x += 10
+                x += 20
                 if check_collide(world):
-                    x = left_o - 17
+                    x += -20
                     Dash = False
                     Fall = True
             elif x < 500 and not ox == 0 and move == 1:
                 if check_collide(world):
                     dx = 0
+                    x += -20
                     Dash = False
                     Fall = True
                 else:
-                    dx = -10
+                    dx = -20
             elif move == 1:
-                x += -10
+                x += -20
                 if check_collide(world):
-                    x += 10
+                    x += 20
                     Dash = False
                     Fall = True
-
-            if dash_cooldown <= 55:
-                Dash = False
-                Fall = True
 
         if not dash_cooldown == 0:
             dash_cooldown -= 1
@@ -631,14 +633,14 @@ def handle_events():
 
         if not Die:
             # d 누를시 오른쪽 으로 이동, a를 누르는 중에 눌러도 오른쪽 으로 이동
-            if event.type == SDL_KEYDOWN and event.key == SDLK_d and not Dash:
+            if event.type == SDL_KEYDOWN and event.key == SDLK_d:
                 MoveRight = True
                 Walking = True
                 d_pressed = True
                 Hit = False
 
             # d 손 땔시 오른쪽 이동 멈춤
-            elif event.type == SDL_KEYUP and event.key == SDLK_d and not Dash:
+            elif event.type == SDL_KEYUP and event.key == SDLK_d:
                 d_pressed = False
                 Hit = False
                 if a_pressed:       # a키를 누르 면서 d를 땔시 다시 왼쪽 으로 이동
@@ -647,14 +649,14 @@ def handle_events():
                     Walking = False
 
             # a 누를시 왼쪽 으로 이동, d를 누르는 중에 눌러도 왼쪽 으로 이동
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_a and not Dash:
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_a:
                 MoveRight = False
                 Walking = True
                 a_pressed = True
                 Hit = False
 
             # a 손 땔시 왼쪽 이동 멈춤
-            elif event.type == SDL_KEYUP and event.key == SDLK_a and not Dash:
+            elif event.type == SDL_KEYUP and event.key == SDLK_a:
                 a_pressed = False
                 Hit = False
                 if d_pressed:       # d키를 누르 면서 a를 땔시 다시 오른쪽 으로 이동
@@ -684,16 +686,12 @@ def handle_events():
                 Fall = False
                 fall_velocity = 0.0
                 state = 0
-                dash_cooldown = 60
+                dash_cooldown = 600
                 hit_delay = 5
                 if MoveRight:
                     move = 0
-                    if a_pressed:
-                        d_pressed = False
                 elif not MoveRight:
                     move = 1
-                    if d_pressed:
-                        a_pressed = False
 
             # 샷건 -> 라이플 -> 핸드건 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프, 피격 중에는 불가능
             elif event.type == SDL_KEYDOWN and event.key == SDLK_z and state == 0 and not Attack and not Reload and not Jump and not Fall and hit_delay == 0:
@@ -780,7 +778,6 @@ def check_collide(object):
     return False
 
 def collide(cx, cy, o):
-    global left_o, right_o
     left_c, right_c = cx - 17, cx + 17
 
     top_c, bottom_c = cy + 18.0, cy - 50.0
@@ -791,9 +788,9 @@ def collide(cx, cy, o):
 
     # 사각 충돌 체크
     if left_c < right_o and bottom_c < top_o and right_c > left_o and top_c > bottom_o:
-        print(f"캐릭터 좌표: ({left_c}, {right_c}), ({top_c}, {bottom_c})")
-        print(f"객체 좌표: ({left_o}, {right_o}), ({top_o}, {bottom_o})")
-        return True, left_o, right_o
+        # print(f"캐릭터 좌표: ({left_c}, {right_c}), ({top_c}, {bottom_c})")
+        # print(f"객체 좌표: ({left_o}, {right_o}), ({top_o}, {bottom_o})")
+        return True
     return False
 
 def check_collide_ad(object, speed):
