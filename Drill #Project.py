@@ -411,23 +411,32 @@ class Draw_Character:
             if x > 580 and not ox == BG_WIDTH - WIDTH and move == 0:
                 if check_collide(world):
                     dx = 0
+                    x = left_o - 17
+                    Dash = False
+                    Fall = True
                 else:
                     dx = 10
             elif move == 0:
                 x += 10
                 if check_collide(world):
-                    x += -10
+                    x = left_o - 17
+                    Dash = False
+                    Fall = True
             elif x < 500 and not ox == 0 and move == 1:
                 if check_collide(world):
                     dx = 0
+                    Dash = False
+                    Fall = True
                 else:
                     dx = -10
             elif move == 1:
                 x += -10
                 if check_collide(world):
                     x += 10
+                    Dash = False
+                    Fall = True
 
-            if dash_cooldown <= 50:
+            if dash_cooldown <= 55:
                 Dash = False
                 Fall = True
 
@@ -523,30 +532,10 @@ class Draw_Character:
                         self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
                     elif not MoveRight:  # 왼쪽 사망 그림
                         self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
-            elif Reload:
-                if MoveRight:            # 오른쪽 장전 그림
-                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
-                elif not MoveRight:      # 왼쪽 장전 그림
-                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
-            elif Hit:
-                if MoveRight:            # 오른쪽 피격 그림
-                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
-                elif not MoveRight:      # 왼쪽 피격 그림
-                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
-            elif Attack:
-                if AttackRight:          # 오른쪽 공격 그림
-                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
-                elif not AttackRight:    # 왼쪽 공격 그림
-                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
-            elif Walking:
-                if MoveRight:            # 오른쪽 이동 그림 (점프, 추락, 대쉬 포함)
-                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
-                elif not MoveRight:      # 왼쪽 이동 그림 (점프, 추락, 대쉬 포함)
-                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
             else:
-                if MoveRight:            # 오른쪽 대기 그림 (점프, 추락, 대쉬 포함)
+                if MoveRight:            # 오른쪽 사망 외 전부
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
-                elif not MoveRight:      # 왼쪽 대기 그림 (점프, 추락, 대쉬 포함)
+                elif not MoveRight:      # 왼쪽 사망 외 전부
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
 
     def take_damage(self, damage):
@@ -696,11 +685,15 @@ def handle_events():
                 fall_velocity = 0.0
                 state = 0
                 dash_cooldown = 60
-                hit_delay = 10
+                hit_delay = 5
                 if MoveRight:
                     move = 0
+                    if a_pressed:
+                        d_pressed = False
                 elif not MoveRight:
                     move = 1
+                    if d_pressed:
+                        a_pressed = False
 
             # 샷건 -> 라이플 -> 핸드건 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프, 피격 중에는 불가능
             elif event.type == SDL_KEYDOWN and event.key == SDLK_z and state == 0 and not Attack and not Reload and not Jump and not Fall and hit_delay == 0:
@@ -787,6 +780,7 @@ def check_collide(object):
     return False
 
 def collide(cx, cy, o):
+    global left_o, right_o
     left_c, right_c = cx - 17, cx + 17
 
     top_c, bottom_c = cy + 18.0, cy - 50.0
@@ -797,7 +791,9 @@ def collide(cx, cy, o):
 
     # 사각 충돌 체크
     if left_c < right_o and bottom_c < top_o and right_c > left_o and top_c > bottom_o:
-        return True
+        print(f"캐릭터 좌표: ({left_c}, {right_c}), ({top_c}, {bottom_c})")
+        print(f"객체 좌표: ({left_o}, {right_o}), ({top_o}, {bottom_o})")
+        return True, left_o, right_o
     return False
 
 def check_collide_ad(object, speed):
