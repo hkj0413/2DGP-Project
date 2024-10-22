@@ -414,10 +414,13 @@ class Draw_Character:
                         Fall = True
 
         if Dash:
-            if dash_cooldown < 355:
-                x += -20
+            if dash_cooldown < 354:
                 Dash = False
                 Fall = True
+                if move == 0:
+                    x += -20
+                elif move == 1:
+                    x += 20
 
             if x > 580 and not ox == BG_WIDTH - WIDTH and move == 0:
                 if check_collide(world):
@@ -555,7 +558,7 @@ class Draw_Character:
     def take_damage(self, damage):
         global Walking, a_pressed, d_pressed, Hit, hit_delay, Jump, jump_velocity, Fall, Die, die_time
         if hit_delay == 0:
-            if position == 0 and (state == 1 or Reload):
+            if position == 0 and (state == 1 or Reload_shotgun):
                 self.Hp -= max(damage - shield_enhance, 0) # 데미지 가 감소량 보다 작을 경우 0의 피해를 받음
             else:
                 self.Hp -= damage
