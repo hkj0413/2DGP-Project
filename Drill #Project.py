@@ -32,7 +32,7 @@ reload_time = 0
 
 die_time = 0      # 120 2초 (60 FPS)
 
-dash_cooldown = 0 # 600 10초 (60 FPS)
+dash_cooldown = 0 # 360 6초 (60 FPS)
 move = 0
 
 jump_velocity = 0.0
@@ -296,8 +296,8 @@ class Draw_Character:
         dx = 0
 
         if MoveRight and Walking:
-            if x > 580 and not ox == BG_WIDTH - WIDTH:           # 오른쪽 으로 캐릭터 제외 모든 객체 이동
-                if position == 0 and state == 0 and not Reload:
+            if x > 580 and not ox == BG_WIDTH - WIDTH:                           # 오른쪽 으로 캐릭터 제외 모든 객체 이동
+                if position == 0 and state == 0 and not Reload and not Attack:
                     if check_collide(world):
                         dx = 0
                     else:
@@ -325,26 +325,26 @@ class Draw_Character:
                         dx = 5
                         if check_collide_ad(world, 5) and not Jump and not Fall:
                             Fall = True
-            else:                                                 # 오른쪽 으로 캐릭터 이동
-                if position == 0 and state == 0 and not Reload:   # 샷건 이동 속도, 방패를 들지 않을 경우
+            else:                                                                # 오른쪽 으로 캐릭터 이동
+                if position == 0 and state == 0 and not Reload and not Attack:   # 샷건 이동 속도, 방패를 들지 않을 경우
                     x += 3
                     if check_collide(world):
                         x += -3
                     elif check_collide_ad(world, 3) and not Jump and not Fall:
                         Fall = True
-                elif position == 0 and (state == 1 or Reload):    # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
+                elif position == 0 and (state == 1 or Reload):                   # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
                     x += 1
                     if check_collide(world):
                         x += -1
                     elif check_collide_ad(world, 1) and not Jump and not Fall:
                         Fall = True
-                elif position == 1 and state == 0:                # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
+                elif position == 1 and state == 0:                               # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
                     x += 4
                     if check_collide(world):
                         x += -4
                     elif check_collide_ad(world, 4) and not Jump and not Fall:
                         Fall = True
-                elif position == 2:                               # 핸드건 이동 속도
+                elif position == 2:                                              # 핸드건 이동 속도
                     x += 5
                     if check_collide(world):
                         x += -5
@@ -352,8 +352,8 @@ class Draw_Character:
                         Fall = True
 
         elif not MoveRight and Walking:
-            if x < 500 and not ox == 0:                           # 왼쪽 으로 캐릭터 제외 모든 객체 이동
-                if position == 0 and state == 0 and not Reload:
+            if x < 500 and not ox == 0:                                          # 왼쪽 으로 캐릭터 제외 모든 객체 이동
+                if position == 0 and state == 0 and not Reload and not Attack:
                     if check_collide(world):
                         dx = 0
                     else:
@@ -381,26 +381,26 @@ class Draw_Character:
                         dx = -5
                         if check_collide_ad(world, 5) and not Jump and not Fall:
                             Fall = True
-            else:                                                 # 왼쪽 으로 캐릭터 이동
-                if position == 0 and state == 0 and not Reload:   # 샷건 이동 속도, 방패를 들지 않을 경우
+            else:                                                                # 왼쪽 으로 캐릭터 이동
+                if position == 0 and state == 0 and not Reload and not Attack:   # 샷건 이동 속도, 방패를 들지 않을 경우
                     x += -3
                     if check_collide(world):
                         x += 3
                     elif check_collide_ad(world, 3) and not Jump and not Fall:
                         Fall = True
-                elif position == 0 and (state == 1 or Reload):    # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
+                elif position == 0 and (state == 1 or Reload):                   # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
                     x += -1
                     if check_collide(world):
                         x += 1
                     elif check_collide_ad(world, 1) and not Jump and not Fall:
                         Fall = True
-                elif position == 1 and state == 0:                # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
+                elif position == 1 and state == 0:                               # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
                     x += -4
                     if check_collide(world):
                         x += 4
                     elif check_collide_ad(world, 4) and not Jump and not Fall:
                         Fall = True
-                elif position == 2:                               # 핸드건 이동 속도
+                elif position == 2:                                              # 핸드건 이동 속도
                     x += -5
                     if check_collide(world):
                         x += 5
@@ -408,7 +408,7 @@ class Draw_Character:
                         Fall = True
 
         if Dash:
-            if dash_cooldown < 595:
+            if dash_cooldown < 355:
                 x += -20
                 Dash = False
                 Fall = True
@@ -534,10 +534,16 @@ class Draw_Character:
                         self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
                     elif not MoveRight:  # 왼쪽 사망 그림
                         self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
-            else:
-                if MoveRight:            # 오른쪽 사망 외 전부
+
+            elif Attack:
+                if AttackRight:          # 오른쪽 공격 그림
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
-                elif not MoveRight:      # 왼쪽 사망 외 전부
+                elif not AttackRight:    # 왼쪽 공격 그림
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
+            else:
+                if MoveRight:            # 오른쪽 그 외 전부
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
+                elif not MoveRight:      # 왼쪽 그 외 전부
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
 
     def take_damage(self, damage):
@@ -686,8 +692,8 @@ def handle_events():
                 Fall = False
                 fall_velocity = 0.0
                 state = 0
-                dash_cooldown = 600
-                hit_delay = 5
+                dash_cooldown = 360
+                hit_delay = 10
                 if MoveRight:
                     move = 0
                 elif not MoveRight:
