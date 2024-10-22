@@ -139,6 +139,8 @@ class Draw_Character:
             "die_shotgun": load_image('HKCAWS_die.png'),
             "die_rifle": load_image('R93_die.png'),
             "die_handgun": load_image('GSH18Mod_die.png'),
+            "ultimate_1_shotgun": load_image('HKCAWS_ultimate_1.png'),
+            "ultimate_2_shotgun": load_image('HKCAWS_ultimate_2.png'),
         }
 
         self.image = self.images["wait_shotgun"]                     # 기본 캐릭터 그림
