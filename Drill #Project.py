@@ -14,7 +14,8 @@ Walking = False
 Attack = False
 AttackRight = True
 Hit = False
-Reload = False
+Reload_shotgun = False
+Reload_rifle = False
 Jump = False
 Fall = False
 Die = False
@@ -110,10 +111,10 @@ class Draw_Character:
         self.max_Hp = 20                                             # 최대 체력
         if Draw_Character.image_Hp == None:
             self.Hp_image = load_image('Hp.png')                     # 체력 그림
-        self.Bullet_shotgun = 7                                      # 샷건 총알 개수
+        self.Bullet_shotgun = 8                                      # 샷건 총알 개수
         if Draw_Character.image_Bullet_shotgun == None:
             self.Bullet_shotgun_image = load_image('5.56mm.png')     # 샷건 총알 그림
-        self.Bullet_rifle = 12                                       # 라이플 총알 개수
+        self.Bullet_rifle = 4                                        # 라이플 총알 개수
         if Draw_Character.image_Bullet_rifle == None:
             self.Bullet_rifle_image = load_image('7.62mm.png')       # 라이플 총알 그림
         self.Bullet_handgun = handgun_max_bullet                     # 핸드건 총알 개수
@@ -143,8 +144,8 @@ class Draw_Character:
         self.image = self.images["wait_shotgun"]                     # 기본 캐릭터 그림
 
     def update(self):
-        global MoveRight, Walking, changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay, Reload, reload_time, Die, die_time
-        global x, y, dx, ox, xpos, Jump, jump_velocity, Fall, fall_velocity, a_pressed, d_pressed, state, Dash, dash_cooldown
+        global MoveRight, Walking, changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay, Reload_shotgun, Reload_rifle, reload_time
+        global Die, die_time, x, y, dx, ox, xpos, Jump, jump_velocity, Fall, fall_velocity, a_pressed, d_pressed, state, Dash, dash_cooldown
         self.temp += 1
         if Die:
             if die_time == 180:
@@ -169,14 +170,14 @@ class Draw_Character:
                 else:
                     self.framex = 21
 
-        elif Reload:
+        elif Reload_shotgun:
             if reload_time == 80:
                 self.temp = 0
                 self.framex = 0
             if self.temp % 5 == 0:
-                if position == 0:
-                    self.framex = (self.framex + 1) % 16
-                    self.image = self.images["reload_shotgun"]
+                self.framex = (self.framex + 1) % 16
+                self.image = self.images["reload_shotgun"]
+
 
         elif Hit:
             if position == 0 and state == 1:
@@ -282,29 +283,32 @@ class Draw_Character:
                 Hit = False
                 hit_delay = 0
 
-        if Reload:
+        if Reload_shotgun:
             reload_time -= 1
             if reload_time <= 0:
-                Reload = False
-                if position == 0:
-                    self.Bullet_shotgun = 7
-                elif position == 1:
-                    self.Bullet_rifle = 12
-                elif position == 2:
-                    self.Bullet_handgun = handgun_max_bullet
+                Reload_shotgun = False
+                self.Bullet_shotgun = 8
+                self.Bullet_handgun = handgun_max_bullet
+
+        if Reload_rifle:
+            reload_time -= 1
+            if reload_time <= 0:
+                Reload_rifle = False
+                self.Bullet_rifle = 4
+
 
         dx = 0
 
         if MoveRight and Walking:
-            if x > 580 and not ox == BG_WIDTH - WIDTH:                           # 오른쪽 으로 캐릭터 제외 모든 객체 이동
-                if position == 0 and state == 0 and not Reload and not Attack:
+            if x > 580 and not ox == BG_WIDTH - WIDTH:                                 # 오른쪽 으로 캐릭터 제외 모든 객체 이동
+                if position == 0 and state == 0 and not Reload_shotgun and not Attack:
                     if check_collide(world):
                         dx = 0
                     else:
                         dx = 3
                         if check_collide_ad(world, 3) and not Jump and not Fall:
                             Fall = True
-                elif position == 0 and (state == 1 or Reload):
+                elif position == 0 and (state == 1 or Reload_shotgun):
                     if check_collide(world):
                         dx = 0
                     else:
@@ -325,26 +329,26 @@ class Draw_Character:
                         dx = 5
                         if check_collide_ad(world, 5) and not Jump and not Fall:
                             Fall = True
-            else:                                                                # 오른쪽 으로 캐릭터 이동
-                if position == 0 and state == 0 and not Reload and not Attack:   # 샷건 이동 속도, 방패를 들지 않을 경우
+            else:                                                                      # 오른쪽 으로 캐릭터 이동
+                if position == 0 and state == 0 and not Reload_shotgun and not Attack: # 샷건 이동 속도, 방패를 들지 않을 경우
                     x += 3
                     if check_collide(world):
                         x += -3
                     elif check_collide_ad(world, 3) and not Jump and not Fall:
                         Fall = True
-                elif position == 0 and (state == 1 or Reload):                   # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
+                elif position == 0 and (state == 1 or Reload_shotgun):                 # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
                     x += 1
                     if check_collide(world):
                         x += -1
                     elif check_collide_ad(world, 1) and not Jump and not Fall:
                         Fall = True
-                elif position == 1 and state == 0:                               # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
+                elif position == 1 and state == 0:                                     # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
                     x += 4
                     if check_collide(world):
                         x += -4
                     elif check_collide_ad(world, 4) and not Jump and not Fall:
                         Fall = True
-                elif position == 2:                                              # 핸드건 이동 속도
+                elif position == 2:                                                    # 핸드건 이동 속도
                     x += 5
                     if check_collide(world):
                         x += -5
@@ -352,15 +356,15 @@ class Draw_Character:
                         Fall = True
 
         elif not MoveRight and Walking:
-            if x < 500 and not ox == 0:                                          # 왼쪽 으로 캐릭터 제외 모든 객체 이동
-                if position == 0 and state == 0 and not Reload and not Attack:
+            if x < 500 and not ox == 0:                                                # 왼쪽 으로 캐릭터 제외 모든 객체 이동
+                if position == 0 and state == 0 and not Reload_shotgun and not Attack:
                     if check_collide(world):
                         dx = 0
                     else:
                         dx = -3
                         if check_collide_ad(world, 3) and not Jump and not Fall:
                             Fall = True
-                elif position == 0 and (state == 1 or Reload):
+                elif position == 0 and (state == 1 or Reload_shotgun):
                     if check_collide(world):
                         dx = 0
                     else:
@@ -381,26 +385,26 @@ class Draw_Character:
                         dx = -5
                         if check_collide_ad(world, 5) and not Jump and not Fall:
                             Fall = True
-            else:                                                                # 왼쪽 으로 캐릭터 이동
-                if position == 0 and state == 0 and not Reload and not Attack:   # 샷건 이동 속도, 방패를 들지 않을 경우
+            else:                                                                      # 왼쪽 으로 캐릭터 이동
+                if position == 0 and state == 0 and not Reload_shotgun and not Attack: # 샷건 이동 속도, 방패를 들지 않을 경우
                     x += -3
                     if check_collide(world):
                         x += 3
                     elif check_collide_ad(world, 3) and not Jump and not Fall:
                         Fall = True
-                elif position == 0 and (state == 1 or Reload):                   # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
+                elif position == 0 and (state == 1 or Reload_shotgun):                 # 샷건 이동 속도, 방패를 들거나 장전 중일 경우
                     x += -1
                     if check_collide(world):
                         x += 1
                     elif check_collide_ad(world, 1) and not Jump and not Fall:
                         Fall = True
-                elif position == 1 and state == 0:                               # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
+                elif position == 1 and state == 0:                                     # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
                     x += -4
                     if check_collide(world):
                         x += 4
                     elif check_collide_ad(world, 4) and not Jump and not Fall:
                         Fall = True
-                elif position == 2:                                              # 핸드건 이동 속도
+                elif position == 2:                                                    # 핸드건 이동 속도
                     x += -5
                     if check_collide(world):
                         x += 5
@@ -511,8 +515,8 @@ class Draw_Character:
                 xpos = 0
                 if self.Hp == 0:
                     self.Hp = self.max_Hp
-                    self.Bullet_shotgun = 7
-                    self.Bullet_rifle = 12
+                    self.Bullet_shotgun = 8
+                    self.Bullet_rifle = 4
                     self.Bullet_handgun = handgun_max_bullet
                 die_time = 180
 
@@ -597,13 +601,13 @@ class Draw_Character:
 
         if not changing:
             if position == 0:
-                for i in range(7):                  # 샷건 최대 총알
+                for i in range(8):                  # 샷건 최대 총알
                     if i < self.Bullet_shotgun:     # 샷건 현재 총알 수 만큼 그리고 없으면 빈칸
                         self.Bullet_shotgun_image.clip_composite_draw(0, 0, 27, 49, 0, '', bx - i * 27, by, 27, 49)
                     else:
                         self.Bullet_shotgun_image.clip_composite_draw(27, 0, 27, 49, 0, '', bx - i * 27, by, 27, 49)
             elif position == 1:
-                for i in range(12):                 # 라이플 최대 총알
+                for i in range(4):                  # 라이플 최대 총알
                     if i < self.Bullet_rifle:       # 라이플 현재 총알 수 만큼 그리고 없으면 빈칸
                         self.Bullet_rifle_image.clip_composite_draw(0, 0, 27, 59, 0, '', bx - i * 27, by - 10, 27, 59)
                     else:
@@ -626,7 +630,7 @@ class Draw_Character:
                             self.Bullet_handgun_image.clip_composite_draw(28, 0, 28, 28, 0, '', bx - i * 28, by + 11, 28, 28)
 
 def handle_events():
-    global running, MoveRight, Walking, Attack, AttackRight, attack_delay, position, state, Reload, reload_time, Jump, jump_velocity
+    global running, MoveRight, Walking, Attack, AttackRight, attack_delay, position, state, Reload_shotgun, Reload_rifle, reload_time, Jump, jump_velocity
     global Hit, hit_delay, Fall, fall_velocity, changing, change_time, attack_time, a_pressed, d_pressed, Dash, dash_cooldown, move
     events = get_events()
     for event in events:
@@ -676,12 +680,21 @@ def handle_events():
                 jump_velocity = 10.0
                 Hit = False
 
-            # r 누를시 재장전
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and not Reload:
+            # r 누를시 재장전 샷건
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and position == 0 and not Reload_shotgun and character.Bullet_shotgun == 0:
                 Hit = False
-                if position == 0 and character.Bullet_shotgun == 0:
-                    Reload = True
-                    reload_time = 80
+                Reload_shotgun = True
+                reload_time = 80
+
+            # r 누를시 재장전 라이플
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and position == 1 and not Reload_rifle and character.Bullet_rifle == 0:
+                jump_velocity = 6.0
+                Fall = False
+                fall_velocity = 0.0
+                reload_time = 40
+                Reload_rifle = True
+                if not Jump:
+                    Jump = True
 
             # shift 누를시 대쉬
             elif event.type == SDL_KEYDOWN and event.key == SDLK_LSHIFT and dash_cooldown == 0:
@@ -700,7 +713,10 @@ def handle_events():
                     move = 1
 
             # 샷건 -> 라이플 -> 핸드건 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프, 피격 중에는 불가능
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_z and state == 0 and not Attack and not Reload and not Jump and not Fall and hit_delay == 0:
+            elif (
+                    event.type == SDL_KEYDOWN and event.key == SDLK_z and state == 0 and not Attack and not Reload_shotgun and
+                    not Reload_rifle and not Jump and not Fall and hit_delay == 0
+            ):
                 if position == 2:
                     position = 0
                 else:
@@ -709,7 +725,10 @@ def handle_events():
                 change_time = 3
 
             # 샷건 -> 핸드건 -> 라이플 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프, 피격 중에는 불가능
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_x and state == 0 and not Attack and not Reload and not Jump and not Fall and hit_delay == 0:
+            elif (
+                    event.type == SDL_KEYDOWN and event.key == SDLK_x and state == 0 and not Attack and not Reload_shotgun and
+                    not Reload_rifle and not Jump and not Fall and hit_delay == 0
+            ):
                 if position == 0:
                     position = 2
                 else:
