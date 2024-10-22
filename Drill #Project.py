@@ -285,20 +285,6 @@ class Draw_Character:
                 Hit = False
                 hit_delay = 0
 
-        if Reload_shotgun:
-            reload_time -= 1
-            if reload_time <= 0:
-                Reload_shotgun = False
-                self.Bullet_shotgun = 8
-                self.Bullet_handgun = handgun_max_bullet
-
-        if Reload_rifle:
-            reload_time -= 1
-            if reload_time <= 0:
-                Reload_rifle = False
-                self.Bullet_rifle = 4
-
-
         dx = 0
 
         if MoveRight and Walking:
@@ -414,7 +400,7 @@ class Draw_Character:
                         Fall = True
 
         if Dash:
-            if dash_cooldown < 354:
+            if dash_cooldown <= 350:
                 Dash = False
                 Fall = True
                 if move == 0:
@@ -456,6 +442,51 @@ class Draw_Character:
             if dash_cooldown <= 0:
                 dash_cooldown = 0
 
+        if Reload_shotgun:
+            reload_time -= 1
+            if reload_time <= 0:
+                Reload_shotgun = False
+                self.Bullet_shotgun = 8
+                self.Bullet_handgun = handgun_max_bullet
+
+        if Reload_rifle:
+            reload_time -= 1
+            if reload_time == 30:
+                jump_velocity = 6.0
+                Fall = False
+                fall_velocity = 0.0
+                if not Jump:
+                    Jump = True
+            elif 30 >= reload_time >= 10:
+                if x > 580 and not ox == BG_WIDTH - WIDTH and MoveRight:
+                    if check_collide(world):
+                        dx = 0
+                        x += -8
+                    else:
+                        dx = 8
+                elif MoveRight:
+                    x += 8
+                    if check_collide(world):
+                        x += -8
+                elif x < 500 and not ox == 0 and not MoveRight:
+                    if check_collide(world):
+                        dx = 0
+                        x += -8
+                    else:
+                        dx = -8
+                elif not MoveRight:
+                    x += -8
+                    if check_collide(world):
+                        x += 8
+            elif reload_time == 10:
+                if MoveRight:
+                    x += -8
+                elif not MoveRight:
+                    x += 8
+            elif reload_time <= 0:
+                Reload_rifle = False
+                self.Bullet_rifle = 4
+
         xpos += dx
 
         if x < 34:                                                # 화면 왼쪽 경계 이동 불가
@@ -494,7 +525,8 @@ class Draw_Character:
             if die_time == 180:                                   # 사망 시간
                 Walking = False
                 Attack = False
-                Reload = False
+                Reload_shotgun = False
+                Reload_shotgun = False
                 Hit = False
                 Jump = False
                 Fall = False
@@ -693,13 +725,10 @@ def handle_events():
 
             # r 누를시 재장전 라이플
             elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and position == 1 and not Reload_rifle and character.Bullet_rifle == 0:
-                jump_velocity = 6.0
-                Fall = False
-                fall_velocity = 0.0
-                reload_time = 40
+                Hit = False
                 Reload_rifle = True
-                if not Jump:
-                    Jump = True
+                MoveRight = not MoveRight
+                reload_time = 40
 
             # shift 누를시 대쉬
             elif event.type == SDL_KEYDOWN and event.key == SDLK_LSHIFT and dash_cooldown == 0:
@@ -840,14 +869,14 @@ def collide_ad(cx, cy, o, object, speed):
 
     # 오른 쪽에 바닥이 있으면 안 떨어짐
     if MoveRight:
-        if left_c > right_o and left_c - speed * 2 < right_o and bottom_c == top_o:
+        if left_c > right_o > left_c - speed * 2 and bottom_c == top_o:
             if any(o2.x - 15 <= left_c <= o2.x + 15 and bottom_c == o2.y + 15 for o2 in object if o2 != o):
                 return False
             return True
 
     # 왼 쪽에 바닥이 있으면 안 떨어짐
     elif not MoveRight:
-        if right_c < left_o and right_c + speed * 2 > left_o and bottom_c == top_o:
+        if right_c < left_o < right_c + speed * 2 and bottom_c == top_o:
             if any(o2.x - 15 <= right_c <= o2.x + 15 and bottom_c == o2.y + 15 for o2 in object if o2 != o):
                 return False
             return True
