@@ -16,6 +16,7 @@ AttackRight = True
 Hit = False
 Reload_shotgun = False
 Reload_rifle = False
+Reload_handgun = False
 Jump = False
 Fall = False
 Die = False
@@ -105,6 +106,7 @@ class Draw_Character:
     def __init__(self):
         self.framex = 0
         self.temp = 0
+        self.roll = 60
         self.Hp = 20                                                 # 현재 체력
         self.max_Hp = 20                                             # 최대 체력
         if Draw_Character.image_Hp == None:
@@ -129,6 +131,7 @@ class Draw_Character:
             "damage_rifle": load_image('R93_damage.png'),
             "damage_handgun": load_image('GSH18Mod_damage.png'),
             "reload_shotgun": load_image('HKCAWS_reload.png'),
+            "reload_handgun": load_image('GSH18Mod_reload.png'),
             "shield_shotgun": load_image('HKCAWS_shield.png'),
             "die_shotgun": load_image('HKCAWS_die.png'),
             "die_rifle": load_image('R93_die.png'),
@@ -140,7 +143,7 @@ class Draw_Character:
         self.image = self.images["wait_shotgun"]                     # 기본 캐릭터 그림
 
     def update(self):
-        global MoveRight, Walking, changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay, Reload_shotgun, Reload_rifle, reload_time
+        global MoveRight, Walking, changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay, Reload_shotgun, Reload_rifle, Reload_handgun, reload_time
         global Die, die_time, x, y, dx, ox, xpos, Jump, jump_velocity, Fall, fall_velocity, a_pressed, d_pressed, state, Dash, dash_cooldown
         self.temp += 1
         if Die:
@@ -183,6 +186,17 @@ class Draw_Character:
             else:
                 self.framex = 0
                 self.image = self.images["move_rifle"]
+
+        elif Reload_handgun:
+            if reload_time == 30:
+                self.temp = 0
+                self.framex = 0
+                self.roll = 60
+            if self.temp % 4 == 0:
+                self.framex = (self.framex + 1) % 10
+                if self.roll >= 0:
+                    self.roll -= 15
+                self.image = self.images["reload_handgun"]
 
         elif Hit:
             if position == 0 and state == 1:
@@ -450,7 +464,6 @@ class Draw_Character:
             if reload_time <= 0:
                 Reload_shotgun = False
                 self.Bullet_shotgun = 8
-                self.Bullet_handgun = handgun_max_bullet
 
         if Reload_rifle:
             reload_time -= 1
@@ -495,6 +508,12 @@ class Draw_Character:
                 else:
                     MoveRight = not MoveRight
                 self.Bullet_rifle = 4
+
+        if Reload_handgun:
+            reload_time -= 1
+            if reload_time <= 0:
+                Reload_handgun = False
+                self.Bullet_handgun = handgun_max_bullet
 
         xpos += dx
 
@@ -595,6 +614,11 @@ class Draw_Character:
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
                 elif not MoveRight:      # 왼쪽 그 외 전부
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
+            elif Reload_handgun:
+                if MoveRight:            # 오른쪽 그 외 전부
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x + self.roll, y, 170, 170)
+                elif not MoveRight:      # 왼쪽 그 외 전부
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x - self.roll, y, 170, 170)
             else:
                 if MoveRight:            # 오른쪽 그 외 전부
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
@@ -681,8 +705,8 @@ class Draw_Character:
                             self.Bullet_image.clip_composite_draw(135, 0, 27, 50, 0, '', bx - i * 28, by, 27, 50)
 
 def handle_events():
-    global running, MoveRight, Walking, Attack, AttackRight, attack_delay, position, state, Reload_shotgun, Reload_rifle, reload_time, Jump, jump_velocity
-    global Hit, hit_delay, Fall, fall_velocity, changing, change_time, attack_time, a_pressed, d_pressed, Dash, dash_cooldown, move
+    global running, MoveRight, Walking, Attack, AttackRight, attack_delay, position, state, Reload_shotgun, Reload_rifle, Reload_handgun,reload_time
+    global Hit, hit_delay, Jump, jump_velocity, Fall, fall_velocity, changing, change_time, attack_time, a_pressed, d_pressed, Dash, dash_cooldown, move
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -746,6 +770,12 @@ def handle_events():
                 MoveRight = not MoveRight
                 reload_time = 40
                 hit_delay = 30
+
+            # r 누를시 핸드건 재장전
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and position == 2 and not Reload_handgun and character.Bullet_handgun == 0:
+                Hit = False
+                Reload_handgun = True
+                reload_time = 30
 
             # shift 누를시 대쉬
             elif event.type == SDL_KEYDOWN and event.key == SDLK_LSHIFT and dash_cooldown == 0 and reload_time <= 10:
