@@ -610,14 +610,14 @@ class Draw_Character:
                 elif not AttackRight:    # 왼쪽 공격 그림
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
             elif Reload_rifle:
-                if MoveRight:            # 오른쪽 그 외 전부
+                if MoveRight:            # 오른쪽 라이플 장전
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
-                elif not MoveRight:      # 왼쪽 그 외 전부
+                elif not MoveRight:      # 왼쪽 라이플 장전
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
             elif Reload_handgun:
-                if MoveRight:            # 오른쪽 그 외 전부
+                if MoveRight:            # 오른쪽 핸드건 장전
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x + self.roll, y, 170, 170)
-                elif not MoveRight:      # 왼쪽 그 외 전부
+                elif not MoveRight:      # 왼쪽 핸드건 장전
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x - self.roll, y, 170, 170)
             else:
                 if MoveRight:            # 오른쪽 그 외 전부
@@ -698,11 +698,11 @@ class Draw_Character:
                             self.Bullet_image.clip_composite_draw(108, 0, 27, 50, 0, '', bx - i * 28, by, 27, 50)
                     else:
                         if i >= 20:
-                            self.Bullet_image.clip_composite_draw(135, 0, 27, 50, 0, '', bx - (i - 20) * 28 , by - 56, 27, 50)
+                            self.Bullet_image.clip_composite_draw(136, 0, 27, 50, 0, '', bx - (i - 20) * 28 , by - 56, 27, 50)
                         elif i >= 10:
-                            self.Bullet_image.clip_composite_draw(135, 0, 27, 50, 0, '', bx - (i - 10) * 28, by - 28, 27, 50)
+                            self.Bullet_image.clip_composite_draw(136, 0, 27, 50, 0, '', bx - (i - 10) * 28, by - 28, 27, 50)
                         else:
-                            self.Bullet_image.clip_composite_draw(135, 0, 27, 50, 0, '', bx - i * 28, by, 27, 50)
+                            self.Bullet_image.clip_composite_draw(136, 0, 27, 50, 0, '', bx - i * 28, by, 27, 50)
 
 def handle_events():
     global running, MoveRight, Walking, Attack, AttackRight, attack_delay, position, state, Reload_shotgun, Reload_rifle, Reload_handgun,reload_time
