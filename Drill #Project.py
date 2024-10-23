@@ -100,9 +100,7 @@ class Ground:
 
 class Draw_Character:
     image_Hp = None
-    image_Bullet_shotgun = None
-    image_Bullet_rifle = None
-    image_Bullet_handgun = None
+    image_Bullet = None
 
     def __init__(self):
         self.framex = 0
@@ -112,14 +110,10 @@ class Draw_Character:
         if Draw_Character.image_Hp == None:
             self.Hp_image = load_image('Hp.png')                     # 체력 그림
         self.Bullet_shotgun = 8                                      # 샷건 총알 개수
-        if Draw_Character.image_Bullet_shotgun == None:
-            self.Bullet_shotgun_image = load_image('5.56mm.png')     # 샷건 총알 그림
         self.Bullet_rifle = 4                                        # 라이플 총알 개수
-        if Draw_Character.image_Bullet_rifle == None:
-            self.Bullet_rifle_image = load_image('7.62mm.png')       # 라이플 총알 그림
         self.Bullet_handgun = handgun_max_bullet                     # 핸드건 총알 개수
-        if Draw_Character.image_Bullet_handgun == None:
-            self.Bullet_handgun_image = load_image('9mm.png')        # 핸드건 총알 그림
+        if Draw_Character.image_Bullet == None:                      # 총알 그림
+            self.Bullet_image = load_image('Bullet.png')
 
         self.images = {                                              # 이미지 미리 로드 하기
             "wait_shotgun": load_image('HKCAWS_wait.png'),
@@ -655,31 +649,31 @@ class Draw_Character:
             if position == 0:
                 for i in range(8):                  # 샷건 최대 총알
                     if i < self.Bullet_shotgun:     # 샷건 현재 총알 수 만큼 그리고 없으면 빈칸
-                        self.Bullet_shotgun_image.clip_composite_draw(0, 0, 27, 49, 0, '', bx - i * 27, by, 27, 49)
+                        self.Bullet_image.clip_composite_draw(0, 0, 27, 50, 0, '', bx - i * 27, by, 27, 50)
                     else:
-                        self.Bullet_shotgun_image.clip_composite_draw(27, 0, 27, 49, 0, '', bx - i * 27, by, 27, 49)
+                        self.Bullet_image.clip_composite_draw(27, 0, 27, 50, 0, '', bx - i * 27, by, 27, 50)
             elif position == 1:
                 for i in range(4):                  # 라이플 최대 총알
                     if i < self.Bullet_rifle:       # 라이플 현재 총알 수 만큼 그리고 없으면 빈칸
-                        self.Bullet_rifle_image.clip_composite_draw(0, 0, 27, 59, 0, '', bx - i * 27, by - 10, 27, 59)
+                        self.Bullet_image.clip_composite_draw(54, 0, 27, 50, 0, '', bx - i * 27, by, 27, 50)
                     else:
-                        self.Bullet_rifle_image.clip_composite_draw(27, 0, 27, 59, 0, '', bx - i * 27, by - 10, 27, 59)
+                        self.Bullet_image.clip_composite_draw(81, 0, 27, 50, 0, '', bx - i * 27, by, 27, 50)
             elif position == 2:
                 for i in range(handgun_max_bullet): # 핸드건 최대 총알
                     if i < self.Bullet_handgun:     # 핸드건 최대 총알 수 만큼 그리고 없으면 빈칸
                         if i >= 20:
-                            self.Bullet_handgun_image.clip_composite_draw(0, 0, 28, 28, 0, '', bx - (i - 20) * 28 , by - 45, 28, 28)
+                            self.Bullet_image.clip_composite_draw(108, 0, 27, 50, 0, '', bx - (i - 20) * 28 , by - 56, 27, 50)
                         elif i >= 10:
-                            self.Bullet_handgun_image.clip_composite_draw(0, 0, 28, 28, 0, '', bx - (i - 10) * 28 , by - 17, 28, 28)
+                            self.Bullet_image.clip_composite_draw(108, 0, 27, 50, 0, '', bx - (i - 10) * 28 , by - 28, 27, 50)
                         else:
-                            self.Bullet_handgun_image.clip_composite_draw(0, 0, 28, 28, 0, '', bx - i * 28, by + 11, 28, 28)
+                            self.Bullet_image.clip_composite_draw(108, 0, 27, 50, 0, '', bx - i * 28, by, 27, 50)
                     else:
                         if i >= 20:
-                            self.Bullet_handgun_image.clip_composite_draw(28, 0, 28, 28, 0, '', bx - (i - 20) * 28 , by - 45, 28, 28)
+                            self.Bullet_image.clip_composite_draw(135, 0, 27, 50, 0, '', bx - (i - 20) * 28 , by - 56, 27, 50)
                         elif i >= 10:
-                            self.Bullet_handgun_image.clip_composite_draw(28, 0, 28, 28, 0, '', bx - (i - 10) * 28, by - 17, 28, 28)
+                            self.Bullet_image.clip_composite_draw(135, 0, 27, 50, 0, '', bx - (i - 10) * 28, by - 28, 27, 50)
                         else:
-                            self.Bullet_handgun_image.clip_composite_draw(28, 0, 28, 28, 0, '', bx - i * 28, by + 11, 28, 28)
+                            self.Bullet_image.clip_composite_draw(135, 0, 27, 50, 0, '', bx - i * 28, by, 27, 50)
 
 def handle_events():
     global running, MoveRight, Walking, Attack, AttackRight, attack_delay, position, state, Reload_shotgun, Reload_rifle, reload_time, Jump, jump_velocity
