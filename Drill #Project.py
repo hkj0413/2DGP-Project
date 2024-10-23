@@ -780,7 +780,7 @@ def handle_events():
             # shift 누를시 대쉬
             elif event.type == SDL_KEYDOWN and event.key == SDLK_LSHIFT and dash_cooldown == 0 and reload_time <= 10:
                 Dash = True
-                attack_delay = 2   # 평캔 가능
+                attack_delay = 2   # 타이밍 맞추면 평캔 가능
                 Jump = False
                 jump_velocity = 0.0
                 Fall = False
