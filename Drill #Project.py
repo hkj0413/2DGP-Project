@@ -180,6 +180,15 @@ class Draw_Character:
                 self.framex = (self.framex + 1) % 16
                 self.image = self.images["reload_shotgun"]
 
+        elif Reload_rifle:
+            if reload_time > 30 or 20 >= reload_time > 10:
+                self.framex = 0
+                self.image = self.images["attack_rifle"]
+            elif 30 >= reload_time > 20:
+                self.framex = 1
+            else:
+                self.framex = 0
+                self.image = self.images["move_rifle"]
 
         elif Hit:
             if position == 0 and state == 1:
@@ -425,7 +434,7 @@ class Draw_Character:
             elif x < 500 and not ox == 0 and move == 1:
                 if check_collide(world):
                     dx = 0
-                    x += -20
+                    x += 20
                     Dash = False
                     Fall = True
                 else:
@@ -471,7 +480,7 @@ class Draw_Character:
                 elif x < 500 and not ox == 0 and not MoveRight:
                     if check_collide(world):
                         dx = 0
-                        x += -8
+                        x += 8
                     else:
                         dx = -8
                 elif not MoveRight:
@@ -485,6 +494,7 @@ class Draw_Character:
                     x += 8
             elif reload_time <= 0:
                 Reload_rifle = False
+                MoveRight = not MoveRight
                 self.Bullet_rifle = 4
 
         xpos += dx
@@ -581,6 +591,11 @@ class Draw_Character:
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
                 elif not AttackRight:    # 왼쪽 공격 그림
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
+            elif Reload_rifle:
+                if MoveRight:            # 오른쪽 그 외 전부
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
+                elif not MoveRight:      # 왼쪽 그 외 전부
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
             else:
                 if MoveRight:            # 오른쪽 그 외 전부
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
@@ -680,7 +695,7 @@ def handle_events():
 
         if not Die:
             # d 누를시 오른쪽 으로 이동, a를 누르는 중에 눌러도 오른쪽 으로 이동
-            if event.type == SDL_KEYDOWN and event.key == SDLK_d:
+            if event.type == SDL_KEYDOWN and event.key == SDLK_d and not Reload_rifle:
                 MoveRight = True
                 Walking = True
                 d_pressed = True
@@ -696,7 +711,7 @@ def handle_events():
                     Walking = False
 
             # a 누를시 왼쪽 으로 이동, d를 누르는 중에 눌러도 왼쪽 으로 이동
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_a:
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_a and not Reload_rifle:
                 MoveRight = False
                 Walking = True
                 a_pressed = True
@@ -717,13 +732,13 @@ def handle_events():
                 jump_velocity = 10.0
                 Hit = False
 
-            # r 누를시 재장전 샷건
+            # r 누를시 샷건 재장전
             elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and position == 0 and not Reload_shotgun and character.Bullet_shotgun == 0:
                 Hit = False
                 Reload_shotgun = True
                 reload_time = 80
 
-            # r 누를시 재장전 라이플
+            # r 누를시 라이플 재장전
             elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and position == 1 and not Reload_rifle and character.Bullet_rifle == 0:
                 Hit = False
                 Reload_rifle = True
@@ -731,7 +746,7 @@ def handle_events():
                 reload_time = 40
 
             # shift 누를시 대쉬
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_LSHIFT and dash_cooldown == 0:
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_LSHIFT and dash_cooldown == 0 and reload_time <= 10:
                 Dash = True
                 attack_delay = 2   # 평캔 가능
                 Jump = False
@@ -740,7 +755,7 @@ def handle_events():
                 fall_velocity = 0.0
                 state = 0
                 dash_cooldown = 360
-                hit_delay = 10
+                hit_delay = 30
                 if MoveRight:
                     move = 0
                 elif not MoveRight:
