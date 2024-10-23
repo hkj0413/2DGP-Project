@@ -306,7 +306,7 @@ class Draw_Character:
                         dx = 1
                         if check_collide_ad(world, 1) and not Jump and not Fall:
                             Fall = True
-                elif position == 1 and state == 0:
+                elif position == 1 and state == 0 and not Reload_rifle:
                     if check_collide(world):
                         dx = 0
                     else:
@@ -333,7 +333,7 @@ class Draw_Character:
                         x += -1
                     elif check_collide_ad(world, 1) and not Jump and not Fall:
                         Fall = True
-                elif position == 1 and state == 0:                                     # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
+                elif position == 1 and state == 0 and not Reload_rifle:                # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
                     x += 4
                     if check_collide(world):
                         x += -4
@@ -362,7 +362,7 @@ class Draw_Character:
                         dx = -1
                         if check_collide_ad(world, 1) and not Jump and not Fall:
                             Fall = True
-                elif position == 1 and state == 0:
+                elif position == 1 and state == 0 and not Reload_rifle:
                     if check_collide(world):
                         dx = 0
                     else:
@@ -389,7 +389,7 @@ class Draw_Character:
                         x += 1
                     elif check_collide_ad(world, 1) and not Jump and not Fall:
                         Fall = True
-                elif position == 1 and state == 0:                                     # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
+                elif position == 1 and state == 0 and not Reload_rifle:                # 라이플 이동 속도, 저격 스킬을 사용 중이 아닐 경우
                     x += -4
                     if check_collide(world):
                         x += 4
@@ -488,7 +488,12 @@ class Draw_Character:
                     x += 8
             elif reload_time <= 0:
                 Reload_rifle = False
-                MoveRight = not MoveRight
+                if a_pressed:
+                    MoveRight = False
+                elif d_pressed:
+                    MoveRight = True
+                else:
+                    MoveRight = not MoveRight
                 self.Bullet_rifle = 4
 
         xpos += dx
@@ -689,8 +694,9 @@ def handle_events():
 
         if not Die:
             # d 누를시 오른쪽 으로 이동, a를 누르는 중에 눌러도 오른쪽 으로 이동
-            if event.type == SDL_KEYDOWN and event.key == SDLK_d and not Reload_rifle:
-                MoveRight = True
+            if event.type == SDL_KEYDOWN and event.key == SDLK_d:
+                if not Reload_rifle:
+                    MoveRight = True
                 Walking = True
                 d_pressed = True
                 Hit = False
@@ -705,8 +711,9 @@ def handle_events():
                     Walking = False
 
             # a 누를시 왼쪽 으로 이동, d를 누르는 중에 눌러도 왼쪽 으로 이동
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_a and not Reload_rifle:
-                MoveRight = False
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_a:
+                if not Reload_rifle:
+                    MoveRight = False
                 Walking = True
                 a_pressed = True
                 Hit = False
@@ -738,6 +745,7 @@ def handle_events():
                 Reload_rifle = True
                 MoveRight = not MoveRight
                 reload_time = 40
+                hit_delay = 30
 
             # shift 누를시 대쉬
             elif event.type == SDL_KEYDOWN and event.key == SDLK_LSHIFT and dash_cooldown == 0 and reload_time <= 10:
