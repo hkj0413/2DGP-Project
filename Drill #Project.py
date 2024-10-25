@@ -327,6 +327,14 @@ class Draw_Character:
                         dx = 4
                         if check_collide_ad(world, 4) and not Jump and not Fall:
                             Fall = True
+                elif position == 2 and Reload_handgun:
+                    if check_collide(world):
+                        dx = 0
+                        x += -2
+                    else:
+                        dx = 7
+                        if check_collide_ad(world, 7) and not Jump and not Fall:
+                            Fall = True
                 elif position == 2:
                     if check_collide(world):
                         dx = 0
@@ -352,6 +360,12 @@ class Draw_Character:
                     if check_collide(world):
                         x += -4
                     elif check_collide_ad(world, 4) and not Jump and not Fall:
+                        Fall = True
+                elif position == 2 and Reload_handgun:                                 # 핸드건 장전 이동 속도
+                    x += 7
+                    if check_collide(world):
+                        x += -7
+                    elif check_collide_ad(world, 7) and not Jump and not Fall:
                         Fall = True
                 elif position == 2:                                                    # 핸드건 이동 속도
                     x += 5
@@ -383,6 +397,14 @@ class Draw_Character:
                         dx = -4
                         if check_collide_ad(world, 4) and not Jump and not Fall:
                             Fall = True
+                elif position == 2 and Reload_handgun:
+                    if check_collide(world):
+                        dx = 0
+                        x += 2
+                    else:
+                        dx = -7
+                        if check_collide_ad(world, 7) and not Jump and not Fall:
+                            Fall = True
                 elif position == 2:
                     if check_collide(world):
                         dx = 0
@@ -408,6 +430,12 @@ class Draw_Character:
                     if check_collide(world):
                         x += 4
                     elif check_collide_ad(world, 4) and not Jump and not Fall:
+                        Fall = True
+                elif position == 2 and Reload_handgun:                                 # 핸드건 장전 이동 속도
+                    x += -7
+                    if check_collide(world):
+                        x += 7
+                    elif check_collide_ad(world, 7) and not Jump and not Fall:
                         Fall = True
                 elif position == 2:                                                    # 핸드건 이동 속도
                     x += -5
@@ -776,6 +804,7 @@ def handle_events():
                 Hit = False
                 Reload_handgun = True
                 reload_time = 30
+                hit_delay = 30
 
             # shift 누를시 대쉬
             elif event.type == SDL_KEYDOWN and event.key == SDLK_LSHIFT and dash_cooldown == 0 and reload_time <= 10:
