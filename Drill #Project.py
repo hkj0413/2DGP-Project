@@ -69,35 +69,21 @@ class Background:
     def draw(self):
         self.image.clip_draw(self.x, self.y, WIDTH, HEIGHT, WIDTH // 2, HEIGHT // 2)
 
-class Grass:
+class Block:
     image = None
 
-    def __init__(self, i = 0, j = 0):
+    def __init__(self, i = 0, j = 0, k = 0):
         self.base_x = i * 30 + 15
         self.y  = j * 30 + 15
-        if Grass.image == None:
-            Grass.image = load_image('grass.png')
+        self.framex = k
+        if Block.image == None:
+            Block.image = load_image('block.png')
 
     def update(self):
         self.x = self.base_x - ox
 
     def draw(self):
-        self.image.draw(self.x, self.y, 30, 30)
-
-class Ground:
-    image = None
-
-    def __init__(self, i = 0, j = 0):
-        self.base_x = i * 30 + 15
-        self.y  = j * 30 + 15
-        if Ground.image == None:
-            Ground.image = load_image('ground.png')
-
-    def update(self):
-        self.x = self.base_x - ox
-
-    def draw(self):
-        self.image.draw(self.x, self.y, 30, 30)
+        self.image.clip_draw(self.framex * 120, 0, 120, 120, self.x, self.y, 30, 30)
 
 class Draw_Character:
     image_Hp = None
@@ -558,7 +544,7 @@ class Draw_Character:
                 Jump = False
                 Fall = True
                 jump_velocity = 10.0
-            elif check_collide_jump(Grass):
+            elif check_collide_jump(Block):
                 y = bottom_o - 18
                 Jump = False
                 Fall = True
@@ -567,7 +553,7 @@ class Draw_Character:
         if Fall:
             y -= fall_velocity                                    # 추락 가속도
             fall_velocity += gravity
-            if check_collide_fall(Grass):
+            if check_collide_fall(Block):
                 y = top_o + 50
                 Fall = False
                 fall_velocity = 0.0
@@ -959,7 +945,7 @@ def collide_ad(cx, cy, o, object, speed):
     return False
 
 def check_collide_jump(object):
-    check_object = [o for o in world if isinstance(o, object)]
+    check_object = [o for o in world if isinstance(o, object) and not o.framex == 0]
     for o in check_object:
         if collide_jump(x, y, o):
             return True
@@ -981,7 +967,7 @@ def collide_jump(cx, cy, o):
     return False
 
 def check_collide_fall(object):
-    check_object = [o for o in world if isinstance(o, object)]
+    check_object = [o for o in world if isinstance(o, object) and not o.framex == 0]
     for o in check_object:
         if collide_fall(x, y, o):
             return True
@@ -1026,22 +1012,33 @@ def reset_world():
 
     background = Background()
 
-    grass = [Grass(i, 6) for i in range(18, 23 + 1)]
-    world += grass
+    grass_positions = [
+        (6, range(18, 24)),
+        (3, range(10, 16)),
+        (3, range(21, 28)),
+        (2, range(0, 10)),
+        (2, range(16, 21)),
+        (2, range(28, 30)),
+        (2, range(34, 44)),
+        (2, range(50, 109)),
+    ]
 
-    grass = [Grass(i, 3) for i in range(10, 27 + 1) if (i < 16 or i > 20)]
-    world += grass
+    for j, i_range in grass_positions:
+        world += [Block(i, j, 1) for i in i_range]
 
-    grass = [Grass(i, 2) for i in range(0, 108 + 1) if
-             (i < 10 or i > 15) and (i < 21 or i > 27) and (i < 30 or i > 33) and (i < 44 or i > 49)]
-    world += grass
+    ground_positions = [
+        (2, range(10, 16)),
+        (2, range(21, 28)),
+        (1, range(0, 30)),
+        (1, range(34, 44)),
+        (1, range(50, 109)),
+        (0, range(0, 30)),
+        (0, range(34, 44)),
+        (0, range(50, 109)),
+    ]
 
-    ground = [Ground(i, 2) for i in range(10, 27 + 1) if (i < 16 or i > 20)]
-    world += ground
-
-    for j in range(0, 1 + 1):
-        ground = [Ground(i, j) for i in range(0, 108 + 1) if (i < 30 or i > 33) and (i < 44 or i > 49)]
-        world += ground
+    for j, i_range in ground_positions:
+        world += [Block(i, j, 0) for i in i_range]
 
     character = Draw_Character()
 
