@@ -77,13 +77,46 @@ class Block:
         self.y  = j * 30 + 15
         self.framex = k
         if Block.image == None:
-            Block.image = load_image('block.png')
+            Block.image = load_image('Block.png')
 
     def update(self):
         self.x = self.base_x - ox
 
     def draw(self):
         self.image.clip_draw(self.framex * 120, 0, 120, 120, self.x, self.y, 30, 30)
+
+class Spore:
+    image = None
+
+    def __init__(self, i = 0, j = 0, k = 0):
+        self.base_x = i * 30 + 15
+        self.y  = j * 30 + 15
+        self.framex = 0
+        self.framey = k
+        self.temp = 0
+        self.move = 0
+        self.moveright = True
+        if Spore.image == None:
+            Spore.image = load_image('Spore.png')
+
+    def update(self):
+        self.temp += 1
+        if self.temp % 8 == 0:
+            self.framex = (self.framex + 1) % 4
+            if self.moveright:
+                self.move -= 4
+            else:
+                self.move += 4
+            if (self.move > 80 and not self.moveright) or (self.move < -80 and self.moveright) :
+                self.moveright = not self.moveright
+        self.x = self.base_x - ox + self.move
+
+    def draw(self):
+        if self.moveright:
+            self.image.clip_composite_draw(self.framex * 50, 150 - self.framey * 50, 50, 50, 0, '', self.x, self.y, 50, 50)
+        else:
+            self.image.clip_composite_draw(self.framex * 50, 150 - self.framey * 50, 50, 50, 0, 'h', self.x, self.y, 50, 50)
+
 
 class Draw_Character:
     image_Hp = None
@@ -223,7 +256,7 @@ class Draw_Character:
                 elif position == 2:
                     self.image = self.images["move_handgun"]             # 핸드건 점프, 추락, 대쉬
             else:
-                if self.temp % 3 == 0:
+                if self.temp % 4 == 0:
                     if position == 0:
                         if state == 0:
                             self.framex = (self.framex + 1) % 14
@@ -1039,6 +1072,9 @@ def reset_world():
 
     for j, i_range in ground_positions:
         world += [Block(i, j, 0) for i in i_range]
+
+    world += [Spore(5, 3, 0)]
+    world += [Spore(7, 5, 0)]
 
     character = Draw_Character()
 
