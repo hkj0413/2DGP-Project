@@ -155,7 +155,7 @@ class Spore:
                 self.framex = 3
 
         elif self.state == 4:
-            if self.temp == 600:
+            if self.temp == 300:
                 self.framex = 0
                 self.framey = 1
                 self.temp = 0
@@ -1050,7 +1050,7 @@ def collide_ad(cx, cy, o, object, speed):
     return False
 
 def check_collide_jump(object):
-    check_object = [o for o in world if isinstance(o, object) and not o.framex == 0]
+    check_object = [o for o in world if isinstance(o, object) and o.framex == 1]
     for o in check_object:
         if collide_jump(x, y, o):
             return True
@@ -1072,7 +1072,7 @@ def collide_jump(cx, cy, o):
     return False
 
 def check_collide_fall(object):
-    check_object = [o for o in world if isinstance(o, object) and not o.framex == 0]
+    check_object = [o for o in world if isinstance(o, object) and o.framex == 1]
     for o in check_object:
         if collide_fall(x, y, o):
             return True
@@ -1122,13 +1122,21 @@ def reset_world():
 
     background = Background()
 
+    plank_positions = [
+        (range(3, 12), 29),
+    ]
+
+    for i_range, j in plank_positions:
+        world += [Block(j, i, 2) for i in i_range]
+
     grass_positions = [
-        (6, range(19, 26)),
-        (3, range(10, 17)),
-        (3, range(23, 28)),
-        (2, range(0, 10)),
-        (2, range(16, 23)),
-        (2, range(28, 30)),
+        (13, range(13, 21)),
+        (12, range(26, 30)),
+        (11, range(2, 4)),
+        (9, range(6, 8)),
+        (7, range(11, 16)),
+        (5, range(19, 26)),
+        (2, range(0, 30)),
         (2, range(34, 44)),
         (2, range(50, 109)),
     ]
@@ -1137,8 +1145,6 @@ def reset_world():
         world += [Block(i, j, 1) for i in i_range]
 
     ground_positions = [
-        (2, range(10, 17)),
-        (2, range(23, 28)),
         (1, range(0, 30)),
         (1, range(34, 44)),
         (1, range(50, 109)),
@@ -1150,9 +1156,12 @@ def reset_world():
     for j, i_range in ground_positions:
         world += [Block(i, j, 0) for i in i_range]
 
-    mob += [Spore(6, 3)]
-    mob += [Spore(13, 4)]
-    mob += [Spore(22, 7)]
+    mob += [Spore(7, 3)]
+    mob += [Spore(11, 3)]
+    mob += [Spore(13, 3)]
+    mob += [Spore(17, 3)]
+    mob += [Spore(22, 6)]
+    mob += [Spore(17, 14)]
 
     character = Draw_Character()
 
