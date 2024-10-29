@@ -1,5 +1,7 @@
 from pico2d import *
 
+import random
+
 WIDTH, HEIGHT = 1080, 800
 x, y = 34, 140.0
 
@@ -88,35 +90,104 @@ class Block:
 class Spore:
     image = None
 
-    def __init__(self, i = 0, j = 0, k = 0):
+    def __init__(self, i = 0, j = 0):
         self.base_x = i * 30 + 15
         self.y  = j * 30 + 15
+        self.fx = i * 30 + 15
+        self.fy = j * 30 + 15
         self.framex = 0
-        self.framey = k
+        self.framey = 1
         self.temp = 0
         self.move = 0
-        self.moveright = True
+        self.rand = random.randint(1, 2)
+        if self.rand == 1:
+            self.moveright = True
+        elif self.rand == 2:
+            self.moveright = False
+        self.state = 1
+        self.hp = 2
         if Spore.image == None:
             Spore.image = load_image('Spore.png')
 
     def update(self):
         self.temp += 1
-        if self.temp % 8 == 0:
-            self.framex = (self.framex + 1) % 4
-            if self.moveright:
-                self.move -= 4
-            else:
-                self.move += 4
-            if (self.move > 80 and not self.moveright) or (self.move < -80 and self.moveright) :
-                self.moveright = not self.moveright
+        if self.state == 0:
+            if self.temp % 8 == 0:
+                self.framex = (self.framex + 1) % 4
+                self.rand = random.randint(1, 20)
+                if self.rand == 20:
+                    self.state = 1
+                    self.framex = 0
+                    self.framey = 1
+                    self.temp = 0
+                if self.moveright:
+                    self.move -= 3
+                elif not self.moveright:
+                    self.move += 3
+                if (self.move > 90 and not self.moveright) or (self.move < -90 and self.moveright):
+                    self.moveright = not self.moveright
+
+        elif self.state == 1:
+            if self.temp % 70 == 0 and self.framex % 2 == 0:
+                self.rand = random.randint(1, 5)
+                if self.rand == 5 or self.temp == 210:
+                    self.state = 0
+                    self.framex = 0
+                    self.framey = 3
+                    self.temp = 0
+                self.framex = (self.framex + 1) % 2
+            elif self.temp % 10 == 0 and self.framex % 2 == 1:
+                self.framex = (self.framex + 1) % 2
+
+        elif self.state == 2:
+            if self.temp == 30:
+                self.framey = 1
+                self.state = 1
+
+        elif self.state == 3:
+            if self.temp % 8 == 0 and self.temp < 32:
+                self.framex = (self.framex + 1) % 4
+            elif self.temp >= 96:
+                self.framex = 4
+                self.state = 4
+                self.temp = 0
+            elif self.temp >= 32:
+                self.framex = 3
+
+        elif self.state == 4:
+            if self.temp == 600:
+                self.framex = 0
+                self.framey = 1
+                self.temp = 0
+                self.move = 0
+                self.state = 1
+                self.hp = 2
+                self.rand = random.randint(1, 2)
+                if self.rand == 1:
+                    self.moveright = True
+                elif self.rand == 2:
+                    self.moveright = False
+                self.base_x = self.fx
+                self.y = self.fy
+
         self.x = self.base_x - ox + self.move
 
     def draw(self):
         if self.moveright:
-            self.image.clip_composite_draw(self.framex * 50, 150 - self.framey * 50, 50, 50, 0, '', self.x, self.y, 50, 50)
+            self.image.clip_composite_draw(self.framex * 50, self.framey * 50, 50, 50, 0, '', self.x, self.y, 50, 50)
         else:
-            self.image.clip_composite_draw(self.framex * 50, 150 - self.framey * 50, 50, 50, 0, 'h', self.x, self.y, 50, 50)
+            self.image.clip_composite_draw(self.framex * 50, self.framey * 50, 50, 50, 0, 'h', self.x, self.y, 50, 50)
 
+    def take_damage(self, damage):
+        self.hp -= damage
+        self.temp = 0
+        self.framex = 0
+        self.framey = 0
+        self.state = 2
+        if self.hp <= 0:
+            self.framey = 2
+            self.state = 3
+            self.hp = 0
 
 class Draw_Character:
     image_Hp = None
@@ -601,7 +672,8 @@ class Draw_Character:
                 Walking = False
                 Attack = False
                 Reload_shotgun = False
-                Reload_shotgun = False
+                Reload_rifle = False
+                Reload_handgun = False
                 Hit = False
                 Jump = False
                 Fall = False
@@ -907,7 +979,7 @@ def handle_events():
             elif event.type == SDL_MOUSEBUTTONUP and event.button == SDL_BUTTON_RIGHT and position == 0 and state == 1:
                 state = 0
 
-            # t 누를시 hp - 4
+            # t 누를시 hp - 8
             elif event.type == SDL_KEYDOWN and event.key == SDLK_t:
                 character.take_damage(8)
 
@@ -1025,6 +1097,8 @@ def update_world():
     background.update(dx)
     for o in world:
         o.update()
+    for m in mob:
+        m.update()
     character.update()
 
 def render_world():
@@ -1032,16 +1106,19 @@ def render_world():
     background.draw()
     for o in world:
         o.draw()
+    for m in mob:
+        m.draw()
     character.draw()
     character.show_Hp()
     character.show_Bullet()
     update_canvas()
 
 def reset_world():
-    global running, grass, ground, character, world, background
+    global running, grass, ground, character, world, background, mob, spore
 
     running = True
     world = []
+    mob = []
 
     background = Background()
 
@@ -1073,8 +1150,8 @@ def reset_world():
     for j, i_range in ground_positions:
         world += [Block(i, j, 0) for i in i_range]
 
-    world += [Spore(5, 3, 0)]
-    world += [Spore(7, 5, 0)]
+    mob += [Spore(5, 3)]
+    mob += [Spore(7, 5)]
 
     character = Draw_Character()
 
