@@ -124,7 +124,7 @@ class Spore:
                     self.move -= 3
                 elif not self.moveright:
                     self.move += 3
-                if (self.move > 90 and not self.moveright) or (self.move < -90 and self.moveright):
+                if (self.move > 90 and not self.moveright) or (self.move < -90 and self.moveright) or self.rand == 19:
                     self.moveright = not self.moveright
 
         elif self.state == 1:
@@ -1114,7 +1114,7 @@ def render_world():
     update_canvas()
 
 def reset_world():
-    global running, grass, ground, character, world, background, mob, spore
+    global running, grass, ground, character, world, background, mob
 
     running = True
     world = []
@@ -1123,11 +1123,11 @@ def reset_world():
     background = Background()
 
     grass_positions = [
-        (6, range(18, 24)),
-        (3, range(10, 16)),
-        (3, range(21, 28)),
+        (6, range(19, 26)),
+        (3, range(10, 17)),
+        (3, range(23, 28)),
         (2, range(0, 10)),
-        (2, range(16, 21)),
+        (2, range(16, 23)),
         (2, range(28, 30)),
         (2, range(34, 44)),
         (2, range(50, 109)),
@@ -1137,8 +1137,8 @@ def reset_world():
         world += [Block(i, j, 1) for i in i_range]
 
     ground_positions = [
-        (2, range(10, 16)),
-        (2, range(21, 28)),
+        (2, range(10, 17)),
+        (2, range(23, 28)),
         (1, range(0, 30)),
         (1, range(34, 44)),
         (1, range(50, 109)),
@@ -1150,8 +1150,9 @@ def reset_world():
     for j, i_range in ground_positions:
         world += [Block(i, j, 0) for i in i_range]
 
-    mob += [Spore(5, 3)]
-    mob += [Spore(7, 5)]
+    mob += [Spore(6, 3)]
+    mob += [Spore(13, 4)]
+    mob += [Spore(22, 7)]
 
     character = Draw_Character()
 
