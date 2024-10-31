@@ -202,14 +202,17 @@ class Spore:
             self.hp = 0
 
 class Projectile:
+    images = None
+
     def __init__(self):
         self.x = 0
         self.y = 0
         self.framex = 0
         self.temp = 0
-        self.images = {
-            "Lc_shotgun": load_image('HKCAWS_Lc.png'),
-        }
+        if self.images == None:
+            self.images = {
+                "Lc_shotgun": load_image('HKCAWS_Lc.png'),
+            }
         self.image = self.images["Lc_shotgun"]
 
     def update(self):
@@ -221,14 +224,14 @@ class Projectile:
             for m in mob:
                 if m.state == 0 or m.state == 1:
                     if AttackRight:
-                        if self.x <= m.left <= self.x + 60 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                        if self.x - 17 <= m.left <= self.x + 60 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
                             m.take_damage(3)
                         elif self.x + 60 + 17 < m.left <= self.x + 120 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
                             m.take_damage(2)
                         elif self.x + 120 + 17 < m.left <= self.x + 180 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
                             m.take_damage(1)
                     elif not AttackRight:
-                        if self.x - 60 - 17 <= m.right <= self.x and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                        if self.x - 60 - 17 <= m.right <= self.x + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
                             m.take_damage(3)
                         elif self.x - 120 - 17 < m.right <= self.x - 60 - 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
                             m.take_damage(2)
@@ -443,10 +446,49 @@ class Character:
             if attack_delay <= 0:
                 attack_delay = 0
 
-        if not hit_delay == 0:                              # 피격 면역 hit_delay == 0 이 되기 전까지 무적
+        if Die:
+            if die_time == 180:                                   # 사망 시간
+                Walking = False
+                Attack = False
+                Reload_shotgun = False
+                Reload_rifle = False
+                Reload_handgun = False
+                Jump = False
+                Fall = False
+                a_pressed = False
+                d_pressed = False
+                state = 0
+                change_time = 0
+                attack_time = 0
+                attack_delay = 0
+                hit_delay = 0
+                reload_time = 0
+                jump_velocity = 0.0
+                fall_velocity = 0.0
+            die_time -= 1
+            if die_time <= 0:
+                MoveRight = True
+                Die = False
+                x = 34
+                y = 140.0
+                ox -= xpos
+                for o in world:
+                    o.x -= xpos
+                xpos = 0
+                if self.Hp == 0:
+                    self.Hp = self.max_Hp
+                    self.Bullet_shotgun = 8
+                    self.Bullet_rifle = 4
+                    self.Bullet_handgun = handgun_max_bullet
+
+        if check_collide_mob() and hit_delay == 0 and not Die:
+            self.take_damage(1)
+
+        if not hit_delay == 0:                                                         # 피격 면역 hit_delay == 0 이 되기 전까지 무적
             hit_delay -= 1
-            if hit_delay <= 0:
+            if hit_delay <= 30 and Hit:
                 Hit = False
+            elif hit_delay <= 0:
                 hit_delay = 0
 
         dx = 0
@@ -724,43 +766,6 @@ class Character:
                 die_time = 180
                 fall_velocity = 0.0
 
-        if Die:
-            if die_time == 180:                                   # 사망 시간
-                Walking = False
-                Attack = False
-                Reload_shotgun = False
-                Reload_rifle = False
-                Reload_handgun = False
-                Hit = False
-                Jump = False
-                Fall = False
-                a_pressed = False
-                d_pressed = False
-                state = 0
-                change_time = 0
-                attack_time = 0
-                attack_delay = 0
-                hit_delay = 0
-                reload_time = 0
-                jump_velocity = 0.0
-                fall_velocity = 0.0
-            die_time -= 1
-            if die_time <= 0:
-                MoveRight = True
-                Die = False
-                x = 34
-                y = 140.0
-                ox -= xpos
-                for o in world:
-                    o.x -= xpos
-                xpos = 0
-                if self.Hp == 0:
-                    self.Hp = self.max_Hp
-                    self.Bullet_shotgun = 8
-                    self.Bullet_rifle = 4
-                    self.Bullet_handgun = handgun_max_bullet
-                die_time = 180
-
     def draw(self):
         if not changing:
             if Die:
@@ -814,12 +819,13 @@ class Character:
                 Walking = False
                 a_pressed = False
                 d_pressed = False
-            Hit = True
-            hit_delay = 30                                 # 0.5초 무적 (60 FPS)
             if self.Hp <= 0:
                 self.Hp = 0
                 Die =  True
                 die_time = 180
+            elif self.Hp > 0:
+                Hit = True
+                hit_delay = 60                             # 1초 무적 (60 FPS)
             self.show_Hp()
 
     def heal(self, healpack):
@@ -1150,6 +1156,22 @@ def collide_fall(cx, cy, o):
     # 바닥에 캐릭터 가 닿음
     if left_c < right_o and bottom_c < top_o and right_c > left_o and bottom_c + fall_velocity > top_o:
         return True, top_o
+    return False
+
+def check_collide_mob():
+    for m in mob:
+        if not m.state == 3 and not m.state == 4:
+            if collide_mob(x, y, m):
+                return True
+    return False
+
+def collide_mob(cx, cy, m):
+    left_c, right_c = cx - 17, cx + 17
+
+    top_c, bottom_c = cy + 18.0, cy - 50.0
+
+    if left_c < m.right and bottom_c < m.top and right_c > m.left and top_c > m.bottom:
+        return True
     return False
 
 def update_world():
