@@ -189,7 +189,32 @@ class Spore:
             self.state = 3
             self.hp = 0
 
-class Draw_Character:
+class Projectile:
+    def __init__(self):
+        self.framex = 0
+        self.temp = 0
+        self.images = {
+            "Lc_shotgun": load_image('HKCAWS_Lc.png'),
+        }
+        self.image = self.images["Lc_shotgun"]
+
+    def update(self):
+        self.temp += 1
+        if attack_time == 15:
+            self.framex = 0
+            self.temp = 0
+        if position == 0:
+            if self.temp % 5 == 0:
+                self.framex = (self.framex + 1) % 9
+                self.image = self.images["Lc_shotgun"]
+
+    def draw(self):
+        if AttackRight:
+            self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, '', x + 89 + self.framex * 3, y - 17, 155, 157)
+        elif not AttackRight:
+            self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, 'h', x - 89 - self.framex * 3, y - 17, 155, 157)
+
+class Character:
     image_Hp = None
     image_Bullet = None
 
@@ -199,12 +224,12 @@ class Draw_Character:
         self.roll = 60
         self.Hp = 20                                                 # 현재 체력
         self.max_Hp = 20                                             # 최대 체력
-        if Draw_Character.image_Hp == None:
+        if Character.image_Hp == None:
             self.Hp_image = load_image('Hp.png')                     # 체력 그림
         self.Bullet_shotgun = 8                                      # 샷건 총알 개수
         self.Bullet_rifle = 4                                        # 라이플 총알 개수
         self.Bullet_handgun = handgun_max_bullet                     # 핸드건 총알 개수
-        if Draw_Character.image_Bullet == None:                      # 총알 그림
+        if Character.image_Bullet == None:                           # 총알 그림
             self.Bullet_image = load_image('Bullet.png')
 
         self.images = {                                              # 이미지 미리 로드 하기
@@ -229,7 +254,6 @@ class Draw_Character:
             "ultimate_1_shotgun": load_image('HKCAWS_ultimate_1.png'),
             "ultimate_2_shotgun": load_image('HKCAWS_ultimate_2.png'),
         }
-
         self.image = self.images["wait_shotgun"]                     # 기본 캐릭터 그림
 
     def update(self):
@@ -1100,6 +1124,7 @@ def update_world():
     for m in mob:
         m.update()
     character.update()
+    projectil.update()
 
 def render_world():
     clear_canvas()
@@ -1109,12 +1134,13 @@ def render_world():
     for m in mob:
         m.draw()
     character.draw()
+    projectil.draw()
     character.show_Hp()
     character.show_Bullet()
     update_canvas()
 
 def reset_world():
-    global running, grass, ground, character, world, background, mob
+    global running, grass, ground, character, world, background, mob, projectil
 
     running = True
     world = []
@@ -1163,7 +1189,9 @@ def reset_world():
     mob += [Spore(22, 6)]
     mob += [Spore(17, 14)]
 
-    character = Draw_Character()
+    projectil = Projectile()
+
+    character = Character()
 
 open_canvas(WIDTH, HEIGHT)
 
