@@ -91,12 +91,21 @@ class Spore:
     image = None
 
     def __init__(self, i = 0, j = 0):
+        self.x = 0
         self.base_x = i * 30 + 15
         self.y  = j * 30 + 15
         self.fx = i * 30 + 15
         self.fy = j * 30 + 15
+        self.left = 0
+        self.right = 0
+        self.top = 0
+        self.bottom = 0
         self.framex = 0
-        self.framey = 1
+        self.state = random.randint(0, 1)
+        if self.state == 0:
+            self.framey = 3
+        elif self.state == 1:
+            self.framey = 1
         self.temp = 0
         self.move = 0
         self.rand = random.randint(1, 2)
@@ -104,7 +113,6 @@ class Spore:
             self.moveright = True
         elif self.rand == 2:
             self.moveright = False
-        self.state = 1
         self.hp = 2
         if Spore.image == None:
             Spore.image = load_image('Spore.png')
@@ -171,6 +179,10 @@ class Spore:
                 self.y = self.fy
 
         self.x = self.base_x - ox + self.move
+        self.left = self.x - 15
+        self.right = self.x + 15
+        self.top = self.y + 15
+        self.bottom = self.y - 15
 
     def draw(self):
         if self.moveright:
@@ -191,6 +203,8 @@ class Spore:
 
 class Projectile:
     def __init__(self):
+        self.x = 0
+        self.y = 0
         self.framex = 0
         self.temp = 0
         self.images = {
@@ -199,20 +213,39 @@ class Projectile:
         self.image = self.images["Lc_shotgun"]
 
     def update(self):
+        global projectil
+        self.x = x
+        self.y = y
         self.temp += 1
-        if attack_time == 15:
-            self.framex = 0
-            self.temp = 0
+        if self.temp <= 15:
+            for m in mob:
+                if m.state == 0 or m.state == 1:
+                    if AttackRight:
+                        if self.x <= m.left <= self.x + 60 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                            m.take_damage(3)
+                        elif self.x + 60 + 17 < m.left <= self.x + 120 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                            m.take_damage(2)
+                        elif self.x + 120 + 17 < m.left <= self.x + 180 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                            m.take_damage(1)
+                    elif not AttackRight:
+                        if self.x - 60 - 17 <= m.right <= self.x and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                            m.take_damage(3)
+                        elif self.x - 120 - 17 < m.right <= self.x - 60 - 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                            m.take_damage(2)
+                        elif self.x - 180 - 17 < m.right <= self.x - 120 - 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                            m.take_damage(1)
         if position == 0:
             if self.temp % 5 == 0:
                 self.framex = (self.framex + 1) % 9
                 self.image = self.images["Lc_shotgun"]
+            if self.temp == 45:
+                projectil.remove(self)
 
     def draw(self):
         if AttackRight:
-            self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, '', x + 89 + self.framex * 3, y - 17, 155, 157)
+            self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, '', self.x + 70 + self.framex * 10, y - 17, 155, 157)
         elif not AttackRight:
-            self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, 'h', x - 89 - self.framex * 3, y - 17, 155, 157)
+            self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, 'h', self.x - 70 - self.framex * 10, y - 17, 155, 157)
 
 class Character:
     image_Hp = None
@@ -849,7 +882,8 @@ class Character:
 
 def handle_events():
     global running, MoveRight, Walking, Attack, AttackRight, attack_delay, position, state, Reload_shotgun, Reload_rifle, Reload_handgun,reload_time
-    global Hit, hit_delay, Jump, jump_velocity, Fall, fall_velocity, changing, change_time, attack_time, a_pressed, d_pressed, Dash, dash_cooldown, move
+    global Hit, hit_delay, Jump, jump_velocity, Fall, fall_velocity, changing, change_time, attack_time, a_pressed, d_pressed
+    global Dash, dash_cooldown, move, projectil
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -985,6 +1019,7 @@ def handle_events():
 
                     Attack = True
                     attack_time = 15              # 공격 모션 시간
+                    projectil += [Projectile()]
 
                     if mouse_x < x:               # 캐릭터 보다 왼쪽 좌클릭 시 왼쪽 공격, 오른쪽 이동 중 에는 왼쪽 공격후 오른쪽 을 다시 바라 봄
                         AttackRight = False
@@ -1123,8 +1158,9 @@ def update_world():
         o.update()
     for m in mob:
         m.update()
+    for p in projectil:
+        p.update()
     character.update()
-    projectil.update()
 
 def render_world():
     clear_canvas()
@@ -1134,7 +1170,8 @@ def render_world():
     for m in mob:
         m.draw()
     character.draw()
-    projectil.draw()
+    for p in projectil:
+        p.draw()
     character.show_Hp()
     character.show_Bullet()
     update_canvas()
@@ -1145,6 +1182,7 @@ def reset_world():
     running = True
     world = []
     mob = []
+    projectil = []
 
     background = Background()
 
@@ -1188,8 +1226,6 @@ def reset_world():
     mob += [Spore(17, 3)]
     mob += [Spore(22, 6)]
     mob += [Spore(17, 14)]
-
-    projectil = Projectile()
 
     character = Character()
 
