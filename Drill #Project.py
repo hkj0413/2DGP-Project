@@ -51,6 +51,8 @@ ox = 0
 dx = 0
 xpos = 0
 
+mob_damage = 0
+
 class Background:
     def __init__(self):
         self.x = 0
@@ -101,6 +103,7 @@ class Spore:
         self.top = 0
         self.bottom = 0
         self.framex = 0
+        self.damage = 1
         self.state = random.randint(0, 1)
         if self.state == 0:
             self.framey = 3
@@ -220,24 +223,24 @@ class Projectile:
         self.x = x
         self.y = y
         self.temp += 1
-        if self.temp <= 15:
-            for m in mob:
-                if m.state == 0 or m.state == 1:
-                    if AttackRight:
-                        if self.x - 17 <= m.left <= self.x + 60 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
-                            m.take_damage(3)
-                        elif self.x + 60 + 17 < m.left <= self.x + 120 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
-                            m.take_damage(2)
-                        elif self.x + 120 + 17 < m.left <= self.x + 180 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
-                            m.take_damage(1)
-                    elif not AttackRight:
-                        if self.x - 60 - 17 <= m.right <= self.x + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
-                            m.take_damage(3)
-                        elif self.x - 120 - 17 < m.right <= self.x - 60 - 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
-                            m.take_damage(2)
-                        elif self.x - 180 - 17 < m.right <= self.x - 120 - 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
-                            m.take_damage(1)
         if position == 0:
+            if self.temp <= 15:
+                for m in mob:
+                    if m.state == 0 or m.state == 1:
+                        if AttackRight:
+                            if self.x - 17 <= m.left <= self.x + 60 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                                m.take_damage(3)
+                            elif self.x + 60 + 17 < m.left <= self.x + 120 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                                m.take_damage(2)
+                            elif self.x + 120 + 17 < m.left <= self.x + 180 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                                m.take_damage(1)
+                        elif not AttackRight:
+                            if self.x - 60 - 17 <= m.right <= self.x + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                                m.take_damage(3)
+                            elif self.x - 120 - 17 < m.right <= self.x - 60 - 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                                m.take_damage(2)
+                            elif self.x - 180 - 17 < m.right <= self.x - 120 - 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                                m.take_damage(1)
             if self.temp % 5 == 0:
                 self.framex = (self.framex + 1) % 9
                 self.image = self.images["Lc_shotgun"]
@@ -245,10 +248,11 @@ class Projectile:
                 projectil.remove(self)
 
     def draw(self):
-        if AttackRight:
-            self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, '', self.x + 70 + self.framex * 10, y - 17, 155, 157)
-        elif not AttackRight:
-            self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, 'h', self.x - 70 - self.framex * 10, y - 17, 155, 157)
+        if position == 0:
+            if AttackRight:
+                self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, '', self.x + 70 + self.framex * 10, y - 17, 155, 157)
+            elif not AttackRight:
+                self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, 'h', self.x - 70 - self.framex * 10, y - 17, 155, 157)
 
 class Character:
     image_Hp = None
@@ -453,6 +457,7 @@ class Character:
                 Reload_shotgun = False
                 Reload_rifle = False
                 Reload_handgun = False
+                Hit = False
                 Jump = False
                 Fall = False
                 a_pressed = False
@@ -475,6 +480,7 @@ class Character:
                 for o in world:
                     o.x -= xpos
                 xpos = 0
+                hit_delay = 60
                 if self.Hp == 0:
                     self.Hp = self.max_Hp
                     self.Bullet_shotgun = 8
@@ -482,7 +488,7 @@ class Character:
                     self.Bullet_handgun = handgun_max_bullet
 
         if check_collide_mob() and hit_delay == 0 and not Die:
-            self.take_damage(1)
+            self.take_damage(mob_damage)
 
         if not hit_delay == 0:                                                         # 피격 면역 hit_delay == 0 이 되기 전까지 무적
             hit_delay -= 1
@@ -1166,11 +1172,13 @@ def check_collide_mob():
     return False
 
 def collide_mob(cx, cy, m):
+    global mob_damage
     left_c, right_c = cx - 17, cx + 17
 
     top_c, bottom_c = cy + 18.0, cy - 50.0
 
     if left_c < m.right and bottom_c < m.top and right_c > m.left and top_c > m.bottom:
+        mob_damage = m.damage
         return True
     return False
 
