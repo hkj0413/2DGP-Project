@@ -204,6 +204,121 @@ class Spore:
             self.state = 3
             self.hp = 0
 
+class Pig:
+    image = None
+
+    def __init__(self, i = 0, j = 0):
+        self.x = 0
+        self.base_x = i * 30 + 15
+        self.y  = j * 30 + 25
+        self.fx = i * 30 + 15
+        self.fy = j * 30 + 25
+        self.left = 0
+        self.right = 0
+        self.top = 0
+        self.bottom = 0
+        self.framex = 0
+        self.damage = 2
+        self.state = random.randint(0, 1)
+        if self.state == 0:
+            self.framey = 3
+        elif self.state == 1:
+            self.framey = 1
+        self.temp = 0
+        self.move = 0
+        self.rand = random.randint(1, 2)
+        if self.rand == 1:
+            self.moveright = True
+        elif self.rand == 2:
+            self.moveright = False
+        self.hp = 4
+        if Pig.image == None:
+            Pig.image = load_image('Pig.png')
+
+    def update(self):
+        self.temp += 1
+        if self.state == 0:
+            if self.temp % 8 == 0:
+                self.framex = (self.framex + 1) % 3
+                self.rand = random.randint(1, 20)
+                if self.rand == 20:
+                    self.state = 1
+                    self.framex = 0
+                    self.framey = 1
+                    self.temp = 0
+                if self.moveright:
+                    self.move -= 2
+                elif not self.moveright:
+                    self.move += 2
+                if (self.move > 60 and not self.moveright) or (self.move < -60 and self.moveright) or self.rand == 19:
+                    self.moveright = not self.moveright
+
+        elif self.state == 1:
+            if self.temp % 60 == 0 and self.framex % 2 == 0:
+                self.rand = random.randint(1, 5)
+                if self.rand == 5 or self.temp == 180:
+                    self.state = 0
+                    self.framex = 0
+                    self.framey = 3
+                    self.temp = 0
+                self.framex = (self.framex + 1) % 2
+            elif self.temp % 20 == 0 and self.framex % 2 == 1:
+                self.framex = (self.framex + 1) % 2
+
+        elif self.state == 2:
+            if self.temp == 30:
+                self.framey = 1
+                self.state = 1
+
+        elif self.state == 3:
+            if self.temp % 8 == 0 and self.temp < 24:
+                self.framex = (self.framex + 1) % 3
+            elif self.temp >= 96:
+                self.framex = 4
+                self.state = 4
+                self.temp = 0
+            elif self.temp >= 32:
+                self.framex = 3
+
+        elif self.state == 4:
+            if self.temp == 300:
+                self.framex = 0
+                self.framey = 1
+                self.temp = 0
+                self.move = 0
+                self.state = 1
+                self.hp = 4
+                self.rand = random.randint(1, 2)
+                if self.rand == 1:
+                    self.moveright = True
+                elif self.rand == 2:
+                    self.moveright = False
+                self.base_x = self.fx
+                self.y = self.fy
+
+        self.x = self.base_x - ox + self.move
+        self.left = self.x - 30
+        self.right = self.x + 30
+        self.top = self.y + 25
+        self.bottom = self.y - 25
+
+    def draw(self):
+        if self.moveright:
+            self.image.clip_composite_draw(self.framex * 70, self.framey * 60, 70, 60, 0, '', self.x, self.y, 70, 60)
+        else:
+            self.image.clip_composite_draw(self.framex * 70, self.framey * 60, 70, 60, 0, 'h', self.x, self.y, 70, 60)
+
+    def take_damage(self, damage):
+        self.hp -= damage
+        self.temp = 0
+        self.framex = 0
+        self.framey = 0
+        self.state = 2
+        if self.hp <= 0:
+            self.framey = 2
+            self.state = 3
+            self.hp = 0
+
 class Projectile:
     images = None
 
@@ -487,7 +602,7 @@ class Character:
                     self.Bullet_rifle = 4
                     self.Bullet_handgun = handgun_max_bullet
 
-        if check_collide_mob() and hit_delay == 0 and not Die:
+        if check_collide_mob():
             self.take_damage(mob_damage)
 
         if not hit_delay == 0:                                                         # 피격 면역 hit_delay == 0 이 되기 전까지 무적
@@ -1165,10 +1280,11 @@ def collide_fall(cx, cy, o):
     return False
 
 def check_collide_mob():
-    for m in mob:
-        if not m.state == 3 and not m.state == 4:
-            if collide_mob(x, y, m):
-                return True
+    if not Die and hit_delay == 0:
+        for m in mob:
+            if not m.state == 3 and not m.state == 4:
+                if collide_mob(x, y, m):
+                    return True
     return False
 
 def collide_mob(cx, cy, m):
@@ -1179,6 +1295,8 @@ def collide_mob(cx, cy, m):
 
     if left_c < m.right and bottom_c < m.top and right_c > m.left and top_c > m.bottom:
         mob_damage = m.damage
+        # print(f"캐릭터 좌표: ({left_c}, {right_c}), ({top_c}, {bottom_c})")
+        # print(f"객체 좌표: ({m.left}, {m.right}), ({m.top}, {m.bottom})")
         return True
     return False
 
@@ -1251,11 +1369,13 @@ def reset_world():
         world += [Block(i, j, 0) for i in i_range]
 
     mob += [Spore(7, 3)]
+    mob += [Pig(9, 3)]
     mob += [Spore(11, 3)]
     mob += [Spore(13, 3)]
     mob += [Spore(17, 3)]
     mob += [Spore(22, 6)]
-    mob += [Spore(17, 14)]
+    mob += [Spore(16, 14)]
+    mob += [Pig(18, 14)]
 
     character = Character()
 
