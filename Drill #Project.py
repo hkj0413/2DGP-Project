@@ -458,7 +458,7 @@ class Projectile:
         self.image = self.images["Lc_shotgun"]
 
     def update(self):
-        global projectil
+        global projectile
         self.temp += 1
         if self.type == "lc_shotgun":
             self.x = x
@@ -485,7 +485,7 @@ class Projectile:
             if self.temp % 5 == 0:
                 self.framex = (self.framex + 1) % 9
             if self.temp == 45:
-                projectil.remove(self)
+                projectile.remove(self)
         elif self.type == "lc_handgun":
             if self.temp == 1:
                 self.image = self.images["Lc_handgun"]
@@ -499,14 +499,14 @@ class Projectile:
                         m.take_damage(1)
                         self.count += 1
             if self.temp == 36 or self.count == 1:
-                projectil.remove(self)
+                projectile.remove(self)
         elif self.type == "lc_handgun_effect":
             if self.temp == 1:
                 self.image = self.images["Lc_handgun_effect"]
             if self.temp % 5 == 0:
                 self.framex = (self.framex + 1) % 4
             if self.temp == 20:
-                projectil.remove(self)
+                projectile.remove(self)
 
     def draw(self):
         if self.type == "lc_shotgun":
@@ -1172,7 +1172,7 @@ class Character:
 def handle_events():
     global running, MoveRight, Walking, Attack, AttackRight, attack_delay, position, state, Reload_shotgun, Reload_rifle, Reload_handgun,reload_time
     global Hit, hit_delay, Jump, jump_velocity, Fall, fall_velocity, changing, change_time, attack_time, a_pressed, d_pressed
-    global Dash, dash_cooldown, move, projectil
+    global Dash, dash_cooldown, move, projectile
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -1310,13 +1310,13 @@ def handle_events():
 
                     if position == 0:             # 샷건 총알 감소
                         character.Bullet_shotgun -= 1
-                        projectil += [Projectile("lc_shotgun")]
+                        projectile += [Projectile("lc_shotgun")]
                     elif position == 1:           # 라이플 총알 감소
                         character.Bullet_rifle -= 1
                     elif position == 2:           # 핸드건 총알 감소
                         character.Bullet_handgun -= 1
-                        projectil += [Projectile("lc_handgun")]
-                        projectil += [Projectile("lc_handgun_effect")]
+                        projectile += [Projectile("lc_handgun")]
+                        projectile += [Projectile("lc_handgun_effect")]
 
                     Attack = True
                     attack_time = 15              # 공격 모션 시간
@@ -1468,7 +1468,7 @@ def update_world():
     background.update(dx)
     for o in world:
         o.update()
-    for p in projectil:
+    for p in projectile:
         p.update()
     for m in mob:
         m.update()
@@ -1482,19 +1482,19 @@ def render_world():
     character.draw()
     for m in mob:
         m.draw()
-    for p in projectil:
+    for p in projectile:
         p.draw()
     character.show_Hp()
     character.show_Bullet()
     update_canvas()
 
 def reset_world():
-    global running, grass, ground, character, world, background, mob, projectil
+    global running, grass, ground, character, world, background, mob, projectile
 
     running = True
     world = []
     mob = []
-    projectil = []
+    projectile = []
 
     background = Background()
 
