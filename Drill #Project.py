@@ -158,7 +158,7 @@ class Spore:
         elif self.state == 3:
             if self.temp % 8 == 0 and self.temp < 32:
                 self.framex = (self.framex + 1) % 4
-            elif self.temp >= 96:
+            elif self.temp >= 100:
                 self.framex = 4
                 self.state = 4
                 self.temp = 0
@@ -192,6 +192,120 @@ class Spore:
             self.image.clip_composite_draw(self.framex * 50, self.framey * 50, 50, 50, 0, '', self.x, self.y, 50, 50)
         else:
             self.image.clip_composite_draw(self.framex * 50, self.framey * 50, 50, 50, 0, 'h', self.x, self.y, 50, 50)
+
+    def take_damage(self, damage):
+        self.hp -= damage
+        self.temp = 0
+        self.framex = 0
+        self.framey = 0
+        self.state = 2
+        if self.hp <= 0:
+            self.framey = 2
+            self.state = 3
+            self.hp = 0
+
+class Slime:
+    image = None
+
+    def __init__(self, i = 0, j = 0):
+        self.x = 0
+        self.base_x = i * 30 + 15
+        self.y  = j * 30 + 40
+        self.fx = i * 30 + 15
+        self.fy = j * 30 + 40
+        self.left = 0
+        self.right = 0
+        self.top = 0
+        self.bottom = 0
+        self.framex = 0
+        self.damage = 1
+        self.state = random.randint(0, 1)
+        if self.state == 0:
+            self.framey = 3
+        elif self.state == 1:
+            self.framey = 1
+        self.temp = 0
+        self.move = 0
+        self.rand = random.randint(1, 2)
+        if self.rand == 1:
+            self.moveright = True
+        elif self.rand == 2:
+            self.moveright = False
+        self.hp = 3
+        if Slime.image == None:
+            Slime.image = load_image('Slime.png')
+
+    def update(self):
+        self.temp += 1
+        if self.state == 0:
+            if self.temp % 7 == 0:
+                self.framex = (self.framex + 1) % 7
+                self.rand = random.randint(1, 20)
+                if self.rand == 20:
+                    self.state = 1
+                    self.framex = 0
+                    self.framey = 1
+                    self.temp = 0
+                if self.moveright:
+                    self.move -= 4
+                elif not self.moveright:
+                    self.move += 4
+                if (self.move > 120 and not self.moveright) or (self.move < -120 and self.moveright) or self.rand == 19:
+                    self.moveright = not self.moveright
+
+        elif self.state == 1:
+            if self.temp % 36 == 0:
+                self.rand = random.randint(1, 5)
+            if self.temp % 10 == 0:
+                if self.rand == 5 or self.temp == 180:
+                    self.state = 0
+                    self.framex = 0
+                    self.framey = 3
+                    self.temp = 0
+                self.framex = (self.framex + 1) % 3
+
+        elif self.state == 2:
+            if self.temp == 30:
+                self.framey = 1
+                self.state = 1
+
+        elif self.state == 3:
+            if self.temp % 10 == 0 and self.temp < 40:
+                self.framex = (self.framex + 1) % 4
+            elif self.temp >= 100:
+                self.framex = 4
+                self.state = 4
+                self.temp = 0
+            elif self.temp >= 40:
+                self.framex = 3
+
+        elif self.state == 4:
+            if self.temp == 300:
+                self.framex = 0
+                self.framey = 1
+                self.temp = 0
+                self.move = 0
+                self.state = 1
+                self.hp = 3
+                self.rand = random.randint(1, 2)
+                if self.rand == 1:
+                    self.moveright = True
+                elif self.rand == 2:
+                    self.moveright = False
+                self.base_x = self.fx
+                self.y = self.fy
+
+        self.x = self.base_x - ox + self.move
+        self.left = self.x - 15
+        self.right = self.x + 35
+        self.top = self.y + 10
+        self.bottom = self.y - 40
+
+    def draw(self):
+        if self.moveright:
+            self.image.clip_composite_draw(self.framex * 70, self.framey * 85, 70, 85, 0, '', self.x + 10, self.y, 70, 85)
+        else:
+            self.image.clip_composite_draw(self.framex * 70, self.framey * 85, 70, 85, 0, 'h', self.x - 10, self.y, 70, 85)
 
     def take_damage(self, damage):
         self.hp -= damage
@@ -273,7 +387,7 @@ class Pig:
         elif self.state == 3:
             if self.temp % 8 == 0 and self.temp < 24:
                 self.framex = (self.framex + 1) % 3
-            elif self.temp >= 96:
+            elif self.temp >= 100:
                 self.framex = 4
                 self.state = 4
                 self.temp = 0
@@ -1418,8 +1532,10 @@ def reset_world():
     for j, i_range in ground_positions:
         world += [Block(i, j, 0) for i in i_range]
 
+    # world +=[Block(9, 2, 2)]
+
     mob += [Spore(7, 3)]
-    mob += [Pig(9, 3)]
+    mob += [Slime(9, 3)]
     mob += [Spore(11, 3)]
     mob += [Spore(13, 3)]
     mob += [Spore(17, 3)]
