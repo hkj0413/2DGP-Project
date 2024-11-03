@@ -45,11 +45,14 @@ gravity = 0.5
 
 d_pressed = False
 a_pressed = False
+lc_pressed = False
 
 BG_WIDTH, BG_HEIGHT = 3240, 1200
 ox = 0
 dx = 0
 xpos = 0
+mouse_x = 0
+mouse_y = 0
 
 mob_damage = 0
 
@@ -437,8 +440,8 @@ class Projectile:
     images = None
 
     def __init__(self, p):
-        self.x = 0
-        self.y = 0
+        self.x = x
+        self.y = y
         self.fx = x
         self.fy = y
         self.framex = 0
@@ -461,8 +464,6 @@ class Projectile:
         global projectile
         self.temp += 1
         if self.type == "lc_shotgun":
-            self.x = x
-            self.y = y
             if self.temp == 1:
                 self.image = self.images["Lc_shotgun"]
             if self.temp <= 15:
@@ -511,9 +512,9 @@ class Projectile:
     def draw(self):
         if self.type == "lc_shotgun":
             if self.attackright:
-                self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, '', self.x + 70 + self.framex * 10, y - 17, 155, 157)
+                self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, '', self.x + 70 + self.framex * 10, self.y - 17, 155, 157)
             elif not self.attackright:
-                self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, 'h', self.x - 70 - self.framex * 10, y - 17, 155, 157)
+                self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, 'h', self.x - 70 - self.framex * 10, self.y - 17, 155, 157)
         elif self.type == "lc_handgun":
             if self.attackright:
                 self.image.clip_composite_draw(0, 0, 10, 9, 0, '', self.fx, self.fy - 20, 30, 30)
@@ -1172,7 +1173,7 @@ class Character:
 def handle_events():
     global running, MoveRight, Walking, Attack, AttackRight, attack_delay, position, state, Reload_shotgun, Reload_rifle, Reload_handgun,reload_time
     global Hit, hit_delay, Jump, jump_velocity, Fall, fall_velocity, changing, change_time, attack_time, a_pressed, d_pressed
-    global Dash, dash_cooldown, move, projectile
+    global Dash, dash_cooldown, move, mouse_x, mouse_y, lc_pressed
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -1284,42 +1285,16 @@ def handle_events():
                 changing = True
                 change_time = 3
 
-            # 마우스 좌클릭 공격 (라이플 은 이동, 점프, 추락 중에 공격 불가), attack_delay == 공격 속도
-            elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT and not Attack and attack_delay == 0:
+            # 마우스 좌클릭 공격
+            elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT:
                 mouse_x, mouse_y = event.x, event.y
-                Hit = False
-                if position == 0 and state == 1:  # 샷건이 방패를 들고 있을 경우
-                    if mouse_x < x:               # 캐릭터 보다 왼쪽 좌클릭 시 공격은 못 하지만 왼쪽 을 바라 봄
-                        MoveRight = False
-                    elif mouse_x > x:             # 캐릭터 보다 오른쪽 좌클릭 시 공격은 못 하지만 오른쪽 을 바라 봄
-                        MoveRight = True
+                lc_pressed = True
 
-                elif (  # 나머지 경우
-                        (position == 0 and state == 0 and character.Bullet_shotgun > 0) or
-                        (position == 1 and not Walking and not Jump and not Fall and character.Bullet_rifle > 0) or
-                        (position == 2 and state == 0 and character.Bullet_handgun > 0)
-                ):
-                    if mouse_x < x:               # 캐릭터 보다 왼쪽 좌클릭 시 왼쪽 공격, 오른쪽 이동 중 에는 왼쪽 공격후 오른쪽 을 다시 바라 봄
-                        AttackRight = False
-                        if not Walking:           # 이동 중 공격이 아니면 공격 후 왼쪽 을 바라 봄
-                            MoveRight = False
-                    elif mouse_x > x:             # 캐릭터 보다 오른쪽 좌클릭 시 오른쪽 공격, 왼쪽 이동 중 에는 오른쪽 공격후 왼쪽 을 다시 바라 봄
-                        AttackRight = True
-                        if not Walking:           # 이동 중 공격이 아니면 공격 후 오른쪽 을 바라 봄
-                            MoveRight = True
+            elif event.type == SDL_MOUSEBUTTONUP and event.button == SDL_BUTTON_LEFT:
+                lc_pressed = False
 
-                    if position == 0:             # 샷건 총알 감소
-                        character.Bullet_shotgun -= 1
-                        projectile += [Projectile("lc_shotgun")]
-                    elif position == 1:           # 라이플 총알 감소
-                        character.Bullet_rifle -= 1
-                    elif position == 2:           # 핸드건 총알 감소
-                        character.Bullet_handgun -= 1
-                        projectile += [Projectile("lc_handgun")]
-                        projectile += [Projectile("lc_handgun_effect")]
-
-                    Attack = True
-                    attack_time = 15              # 공격 모션 시간
+            elif event.type == SDL_MOUSEMOTION and lc_pressed:
+                mouse_x, mouse_y = event.x, event.y
 
             # 샷건 일때 우클릭 중 일시 방패를 듬
             elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_RIGHT and not Attack and position == 0 and state == 0:
@@ -1464,10 +1439,48 @@ def collide_mob(cx, cy, m):
         return True
     return False
 
+def attacking():
+    global MoveRight, AttackRight, Attack, attack_delay, attack_time, Hit, projectile
+    if lc_pressed and not Attack and attack_delay == 0: # 공격 (라이플 은 이동, 점프, 추락 중에 공격 불가), attack_delay == 공격 속도
+        Hit = False
+        if position == 0 and state == 1:  # 샷건이 방패를 들고 있을 경우
+            if mouse_x < x:  # 캐릭터 보다 왼쪽 좌클릭 시 공격은 못 하지만 왼쪽 을 바라 봄
+                MoveRight = False
+            elif mouse_x > x:  # 캐릭터 보다 오른쪽 좌클릭 시 공격은 못 하지만 오른쪽 을 바라 봄
+                MoveRight = True
+
+        elif (  # 나머지 경우
+                (position == 0 and state == 0 and character.Bullet_shotgun > 0) or
+                (position == 1 and not Walking and not Jump and not Fall and character.Bullet_rifle > 0) or
+                (position == 2 and state == 0 and character.Bullet_handgun > 0)
+        ):
+            if mouse_x < x:  # 캐릭터 보다 왼쪽 좌클릭 시 왼쪽 공격, 오른쪽 이동 중 에는 왼쪽 공격후 오른쪽 을 다시 바라 봄
+                AttackRight = False
+                if not Walking:  # 이동 중 공격이 아니면 공격 후 왼쪽 을 바라 봄
+                    MoveRight = False
+            elif mouse_x > x:  # 캐릭터 보다 오른쪽 좌클릭 시 오른쪽 공격, 왼쪽 이동 중 에는 오른쪽 공격후 왼쪽 을 다시 바라 봄
+                AttackRight = True
+                if not Walking:  # 이동 중 공격이 아니면 공격 후 오른쪽 을 바라 봄
+                    MoveRight = True
+
+            if position == 0:  # 샷건 총알 감소
+                character.Bullet_shotgun -= 1
+                projectile += [Projectile("lc_shotgun")]
+            elif position == 1:  # 라이플 총알 감소
+                character.Bullet_rifle -= 1
+            elif position == 2:  # 핸드건 총알 감소
+                character.Bullet_handgun -= 1
+                projectile += [Projectile("lc_handgun")]
+                projectile += [Projectile("lc_handgun_effect")]
+
+            Attack = True
+            attack_time = 15  # 공격 모션 시간
+
 def update_world():
     background.update(dx)
     for o in world:
         o.update()
+    attacking()
     for p in projectile:
         p.update()
     for m in mob:
