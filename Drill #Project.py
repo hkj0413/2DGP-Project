@@ -299,10 +299,10 @@ class Slime:
                 self.y = self.fy
 
         self.x = self.base_x - ox + self.move
-        self.left = self.x - 15
-        self.right = self.x + 35
-        self.top = self.y + 10
-        self.bottom = self.y - 40
+        self.left = self.x - 25
+        self.right = self.x + 25
+        self.top = self.y + 20
+        self.bottom = self.y - 20
 
     def draw(self):
         if self.moveright:
@@ -435,6 +435,51 @@ class Pig:
             self.framey = 2
             self.state = 3
             self.hp = 0
+
+class Obstacle:
+    image = None
+
+    def __init__(self, i=0, j=0.0, k=0, l=0):
+        self.x = 0
+        self.base_x = i * 30 + 15
+        self.y = j * 30.0 + 15.0
+        self.fy = j * 30.0 + 15.0
+        self.left = 0
+        self.right = 0
+        self.top = 0
+        self.bottom = 0
+        self.damage = 1
+        self.temp = l
+        self.state = 11
+        self.gravity = 0.0
+        self.framex = k
+        if Obstacle.image == None:
+            Obstacle.image = load_image('Coconut.png')
+
+    def update(self):
+        if self.state == 10:
+            self.y -= self.gravity
+            self.gravity += 0.25
+            if self.y < -10:
+                self.state = 11
+                self.gravity = 0.0
+
+        elif self.state == 11:
+            self.temp += 1
+            if self.temp == 180:
+                self.state = 10
+                self.temp = 0
+                self.y = self.fy
+
+        self.x = self.base_x - ox
+        self.left = self.x - 10
+        self.right = self.x + 10
+        self.top = self.y + 5.0
+        self.bottom = self.y - 5.0
+
+    def draw(self):
+        if self.state == 10:
+            self.image.clip_draw(self.framex * 50, 0, 50, 50, self.x + 12, self.y + 12.0, 50, 50)
 
 class Projectile:
     images = None
@@ -1434,8 +1479,8 @@ def collide_mob(cx, cy, m):
 
     if left_c < m.right and bottom_c < m.top and right_c > m.left and top_c > m.bottom:
         mob_damage = m.damage
-        # print(f"캐릭터 좌표: ({left_c}, {right_c}), ({top_c}, {bottom_c})")
-        # print(f"객체 좌표: ({m.left}, {m.right}), ({m.top}, {m.bottom})")
+        print(f"캐릭터 좌표: ({left_c}, {right_c}), ({top_c}, {bottom_c})")
+        print(f"객체 좌표: ({m.left}, {m.right}), ({m.top}, {m.bottom})")
         return True
     return False
 
@@ -1545,7 +1590,7 @@ def reset_world():
     for j, i_range in ground_positions:
         world += [Block(i, j, 0) for i in i_range]
 
-    # world +=[Block(9, 2, 2)]
+    world +=[Block(9, 2, 2)]
 
     mob += [Spore(7, 3)]
     mob += [Slime(9, 3)]
@@ -1555,6 +1600,8 @@ def reset_world():
     mob += [Spore(22, 6)]
     mob += [Spore(16, 14)]
     mob += [Pig(18, 14)]
+
+    mob += [Obstacle(9, 20, 0, 0)]
 
     character = Character()
 
