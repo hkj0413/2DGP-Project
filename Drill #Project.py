@@ -34,10 +34,14 @@ hit_delay = 0
 
 reload_time = 0
 
-die_time = 0      # 120 2초 (60 FPS)
+die_time = 0       # 180 3초 (60 FPS)
 
-dash_cooldown = 0 # 360 6초 (60 FPS)
+dash_cooldown = 0  # 360 6초 (60 FPS)
+
+spree_cooldown = 0 # 600 10초 (60 FPS)
+
 move = 0
+spree = 0
 
 jump_velocity = 0.0
 fall_velocity = 0.0
@@ -627,14 +631,16 @@ class Character:
             "die_shotgun": load_image('HKCAWS_die.png'),
             "die_rifle": load_image('R93_die.png'),
             "die_handgun": load_image('GSH18Mod_die.png'),
+            "spree_handgun": load_image('GSH18Mod_spree.png'),
             "ultimate_1_shotgun": load_image('HKCAWS_ultimate_1.png'),
             "ultimate_2_shotgun": load_image('HKCAWS_ultimate_2.png'),
         }
         self.image = self.images["wait_shotgun"]                     # 기본 캐릭터 그림
 
     def update(self):
-        global MoveRight, Walking, changing, change_time, Attack, attack_time, attack_delay, Hit, hit_delay, Reload_shotgun, Reload_rifle, Reload_handgun, reload_time
-        global Die, die_time, x, y, dx, ox, xpos, Jump, jump_velocity, Fall, fall_velocity, a_pressed, d_pressed, state, Dash, dash_cooldown
+        global MoveRight, Walking, changing, change_time, Attack, attack_time, attack_delay, Reload_shotgun, Reload_rifle, Reload_handgun, reload_time
+        global Die, die_time, x, y, dx, ox, xpos, Jump, jump_velocity, Fall, fall_velocity, a_pressed, d_pressed, state, Hit, hit_delay
+        global Dash, dash_cooldown, projectile, spree, spree_cooldown
         self.temp += 1
         if Die:
             if die_time == 180:
@@ -693,6 +699,24 @@ class Character:
                 if self.roll >= 0:
                     self.roll -= 15
 
+        elif position == 2 and state == 1:
+            if self.image != self.images["spree_handgun"]:  # 핸드건 난사
+                self.image = self.images["spree_handgun"]
+                self.temp = 0
+            if self.temp % 3 == 0:
+                self.framex = (self.framex + 1) % 7
+            if spree <= 0:
+                state = 0
+                self.Bullet_handgun = 0
+                spree_cooldown = 600
+            if self.temp % 8 == 0:
+                projectile += [Projectile("lc_handgun")]
+                projectile += [Projectile("lc_handgun_effect")]
+                spree -= 1
+            if self.temp % 8 == 4:
+                projectile += [Projectile("lc_handgun")]
+                spree -= 1
+
         elif Hit:
             if hit_delay == 59:
                 if position == 0 and state == 1:
@@ -701,7 +725,7 @@ class Character:
                     self.image = self.images["damage_shotgun"]
                 elif position == 1:
                     self.image = self.images["damage_rifle"]
-                elif position == 2:
+                elif position == 2 and state == 0:
                     self.image = self.images["damage_handgun"]
             if position == 0 and state == 1:
                 if self.temp % 3 == 0:
@@ -887,7 +911,7 @@ class Character:
                         dx = 7
                         if check_collide_ad(world, 7) and not Jump and not Fall:
                             Fall = True
-                elif position == 2:
+                elif position == 2 and not state == 1:
                     if check_collide(world):
                         dx = 0
                     else:
@@ -919,7 +943,7 @@ class Character:
                         x += -7
                     elif check_collide_ad(world, 7) and not Jump and not Fall:
                         Fall = True
-                elif position == 2:                                                    # 핸드건 이동 속도
+                elif position == 2 and not state == 1:                                 # 핸드건 이동 속도
                     x += 5
                     if check_collide(world):
                         x += -5
@@ -957,7 +981,7 @@ class Character:
                         dx = -7
                         if check_collide_ad(world, 7) and not Jump and not Fall:
                             Fall = True
-                elif position == 2:
+                elif position == 2 and not state == 1:
                     if check_collide(world):
                         dx = 0
                     else:
@@ -989,7 +1013,7 @@ class Character:
                         x += 7
                     elif check_collide_ad(world, 7) and not Jump and not Fall:
                         Fall = True
-                elif position == 2:                                                    # 핸드건 이동 속도
+                elif position == 2 and not state == 1:                                 # 핸드건 이동 속도
                     x += -5
                     if check_collide(world):
                         x += 5
@@ -1129,6 +1153,11 @@ class Character:
                 die_time = 180
                 fall_velocity = 0.0
 
+        if not spree_cooldown == 0:
+            spree_cooldown -= 1
+            if spree_cooldown <= 0:
+                spree_cooldown = 0
+
     def draw(self):
         if not changing:
             if Die:
@@ -1252,7 +1281,7 @@ class Character:
 def handle_events():
     global running, MoveRight, Walking, Attack, AttackRight, attack_delay, position, state, Reload_shotgun, Reload_rifle, Reload_handgun,reload_time
     global Hit, hit_delay, Jump, jump_velocity, Fall, fall_velocity, changing, change_time, attack_time, a_pressed, d_pressed
-    global Dash, dash_cooldown, move, mouse_x, mouse_y, lc_pressed, projectile
+    global Dash, dash_cooldown, move, mouse_x, mouse_y, lc_pressed, projectile, spree_cooldown, spree
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -1265,7 +1294,7 @@ def handle_events():
         if not Die:
             # d 누를시 오른쪽 으로 이동, a를 누르는 중에 눌러도 오른쪽 으로 이동
             if event.type == SDL_KEYDOWN and event.key == SDLK_d:
-                if not Reload_rifle:
+                if not Reload_rifle and not (position == 2 and state == 1):
                     MoveRight = True
                 Walking = True
                 d_pressed = True
@@ -1275,14 +1304,14 @@ def handle_events():
             elif event.type == SDL_KEYUP and event.key == SDLK_d:
                 d_pressed = False
                 Hit = False
-                if a_pressed:       # a키를 누르 면서 d를 땔시 다시 왼쪽 으로 이동
+                if a_pressed and not (position == 2 and state == 1): # a키를 누르 면서 d를 땔시 다시 왼쪽 으로 이동
                     MoveRight = False
                 if not a_pressed:   # 아닌 경우 멈춤
                     Walking = False
 
             # a 누를시 왼쪽 으로 이동, d를 누르는 중에 눌러도 왼쪽 으로 이동
             elif event.type == SDL_KEYDOWN and event.key == SDLK_a:
-                if not Reload_rifle:
+                if not Reload_rifle and not (position == 2 and state == 1):
                     MoveRight = False
                 Walking = True
                 a_pressed = True
@@ -1292,13 +1321,13 @@ def handle_events():
             elif event.type == SDL_KEYUP and event.key == SDLK_a:
                 a_pressed = False
                 Hit = False
-                if d_pressed:       # d키를 누르 면서 a를 땔시 다시 오른쪽 으로 이동
+                if d_pressed and not (position == 2 and state == 1): # d키를 누르 면서 a를 땔시 다시 오른쪽 으로 이동
                     MoveRight = True
                 if not d_pressed:   # 아닌 경우 멈춤
                     Walking = False
 
             # space 누를시 점프
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE and not Jump and not Fall and not state == 1 and not Dash:
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE and not Jump and not Fall and not (position == 0 and state == 1) and not Dash:
                 Jump = True
                 jump_velocity = 10.0
                 Hit = False
@@ -1332,13 +1361,21 @@ def handle_events():
                 jump_velocity = 0.0
                 Fall = False
                 fall_velocity = 0.0
-                state = 0
                 dash_cooldown = 360
                 hit_delay = 30
                 if MoveRight:
                     move = 0
                 elif not MoveRight:
                     move = 1
+                if position == 0:
+                    if state == 1:
+                        state = 0
+                elif position == 2:
+                    if state == 1:
+                        state = 0
+                        character.Bullet_handgun = spree // 2
+                        spree = 0
+                        spree_cooldown = 600
                 projectile += [Projectile("dash_effect")]
 
             # 샷건 -> 라이플 -> 핸드건 -> 샷건 폼 체인지, 스킬 사용, 공격, 재장전, 점프, 피격 중에는 불가능
@@ -1385,6 +1422,17 @@ def handle_events():
             # 샷건 일때 우클릭 땔시 방패를 내림
             elif event.type == SDL_MOUSEBUTTONUP and event.button == SDL_BUTTON_RIGHT and position == 0 and state == 1:
                 state = 0
+
+            elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_RIGHT and not Attack and position == 2 and state == 0 and spree_cooldown == 0:
+                mouse_x, mouse_y = event.x, event.y
+                state = 1
+                spree = character.Bullet_handgun * 2
+                if mouse_x < x:
+                    AttackRight = False
+                    MoveRight = False
+                elif mouse_x > x:
+                    AttackRight = True
+                    MoveRight = True
 
             # t 누를시 hp - 8
             elif event.type == SDL_KEYDOWN and event.key == SDLK_t:
@@ -1529,6 +1577,13 @@ def attacking():
             if mouse_x < x:  # 캐릭터 보다 왼쪽 좌클릭 시 공격은 못 하지만 왼쪽 을 바라 봄
                 MoveRight = False
             elif mouse_x > x:  # 캐릭터 보다 오른쪽 좌클릭 시 공격은 못 하지만 오른쪽 을 바라 봄
+                MoveRight = True
+        elif position == 2 and state == 1:  # 핸드건 난사 중
+            if mouse_x < x:  # 캐릭터 보다 왼쪽 좌클릭 시 왼쪽 으로 공격 방향 전환
+                AttackRight = False
+                MoveRight = False
+            elif mouse_x > x:  # 캐릭터 보다 오른쪽 좌클릭 시 오른쪽 으로 공격 방향 전환
+                AttackRight = True
                 MoveRight = True
 
         elif (  # 나머지 경우
