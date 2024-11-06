@@ -508,6 +508,7 @@ class Projectile:
         if self.images == None:
             self.images = {
                 "Lc_shotgun": load_image('HKCAWS_Lc.png'),
+                "Lc_rifle": load_image('R93_Lc.png'),
                 "Lc_handgun": load_image('GSH18Mod_Lc.png'),
                 "Lc_handgun_effect": load_image('GSH18Mod_Lc_effect.png'),
                 "Dash_effect": load_image('Dash_effect.png'),
@@ -517,44 +518,68 @@ class Projectile:
     def update(self):
         global projectile
         self.temp += 1
-        if self.type == "lc_shotgun":
+        if self.type == "lc_shotgun":                 # 샷건 기본 공격 사거리 9칸 / 68
             if self.temp == 1:
                 self.image = self.images["Lc_shotgun"]
             if self.temp <= 15:
                 for m in mob:
                     if m.state == 0 or m.state == 1:
                         if self.attackright:
-                            if self.x - 17 <= m.left <= self.x + 60 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                            if self.x <= m.left <= self.x + 60 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
                                 m.take_damage(3)
-                            elif self.x + 60 + 17 < m.left <= self.x + 120 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                            elif self.x + 60 < m.left <= self.x + 120 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
                                 m.take_damage(2)
-                            elif self.x + 120 + 17 < m.left <= self.x + 180 + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                            elif self.x + 120 < m.left <= self.x + 180 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
                                 m.take_damage(1)
                         elif not self.attackright:
-                            if self.x - 60 - 17 <= m.right <= self.x + 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                            if self.x - 60 <= m.right <= self.x and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
                                 m.take_damage(3)
-                            elif self.x - 120 - 17 < m.right <= self.x - 60 - 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                            elif self.x - 120 < m.right <= self.x - 60 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
                                 m.take_damage(2)
-                            elif self.x - 180 - 17 < m.right <= self.x - 120 - 17 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
+                            elif self.x - 180 < m.right <= self.x - 120 and self.y + 18 >= m.bottom and self.y - 50 <= m.top:
                                 m.take_damage(1)
             if self.temp % 5 == 0:
                 self.framex = (self.framex + 1) % 9
             if self.temp == 45:
                 projectile.remove(self)
-        elif self.type == "lc_handgun":
+        elif self.type == "lc_rifle":                 # 라이플 기본 공격 사거리 24칸 / 25 ~ 55
+            if self.temp == 1:
+                self.image = self.images["Lc_rifle"]
+            if self.attackright:
+                self.fx += 20
+            elif not self.attackright:
+                self.fx -= 20
+            if self.temp == 24 or self.count == 4:
+                projectile.remove(self)
+            for m in mob:
+                if m.state == 0 or m.state == 1:
+                    if self.attackright:
+                        if self.fx + 70 <= m.right and self.fx + 240 >= m.left and self.fy + 5>= m.bottom and self.fy - 25 <= m.top:
+                            m.take_damage(4)
+                            self.count += 1
+                    elif not self.attackright:
+                        if self.fx - 240  <= m.right and self.fx - 70 >= m.left and self.fy + 5 >= m.bottom and self.fy - 25 <= m.top:
+                            m.take_damage(4)
+                            self.count += 1
+        elif self.type == "lc_handgun":               # 핸드건 기본 공격 사거리 12칸 / 20 ~ 60
             if self.temp == 1:
                 self.image = self.images["Lc_handgun"]
             if self.attackright:
                 self.fx += 10
             elif not self.attackright:
                 self.fx -= 10
-            for m in mob:
-                if m.state == 0 or m.state == 1:
-                    if self.fx - 15 <= m.right and self.fx + 15 >= m.left and self.fy + 10 >= m.bottom and self.fy - 20 <= m.top:
-                        m.take_damage(1)
-                        self.count += 1
             if self.temp == 36 or self.count == 1:
                 projectile.remove(self)
+            for m in mob:
+                if m.state == 0 or m.state == 1:
+                    if self.attackright:
+                        if self.fx <= m.right and self.fx + 30 >= m.left and self.fy + 10 >= m.bottom and self.fy - 30 <= m.top:
+                            m.take_damage(1)
+                            self.count += 1
+                    elif not self.attackright:
+                        if self.fx - 30 <= m.right and self.fx >= m.left and self.fy + 10 >= m.bottom and self.fy - 30 <= m.top:
+                            m.take_damage(1)
+                            self.count += 1
         elif self.type == "lc_handgun_effect":
             if self.temp == 1:
                 self.image = self.images["Lc_handgun_effect"]
@@ -578,11 +603,16 @@ class Projectile:
                 self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, '', self.x + 70 + self.framex * 10, self.y - 17, 155, 157)
             elif not self.attackright:
                 self.image.clip_composite_draw(self.framex * 155, 0, 155, 157, 0, 'h', self.x - 70 - self.framex * 10, self.y - 17, 155, 157)
+        elif self.type == "lc_rifle":
+            if self.attackright:
+                self.image.clip_composite_draw(0, 0, 170, 70, 0, '', self.fx + 70, self.fy - 20, 170, 70)
+            elif not self.attackright:
+                self.image.clip_composite_draw(0, 0, 170, 70, 0, 'h', self.fx + 70, self.fy - 20, 170, 70)
         elif self.type == "lc_handgun":
             if self.attackright:
-                self.image.clip_composite_draw(0, 0, 10, 9, 0, '', self.fx, self.fy - 20, 30, 30)
+                self.image.clip_composite_draw(0, 0, 10, 9, 0, '', self.fx, self.fy - 20, 30, 27)
             elif not self.attackright:
-                self.image.clip_composite_draw(0, 0, 10, 9, 0, 'h', self.fx, self.fy - 20, 30, 30)
+                self.image.clip_composite_draw(0, 0, 10, 9, 0, 'h', self.fx, self.fy - 20, 30, 27)
         elif self.type == "lc_handgun_effect":
             if self.attackright:
                 self.image.clip_composite_draw(self.framex * 123, 0, 123, 125, 0, '', self.fx + 36, self.fy - 17, 62, 63)
@@ -1605,6 +1635,7 @@ def attacking():
                 projectile += [Projectile("lc_shotgun")]
             elif position == 1:  # 라이플 총알 감소
                 character.Bullet_rifle -= 1
+                projectile += [Projectile("lc_rifle")]
             elif position == 2:  # 핸드건 총알 감소
                 character.Bullet_handgun -= 1
                 projectile += [Projectile("lc_handgun")]
