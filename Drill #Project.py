@@ -521,7 +521,7 @@ class Projectile:
     def update(self):
         global projectile
         self.temp += 1
-        if self.type == "lc_shotgun":                 # 샷건 기본 공격 사거리 9칸 / 68
+        if self.type == "lc_shotgun":                 # 샷건 기본 공격 사거리 9칸 / 0 ~ 68
             if self.temp == 1:
                 self.image = self.images["Lc_shotgun"]
             if self.temp <= 15:
@@ -579,7 +579,7 @@ class Projectile:
                 if m.state == 0 or m.state == 1:
                     if self.attackright:
                         if self.fx + 70 <= m.right and self.fx + 580 >= m.left and self.fy + 10 >= m.bottom and self.fy - 30 <= m.top:
-                            m.take_damage(4)
+                            m.take_damage(6)
                             self.count += 1
                     elif not self.attackright:
                         if self.fx - 580  <= m.right and self.fx - 70 >= m.left and self.fy + 10 >= m.bottom and self.fy - 30 <= m.top:
