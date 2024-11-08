@@ -19,6 +19,7 @@ AttackRight = True
 Hit = False
 Reload_shotgun = False
 Reload_rifle = False
+Reload_rifle_s = False
 Reload_handgun = False
 Jump = False
 Fall = False
@@ -50,6 +51,7 @@ gravity = 0.5
 
 d_pressed = False
 a_pressed = False
+s_pressed =  False
 lc_pressed = False
 
 BG_WIDTH, BG_HEIGHT = 3240, 1200
@@ -727,7 +729,7 @@ class Character:
     def update(self):
         global MoveRight, Walking, changing, change_time, Attack, attack_time, attack_delay, Reload_shotgun, Reload_rifle, Reload_handgun, reload_time
         global Die, die_time, x, y, dx, ox, xpos, Jump, jump_velocity, Fall, fall_velocity, a_pressed, d_pressed, state, Hit, hit_delay
-        global Dash, dash_cooldown, projectile, spree, spree_cooldown
+        global Dash, dash_cooldown, projectile, spree, spree_cooldown, s_pressed, Reload_rifle_s
         self.temp += 1
         if Die:
             if die_time == 180:
@@ -763,7 +765,7 @@ class Character:
             if self.temp % 5 == 0:
                 self.framex = (self.framex + 1) % 16
 
-        elif Reload_rifle:
+        elif Reload_rifle or Reload_rifle_s:
             if reload_time == 30:
                 self.image = self.images["attack_rifle"]
             elif reload_time == 10:
@@ -924,12 +926,14 @@ class Character:
                 Attack = False
                 Reload_shotgun = False
                 Reload_rifle = False
+                Reload_rifle_s = False
                 Reload_handgun = False
                 Hit = False
                 Jump = False
                 Fall = False
                 a_pressed = False
                 d_pressed = False
+                s_pressed = False
                 state = 0
                 change_time = 0
                 attack_time = 0
@@ -1200,6 +1204,24 @@ class Character:
                     MoveRight = not MoveRight
                 self.Bullet_rifle = 4
 
+        if Reload_rifle_s:
+            reload_time -= 1
+            if reload_time == 30:
+                jump_velocity = 6.0
+                Fall = False
+                fall_velocity = 0.0
+                if not Jump:
+                    Jump = True
+            elif reload_time <= 0:
+                Reload_rifle_s = False
+                if a_pressed:
+                    MoveRight = False
+                elif d_pressed:
+                    MoveRight = True
+                else:
+                    MoveRight = not MoveRight
+                self.Bullet_rifle = 4
+
         if Reload_handgun:
             reload_time -= 1
             if reload_time <= 0:
@@ -1269,7 +1291,7 @@ class Character:
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
                 elif not AttackRight:    # 왼쪽 공격 그림
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
-            elif Reload_rifle:
+            elif Reload_rifle or Reload_rifle_s:
                 if MoveRight:            # 오른쪽 라이플 장전
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
                 elif not MoveRight:      # 왼쪽 라이플 장전
@@ -1286,7 +1308,7 @@ class Character:
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
 
     def take_damage(self, damage):
-        global Walking, a_pressed, d_pressed, Hit, hit_delay, Jump, jump_velocity, Fall, Die, die_time
+        global Walking, a_pressed, d_pressed, s_pressed, Hit, hit_delay, Jump, jump_velocity, Fall, Die, die_time
         if hit_delay == 0:
             if position == 0 and (state == 1 or Reload_shotgun):
                 self.Hp -= max(damage - shield_enhance, 0) # 데미지 가 감소량 보다 작을 경우 0의 피해를 받음
@@ -1298,6 +1320,7 @@ class Character:
                 Walking = False
                 a_pressed = False
                 d_pressed = False
+                s_pressed = False
             if self.Hp <= 0:
                 self.Hp = 0
                 Die =  True
@@ -1368,7 +1391,7 @@ class Character:
 def handle_events():
     global running, MoveRight, Walking, Attack, AttackRight, attack_delay, position, state, Reload_shotgun, Reload_rifle, Reload_handgun,reload_time
     global Hit, hit_delay, Jump, jump_velocity, Fall, fall_velocity, changing, change_time, attack_time, a_pressed, d_pressed
-    global Dash, dash_cooldown, move, mouse_x, mouse_y, lc_pressed, projectile, spree_cooldown, spree
+    global Dash, dash_cooldown, move, mouse_x, mouse_y, lc_pressed, projectile, spree_cooldown, spree, s_pressed, Reload_rifle_s
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -1390,7 +1413,6 @@ def handle_events():
             # d 손 땔시 오른쪽 이동 멈춤
             elif event.type == SDL_KEYUP and event.key == SDLK_d:
                 d_pressed = False
-                Hit = False
                 if a_pressed and not (position == 2 and state == 1): # a키를 누르 면서 d를 땔시 다시 왼쪽 으로 이동
                     MoveRight = False
                 if not a_pressed:   # 아닌 경우 멈춤
@@ -1407,11 +1429,16 @@ def handle_events():
             # a 손 땔시 왼쪽 이동 멈춤
             elif event.type == SDL_KEYUP and event.key == SDLK_a:
                 a_pressed = False
-                Hit = False
                 if d_pressed and not (position == 2 and state == 1): # d키를 누르 면서 a를 땔시 다시 오른쪽 으로 이동
                     MoveRight = True
                 if not d_pressed:   # 아닌 경우 멈춤
                     Walking = False
+
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_s:
+                s_pressed = True
+
+            elif event.type == SDL_KEYUP and event.key == SDLK_s:
+                s_pressed = False
 
             # space 누를시 점프
             elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE and not Jump and not Fall and not (position == 0 and state == 1) and not Dash:
@@ -1426,7 +1453,15 @@ def handle_events():
                 reload_time = 80
 
             # r 누를시 라이플 재장전
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and position == 1 and not Reload_rifle and character.Bullet_rifle == 0:
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and position == 1 and not Reload_rifle and not Reload_rifle_s and s_pressed and character.Bullet_rifle == 0:
+                Hit = False
+                Reload_rifle_s = True
+                MoveRight = not MoveRight
+                reload_time = 40
+                hit_delay = 30
+
+            # r 누를시 라이플 재장전
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and position == 1 and not Reload_rifle and not Reload_rifle_s and character.Bullet_rifle == 0:
                 Hit = False
                 Reload_rifle = True
                 MoveRight = not MoveRight
