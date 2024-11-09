@@ -1,4 +1,3 @@
-from numpy import character
 from pico2d import *
 
 import random
@@ -637,7 +636,7 @@ class Projectile:
                 self.fx += 20
             elif not self.attackright:
                 self.fx -= 20
-            if self.temp == 24 or self.count == 4:
+            if self.temp == 24 or self.count >= 4:
                 projectile.remove(self)
             for m in mob:
                 if m.state == 0 or m.state == 1 or m.state == 5:
@@ -658,7 +657,7 @@ class Projectile:
                 self.fx += 30
             elif not self.attackright:
                 self.fx -= 30
-            if self.temp == 16 or self.count == 6:
+            if self.temp == 16 or self.count >= 6:
                 projectile.remove(self)
             for m in mob:
                 if m.state == 0 or m.state == 1 or m.state == 5:
@@ -702,7 +701,7 @@ class Projectile:
                 self.fx -= 12
             elif not self.moveright:
                 self.fx += 12
-            if self.temp == 20 or self.count == 1:
+            if self.temp == 20 or self.count >= 1:
                 projectile.remove(self)
             for m in mob:
                 if m.state == 0 or m.state == 1 or m.state == 5:
@@ -723,7 +722,7 @@ class Projectile:
                 self.fx += 10
             elif not self.attackright:
                 self.fx -= 10
-            if self.temp == 36 or self.count == 1:
+            if self.temp == 36 or self.count >= 1:
                 projectile.remove(self)
             for m in mob:
                 if m.state == 0 or m.state == 1 or m.state == 5:
