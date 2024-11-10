@@ -605,6 +605,7 @@ class Projectile:
     def update(self):
         global projectile
         self.temp += 1
+        # 샷건 기본 공격
         if self.type == "lc_shotgun":                 # 샷건 기본 공격 사거리 9칸 / 0 ~ 68
             if self.temp == 1:
                 self.image = self.images["Lc_shotgun"]
@@ -629,6 +630,8 @@ class Projectile:
                 self.framex = (self.framex + 1) % 9
             if self.temp == 45:
                 projectile.remove(self)
+
+        # 라이플 기본 공격
         elif self.type == "lc_rifle":                 # 라이플 기본 공격 사거리 24칸, 29칸 / 25 ~ 55, 20 ~ 60
             if self.temp == 1:
                 self.image = self.images["Lc_rifle"]
@@ -648,6 +651,8 @@ class Projectile:
                         if self.fx - 240  <= m.right and self.fx - 70 >= m.left and self.fy + 5 >= m.bottom and self.fy - 25 <= m.top:
                             m.take_damage(4)
                             self.count += 1
+
+        # 라이플 기본 공격 강화
         elif self.type == "lc_rifle_enhance":
             if self.temp == 1:
                 self.image = self.images["Lc_rifle_enhance"]
@@ -669,6 +674,8 @@ class Projectile:
                         if self.fx - 580  <= m.right and self.fx - 70 >= m.left and self.fy + 10 >= m.bottom and self.fy - 30 <= m.top:
                             m.take_damage(6)
                             self.count += 1
+
+        # 라이플 기본 공격 이펙트
         elif self.type == "lc_rifle_effect":
             if x > 580 and not ox == BG_WIDTH - WIDTH and MoveRight and Walking:
                 self.x += -4
@@ -684,6 +691,8 @@ class Projectile:
                 self.framex = (self.framex + 1) % 12
             if self.temp == 48:
                 projectile.remove(self)
+
+        # 라이플 타겟 다운 범위
         elif self.type == "rc_rifle":
             self.x = mouse_x
             self.y = 800 - mouse_y
@@ -694,6 +703,8 @@ class Projectile:
                 self.count -= 20
             if not state == 1:
                 projectile.remove(self)
+
+        # 라이플 장전 투망
         elif self.type == "reload_rifle_effect":
             if self.temp == 1:
                 self.image = self.images["Reload_rifle_effect"]
@@ -715,6 +726,8 @@ class Projectile:
                             m.take_damage(0)
                             m.take_stun(120)
                             self.count += 1
+
+        # 핸드건 기본 공격
         elif self.type == "lc_handgun":               # 핸드건 기본 공격 사거리 12칸 / 20 ~ 60
             if self.temp == 1:
                 self.image = self.images["Lc_handgun"]
@@ -734,6 +747,8 @@ class Projectile:
                         if self.fx - 30 <= m.right and self.fx >= m.left and self.fy + 10 >= m.bottom and self.fy - 30 <= m.top:
                             m.take_damage(1)
                             self.count += 1
+
+        # 핸드건 기본 공격 이펙트
         elif self.type == "lc_handgun_effect":
             if x > 580 and not ox == BG_WIDTH - WIDTH and MoveRight and Walking:
                 self.x += -5
@@ -749,6 +764,8 @@ class Projectile:
                 self.framex = (self.framex + 1) % 4
             if self.temp == 20:
                 projectile.remove(self)
+
+        # 대쉬 이펙트
         elif self.type == "dash_effect":
             if x > 580 and not ox == BG_WIDTH - WIDTH and move == 0:
                 self.x += -40
@@ -939,6 +956,11 @@ class Character:
                     self.image = self.images["shield_shotgun"]
                 if self.temp % 3 == 0:
                     self.framex = (self.framex + 1) % 14                    # 샷건 방패 들기 피격
+            elif position == 1 and state == 1:
+                if self.image != self.images["wait_rifle"]:                 # 라이플 저격 피격
+                    self.image = self.images["wait_rifle"]
+                if self.temp % 4 == 0:
+                    self.framex = (self.framex + 1) % 14
             else:
                 self.framex = 0                                             # 샷건, 라이플, 핸드건 피격
 
@@ -960,7 +982,7 @@ class Character:
                 elif position == 2:
                     self.framex = (self.framex + 1) % 5                     # 핸드건 공격
 
-        elif not Walking:
+        elif not Walking or (position == 1 and state == 1):
             if Jump or Fall or Dash:
                 self.framex = 0
                 if self.image != self.images["move_shotgun"] and position == 0:
@@ -1055,7 +1077,6 @@ class Character:
                 d_pressed = False
                 s_pressed = False
                 lc_pressed = False
-                state = 0
                 change_time = 0
                 attack_time = 0
                 attack_delay = 0
@@ -1063,6 +1084,12 @@ class Character:
                 reload_time = 0
                 jump_velocity = 0.0
                 fall_velocity = 0.0
+                if state == 1:
+                    if position == 1:
+                        target_down_cooldown = 1200
+                    elif position == 2:
+                        bullet_time_cooldown = 600
+                state = 0
             die_time -= 1
             if die_time <= 0:
                 MoveRight = True
@@ -1849,7 +1876,6 @@ def collide_mob(cx, cy, m):
 def attacking():
     global MoveRight, AttackRight, Attack, attack_delay, attack_time, Hit, projectile, state, snipe, snipe_bullet, target_down_cooldown
     if lc_pressed and not Attack and attack_delay == 0: # 공격 (라이플 은 이동, 점프, 추락 중에 공격 불가), attack_delay == 공격 속도
-        Hit = False
         if position == 0 and state == 1:  # 샷건이 방패를 들고 있을 경우
             if mouse_x < x:  # 캐릭터 보다 왼쪽 좌클릭 시 공격은 못 하지만 왼쪽 을 바라 봄
                 MoveRight = False
@@ -1857,8 +1883,10 @@ def attacking():
                 MoveRight = True
         elif position == 1 and state == 1:  # 라이플 타겟 다운 중
             if mouse_x < x:  # 캐릭터 보다 왼쪽 좌클릭 시 왼쪽 을 바라 보며 사격
+                AttackRight = False
                 MoveRight = False
             elif mouse_x > x:  # 캐릭터 보다 오른쪽 좌클릭 시 오른쪽 을 바라 보며 사격
+                AttackRight = True
                 MoveRight = True
 
             Attack = True
@@ -1896,9 +1924,11 @@ def attacking():
                     MoveRight = True
 
             if position == 0:  # 샷건 총알 감소
+                Hit = False
                 character.Bullet_shotgun -= 1
                 projectile += [Projectile("lc_shotgun")]
             elif position == 1:  # 라이플 총알 감소
+                Hit = False
                 character.Bullet_rifle -= 1
                 if character.Bullet_rifle > 0:
                     projectile += [Projectile("lc_rifle")]
@@ -1906,6 +1936,7 @@ def attacking():
                     projectile += [Projectile("lc_rifle_enhance")]
                 projectile += [Projectile("lc_rifle_effect")]
             elif position == 2:  # 핸드건 총알 감소
+                Hit = False
                 character.Bullet_handgun -= 1
                 projectile += [Projectile("lc_handgun")]
                 projectile += [Projectile("lc_handgun_effect")]
