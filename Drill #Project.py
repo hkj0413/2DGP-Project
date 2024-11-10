@@ -42,6 +42,7 @@ dash_cooldown = 0  # 360 6초 (60 FPS)
 target_down_cooldown = 0 # 1200 20초 (60 FPS)
 
 bullet_time_cooldown = 0 # 600 10초 (60 FPS)
+agile_shooting_cooldown = 0 # 180 3초 (60 FPS)
 
 move = 0
 snipe = 2
@@ -595,9 +596,11 @@ class Projectile:
                 "Lc_rifle_enhance": load_image('R93_Lc_enhance.png'),
                 "Lc_rifle_effect": load_image('R93_Lc_effect.png'),
                 "Rc_rifle": load_image('R93_Rc.png'),
+                "Rc_rifle_effect": load_image('R93_Rc_effect.png'),
                 "Reload_rifle_effect": load_image('R93_reload_effect.png'),
                 "Lc_handgun": load_image('GSH18Mod_Lc.png'),
                 "Lc_handgun_effect": load_image('GSH18Mod_Lc_effect.png'),
+                "Q_handgun_effect": load_image('GSH18Mod_agile_effect.png'),
                 "Dash_effect": load_image('Dash_effect.png'),
             }
         self.image = self.images["Lc_shotgun"]
@@ -697,11 +700,27 @@ class Projectile:
             self.x = mouse_x
             self.y = 800 - mouse_y
             if self.temp == 1:
-                self.count = 140
+                self.count = 140 + (snipe_size - 45) * 2
                 self.image = self.images["Rc_rifle"]
-            if self.temp <= 21 and  self.temp % 3 == 0:
+            if self.temp <= 21 and self.temp % 3 == 0:
                 self.count -= 20
             if not state == 1:
+                projectile.remove(self)
+
+        # 라이플 타겟 다운 이펙트
+        elif self.type == "rc_rifle_effect":
+            if self.temp == 1:
+                self.x = mouse_x
+                self.y = 800 - mouse_y
+                self.image = self.images["Rc_rifle_effect"]
+                for m in mob:
+                    if m.state == 0 or m.state == 1 or m.state == 5:
+                        if self.attackright:
+                            if self.x - snipe_size <= m.right and self.x + snipe_size >= m.left and self.y + snipe_size >= m.bottom and self.y - snipe_size <= m.top:
+                                m.take_damage(8)
+            if self.temp % 5 == 0:
+                self.framex = (self.framex + 1) % 8
+            if self.temp == 40:
                 projectile.remove(self)
 
         # 라이플 장전 투망
@@ -765,6 +784,38 @@ class Projectile:
             if self.temp == 20:
                 projectile.remove(self)
 
+        # 핸드건 민첩한 사격 이펙트 우
+        elif self.type == "q_handgun_effect_1":
+            self.x = x
+            self.y = y
+            if self.temp == 1:
+                self.image = self.images["Q_handgun_effect"]
+            if self.temp <= 12:
+                for m in mob:
+                    if m.state == 0 or m.state == 1 or m.state == 5:
+                        if self.x <= m.left <= self.x + 60 and self.y + 20 >= m.bottom and self.y - 40 <= m.top:
+                            m.take_damage(2)
+            if self.temp % 3 == 0:
+                self.framex = (self.framex + 1) % 8
+            if self.temp == 24:
+                projectile.remove(self)
+
+        # 핸드건 민첩한 사격 이펙트 좌
+        elif self.type == "q_handgun_effect_2":
+            self.x = x
+            self.y = y
+            if self.temp == 1:
+                self.image = self.images["Q_handgun_effect"]
+            if self.temp <= 12:
+                for m in mob:
+                    if m.state == 0 or m.state == 1 or m.state == 5:
+                        if self.x - 60 <= m.right <= self.x and self.y + 20 >= m.bottom and self.y - 40 <= m.top:
+                            m.take_damage(2)
+            if self.temp % 3 == 0:
+                self.framex = (self.framex + 1) % 8
+            if self.temp == 24:
+                projectile.remove(self)
+
         # 대쉬 이펙트
         elif self.type == "dash_effect":
             if x > 580 and not ox == BG_WIDTH - WIDTH and move == 0:
@@ -799,11 +850,13 @@ class Projectile:
                 self.image.clip_composite_draw(self.framex * 67, 0, 67, 63, 0, 'h', self.x - 75, self.y - 10, 67, 63)
         elif self.type == "rc_rifle":
             self.image.clip_composite_draw(0, 0, 256, 256, 0, '', self.x, self.y, 64 + self.count, 64 + self.count)
+        elif self.type == "rc_rifle_effect":
+            self.image.clip_composite_draw(self.framex * 239, 0, 239, 141, 0, '', self.x + 10, self.y, 239, 141)
         elif self.type == "reload_rifle_effect":
             if not self.moveright:
                 self.image.clip_composite_draw(0, 0, 129, 207, 0, 'h', self.fx + 80, self.fy - 10, 33, 52)
             elif self.moveright:
-                self.image.clip_composite_draw(0, 0, 129, 207, 0, '', self.fx + 80, self.fy - 10, 33, 52)
+                self.image.clip_composite_draw(0, 0, 129, 207, 0, '', self.fx - 80, self.fy - 10, 33, 52)
         elif self.type == "lc_handgun":
             if self.attackright:
                 self.image.clip_composite_draw(0, 0, 10, 9, 0, '', self.fx, self.fy - 20, 30, 27)
@@ -814,6 +867,10 @@ class Projectile:
                 self.image.clip_composite_draw(self.framex * 123, 0, 123, 125, 0, '', self.x + 36, self.y - 17, 62, 63)
             elif not self.attackright:
                 self.image.clip_composite_draw(self.framex * 123, 0, 123, 125, 0, 'h', self.x - 36, self.y - 17, 62, 63)
+        elif self.type == "q_handgun_effect_1":
+            self.image.clip_composite_draw(self.framex * 316, 0, 316, 324, 0, 'h', self.x + 50, self.y - 10, 52, 54)
+        elif self.type == "q_handgun_effect_2":
+            self.image.clip_composite_draw(self.framex * 316, 0, 316, 324, 0, '', self.x - 50, self.y - 10, 52, 54)
         elif self.type == "dash_effect":
             if self.moveright:
                 self.image.clip_composite_draw(self.framex * 66, 0, 66, 128, 0, 'h', self.x, self.y - 17, 66, 128)
@@ -854,10 +911,11 @@ class Character:
             "reload_shotgun": load_image('HKCAWS_reload.png'),
             "reload_handgun": load_image('GSH18Mod_reload.png'),
             "shield_shotgun": load_image('HKCAWS_shield.png'),
+            "spree_handgun": load_image('GSH18Mod_spree.png'),
+            "agile_handgun": load_image('GSH18Mod_agile.png'),
             "die_shotgun": load_image('HKCAWS_die.png'),
             "die_rifle": load_image('R93_die.png'),
             "die_handgun": load_image('GSH18Mod_die.png'),
-            "spree_handgun": load_image('GSH18Mod_spree.png'),
             "ultimate_1_shotgun": load_image('HKCAWS_ultimate_1.png'),
             "ultimate_2_shotgun": load_image('HKCAWS_ultimate_2.png'),
         }
@@ -865,12 +923,14 @@ class Character:
 
     def update(self):
         global MoveRight, Walking, changing, change_time, Attack, attack_time, attack_delay, Reload_shotgun, Reload_rifle, Reload_handgun, reload_time
-        global Die, die_time, x, y, dx, ox, xpos, Jump, jump_velocity, Fall, fall_velocity, a_pressed, d_pressed, state, Hit, hit_delay
+        global Die, die_time, x, y, dx, ox, xpos, Jump, jump_velocity, Fall, fall_velocity, a_pressed, d_pressed, state, Hit, hit_delay, move
         global Dash, dash_cooldown, projectile, spree, bullet_time_cooldown, lc_pressed, s_pressed, Reload_rifle_s, target_down_cooldown
+        global agile_shooting_cooldown
         self.temp += 1
+        dx = 0
         if Die:
-            if die_time == 180:
-                self.temp = 0
+            if die_time == 180:                                      # 사망 시간
+                self.temp = 1
                 self.framex = 0
                 if position == 0:
                     self.image = self.images["die_shotgun"]
@@ -878,33 +938,88 @@ class Character:
                     self.image = self.images["die_rifle"]
                 elif position == 2:
                     self.image = self.images["die_handgun"]
+                Walking = False
+                Attack = False
+                Reload_shotgun = False
+                Reload_rifle = False
+                Reload_rifle_s = False
+                Reload_handgun = False
+                Hit = False
+                Jump = False
+                Fall = False
+                a_pressed = False
+                d_pressed = False
+                s_pressed = False
+                lc_pressed = False
+                change_time = 0
+                attack_time = 0
+                attack_delay = 0
+                hit_delay = 0
+                reload_time = 0
+                jump_velocity = 0.0
+                fall_velocity = 0.0
+                if state == 1:
+                    if position == 1:
+                        target_down_cooldown = 1200
+                    elif position == 2:
+                        bullet_time_cooldown = 600
+                elif state == 2:
+                    if position == 2:
+                        agile_shooting_cooldown = 180
+                state = 0
+            die_time -= 1
             if not position == 2:
-                if die_time > 129:
+                if die_time > 126:
                     if self.temp % 3 == 0:
                         if position == 0:
-                            self.framex = (self.framex + 1) % 18       # 샷건 사망
+                            self.framex = (self.framex + 1) % 18  # 샷건 사망
                         elif position == 1:
-                            self.framex = (self.framex + 1) % 18       # 라이플 사망
+                            self.framex = (self.framex + 1) % 18  # 라이플 사망
                 else:
                     self.framex = 18
             elif position == 2:
-                if die_time > 80:
+                if die_time > 75:
                     if self.temp % 5 == 0:
-                        self.framex = (self.framex + 1) % 21           # 핸드건 사망
+                        self.framex = (self.framex + 1) % 21      # 핸드건 사망
                 else:
                     self.framex = 21
+            if die_time <= 0:
+                MoveRight = True
+                Die = False
+                x = 34
+                y = 140.0
+                ox -= xpos
+                for o in world:
+                    o.x -= xpos
+                xpos = 0
+                hit_delay = 60
+                if self.Hp == 0:
+                    self.Hp = self.max_Hp
+                    self.Bullet_shotgun = 8
+                    self.Bullet_rifle = 4
+                    self.Bullet_handgun = handgun_max_bullet
 
         elif Reload_shotgun:
             if reload_time == 80:
-                self.temp = 0
+                self.temp = 1
                 self.framex = 0
                 self.image = self.images["reload_shotgun"]
             if self.temp % 5 == 0:
                 self.framex = (self.framex + 1) % 16
+            reload_time -= 1
+            if reload_time <= 0:
+                Reload_shotgun = False
+                self.Bullet_shotgun = 8
 
         elif Reload_rifle or Reload_rifle_s:
             if reload_time == 30:
                 self.image = self.images["attack_rifle"]
+                jump_velocity = 6.0
+                Fall = False
+                fall_velocity = 0.0
+                if not Jump:
+                    Jump = True
+                projectile += [Projectile("reload_rifle_effect")]
             elif reload_time == 10:
                 self.image = self.images["move_rifle"]
             if reload_time > 30 or 20 >= reload_time > 10:
@@ -913,10 +1028,48 @@ class Character:
                 self.framex = 1
             else:
                 self.framex = 0
+            if Reload_rifle:
+                if 30 >= reload_time >= 10:
+                    if x > 580 and not ox == BG_WIDTH - WIDTH and MoveRight:
+                        if check_collide(world):
+                            dx = 0
+                            x += -8
+                        else:
+                            dx = 8
+                    elif MoveRight:
+                        x += 8
+                        if check_collide(world):
+                            x += -8
+                    elif x < 500 and not ox == 0 and not MoveRight:
+                        if check_collide(world):
+                            dx = 0
+                            x += 8
+                        else:
+                            dx = -8
+                    elif not MoveRight:
+                        x += -8
+                        if check_collide(world):
+                            x += 8
+                elif reload_time == 10:
+                    if MoveRight:
+                        x += -8
+                    elif not MoveRight:
+                        x += 8
+            reload_time -= 1
+            if reload_time <= 0:
+                Reload_rifle = False
+                Reload_rifle_s = False
+                if a_pressed:
+                    MoveRight = False
+                elif d_pressed:
+                    MoveRight = True
+                else:
+                    MoveRight = not MoveRight
+                self.Bullet_rifle = 4
 
         elif Reload_handgun:
             if reload_time == 30:
-                self.temp = 0
+                self.temp = 1
                 self.framex = 0
                 self.roll = 60
                 self.image = self.images["reload_handgun"]
@@ -924,11 +1077,16 @@ class Character:
                 self.framex = (self.framex + 1) % 10
                 if self.roll >= 0:
                     self.roll -= 15
+            reload_time -= 1
+            if reload_time <= 0:
+                Reload_handgun = False
+                self.Bullet_handgun = handgun_max_bullet
 
         elif position == 2 and state == 1:
             if self.image != self.images["spree_handgun"]:  # 핸드건 난사
                 self.image = self.images["spree_handgun"]
-                self.temp = 0
+                self.temp = 1
+                self.framex = 0
             if self.temp % 3 == 0:
                 self.framex = (self.framex + 1) % 7
             if spree <= 0:
@@ -942,6 +1100,28 @@ class Character:
             if self.temp % 8 == 4:
                 projectile += [Projectile("lc_handgun")]
                 spree -= 1
+
+        elif position == 2 and state == 2:
+            if self.image != self.images["agile_handgun"]:  # 핸드건 민사
+                self.image = self.images["agile_handgun"]
+                self.temp = 1
+                self.framex = 0
+            if self.temp <= 20 or 24 <= self.temp <= 44 or 48 <= self.temp <= 68 or 72 <= self.temp <= 92:
+                if self.temp % 4 == 0:
+                    self.framex = (self.framex + 1) % 12
+            if self.temp == 24 or self.temp == 48 or self.temp == 72:
+                projectile += [Projectile("q_handgun_effect_1")]
+                projectile += [Projectile("q_handgun_effect_2")]
+            elif self.temp == 96:
+                projectile += [Projectile("q_handgun_effect_1")]
+                projectile += [Projectile("q_handgun_effect_2")]
+                if MoveRight:
+                    move = 0
+                elif not MoveRight:
+                    move = 1
+            elif self.temp == 100:
+                agile_shooting_cooldown = 180
+                state = 0
 
         elif Hit:
             if hit_delay == 59:
@@ -966,7 +1146,7 @@ class Character:
 
         elif Attack:
             if attack_time == 15:
-                self.temp = 0
+                self.temp = 1
                 self.framex = 0
                 if position == 0:
                     self.image = self.images["attack_shotgun"]
@@ -981,6 +1161,15 @@ class Character:
                     self.framex = (self.framex + 1) % 7                     # 라이플 공격
                 elif position == 2:
                     self.framex = (self.framex + 1) % 5                     # 핸드건 공격
+            attack_time -= 1
+            if attack_time <= 0:
+                Attack = False
+                if position == 0:
+                    attack_delay = 30                                       # 샷건 공격 속도 0.5초 (60 FPS)
+                elif position == 1:
+                    attack_delay = 60                                       # 라이플 공격 속도 1초 (60 FPS)
+                elif position == 2:
+                    attack_delay = handgun_attack_speed                     # 권총 공격 속도 0.2초 (60 FPS)
 
         elif not Walking or (position == 1 and state == 1):
             if Jump or Fall or Dash:
@@ -1047,68 +1236,14 @@ class Character:
             if change_time <= 0:
                 changing = False
 
-        if Attack:
-            attack_time -= 1
-            if attack_time <= 0:
-                Attack = False
-                if position == 0:
-                    attack_delay = 30                      # 샷건 공격 속도 0.5초 (60 FPS)
-                elif position == 1:
-                    attack_delay = 60                      # 라이플 공격 속도 1초 (60 FPS)
-                elif position == 2:
-                    attack_delay = handgun_attack_speed    # 권총 공격 속도 0.2초 (60 FPS)
         if not attack_delay == 0:                          # 공격 속도 attack_delay == 0 이 되기 전까지 공격 불가
             attack_delay -= 1
             if attack_delay <= 0:
                 attack_delay = 0
 
-        if Die:
-            if die_time == 180:                                   # 사망 시간
-                Walking = False
-                Attack = False
-                Reload_shotgun = False
-                Reload_rifle = False
-                Reload_rifle_s = False
-                Reload_handgun = False
-                Hit = False
-                Jump = False
-                Fall = False
-                a_pressed = False
-                d_pressed = False
-                s_pressed = False
-                lc_pressed = False
-                change_time = 0
-                attack_time = 0
-                attack_delay = 0
-                hit_delay = 0
-                reload_time = 0
-                jump_velocity = 0.0
-                fall_velocity = 0.0
-                if state == 1:
-                    if position == 1:
-                        target_down_cooldown = 1200
-                    elif position == 2:
-                        bullet_time_cooldown = 600
-                state = 0
-            die_time -= 1
-            if die_time <= 0:
-                MoveRight = True
-                Die = False
-                x = 34
-                y = 140.0
-                ox -= xpos
-                for o in world:
-                    o.x -= xpos
-                xpos = 0
-                hit_delay = 60
-                if self.Hp == 0:
-                    self.Hp = self.max_Hp
-                    self.Bullet_shotgun = 8
-                    self.Bullet_rifle = 4
-                    self.Bullet_handgun = handgun_max_bullet
-
-        if check_collide_mob():
-            self.take_damage(mob_damage)
+        if hit_delay == 0:
+            if check_collide_mob():
+                self.take_damage(mob_damage)
 
         if not hit_delay == 0:                                                         # 피격 면역 hit_delay == 0 이 되기 전까지 무적
             hit_delay -= 1
@@ -1116,8 +1251,6 @@ class Character:
                 Hit = False
             elif hit_delay <= 0:
                 hit_delay = 0
-
-        dx = 0
 
         if MoveRight and Walking:
             if x > 580 and not ox == BG_WIDTH - WIDTH:                                 # 오른쪽 으로 캐릭터 제외 모든 객체 이동
@@ -1142,7 +1275,7 @@ class Character:
                         dx = 4
                         if check_collide_ad(world, 4) and not Jump and not Fall:
                             Fall = True
-                elif position == 2 and Reload_handgun:
+                elif position == 2 and (Reload_handgun or state == 2):
                     if check_collide(world):
                         dx = 0
                         x += -2
@@ -1150,7 +1283,7 @@ class Character:
                         dx = 7
                         if check_collide_ad(world, 7) and not Jump and not Fall:
                             Fall = True
-                elif position == 2 and not state == 1:
+                elif position == 2 and state == 0:
                     if check_collide(world):
                         dx = 0
                     else:
@@ -1176,13 +1309,13 @@ class Character:
                         x += -4
                     elif check_collide_ad(world, 4) and not Jump and not Fall:
                         Fall = True
-                elif position == 2 and Reload_handgun:                                 # 핸드건 장전 이동 속도
+                elif position == 2 and (Reload_handgun or state == 2):                 # 핸드건 장전, 민첩한 사격 이동 속도
                     x += 7
                     if check_collide(world):
                         x += -7
                     elif check_collide_ad(world, 7) and not Jump and not Fall:
                         Fall = True
-                elif position == 2 and not state == 1:                                 # 핸드건 이동 속도
+                elif position == 2 and state == 0:                                     # 핸드건 이동 속도
                     x += 5
                     if check_collide(world):
                         x += -5
@@ -1212,7 +1345,7 @@ class Character:
                         dx = -4
                         if check_collide_ad(world, 4) and not Jump and not Fall:
                             Fall = True
-                elif position == 2 and Reload_handgun:
+                elif position == 2 and (Reload_handgun or state == 2):
                     if check_collide(world):
                         dx = 0
                         x += 2
@@ -1220,7 +1353,7 @@ class Character:
                         dx = -7
                         if check_collide_ad(world, 7) and not Jump and not Fall:
                             Fall = True
-                elif position == 2 and not state == 1:
+                elif position == 2 and state == 0:
                     if check_collide(world):
                         dx = 0
                     else:
@@ -1246,13 +1379,13 @@ class Character:
                         x += 4
                     elif check_collide_ad(world, 4) and not Jump and not Fall:
                         Fall = True
-                elif position == 2 and Reload_handgun:                                 # 핸드건 장전 이동 속도
+                elif position == 2 and (Reload_handgun or state == 2):                 # 핸드건 장전, 민첩한 사격 이동 속도
                     x += -7
                     if check_collide(world):
                         x += 7
                     elif check_collide_ad(world, 7) and not Jump and not Fall:
                         Fall = True
-                elif position == 2 and not state == 1:                                 # 핸드건 이동 속도
+                elif position == 2 and state == 0:                                     # 핸드건 이동 속도
                     x += -5
                     if check_collide(world):
                         x += 5
@@ -1302,83 +1435,8 @@ class Character:
             if dash_cooldown <= 0:
                 dash_cooldown = 0
 
-        if Reload_shotgun:
-            reload_time -= 1
-            if reload_time <= 0:
-                Reload_shotgun = False
-                self.Bullet_shotgun = 8
-
-        if Reload_rifle:
-            reload_time -= 1
-            if reload_time == 30:
-                jump_velocity = 6.0
-                Fall = False
-                fall_velocity = 0.0
-                if not Jump:
-                    Jump = True
-                projectile += [Projectile("reload_rifle_effect")]
-            elif 30 >= reload_time >= 10:
-                if x > 580 and not ox == BG_WIDTH - WIDTH and MoveRight:
-                    if check_collide(world):
-                        dx = 0
-                        x += -8
-                    else:
-                        dx = 8
-                elif MoveRight:
-                    x += 8
-                    if check_collide(world):
-                        x += -8
-                elif x < 500 and not ox == 0 and not MoveRight:
-                    if check_collide(world):
-                        dx = 0
-                        x += 8
-                    else:
-                        dx = -8
-                elif not MoveRight:
-                    x += -8
-                    if check_collide(world):
-                        x += 8
-            elif reload_time == 10:
-                if MoveRight:
-                    x += -8
-                elif not MoveRight:
-                    x += 8
-            elif reload_time <= 0:
-                Reload_rifle = False
-                if a_pressed:
-                    MoveRight = False
-                elif d_pressed:
-                    MoveRight = True
-                else:
-                    MoveRight = not MoveRight
-                self.Bullet_rifle = 4
-
-        if Reload_rifle_s:
-            reload_time -= 1
-            if reload_time == 30:
-                jump_velocity = 6.0
-                Fall = False
-                fall_velocity = 0.0
-                if not Jump:
-                    Jump = True
-                projectile += [Projectile("reload_rifle_effect")]
-            elif reload_time <= 0:
-                Reload_rifle_s = False
-                if a_pressed:
-                    MoveRight = False
-                elif d_pressed:
-                    MoveRight = True
-                else:
-                    MoveRight = not MoveRight
-                self.Bullet_rifle = 4
-
-        if Reload_handgun:
-            reload_time -= 1
-            if reload_time <= 0:
-                Reload_handgun = False
-                self.Bullet_handgun = handgun_max_bullet
-
-        xpos += dx
+        if not dx == 0:
+            xpos += dx
 
         if x < 34:                                                # 화면 왼쪽 경계 이동 불가
             x = 34
@@ -1422,6 +1480,11 @@ class Character:
             if bullet_time_cooldown <= 0:
                 bullet_time_cooldown = 0
 
+        if not agile_shooting_cooldown == 0:
+            agile_shooting_cooldown -= 1
+            if agile_shooting_cooldown <= 0:
+                agile_shooting_cooldown = 0
+
     def draw(self):
         if not changing:
             if Die:
@@ -1455,6 +1518,11 @@ class Character:
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x + self.roll, y, 170, 170)
                 elif not MoveRight:      # 왼쪽 핸드건 장전
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x - self.roll, y, 170, 170)
+            elif position == 2 and state == 2:
+                if move == 0:            # 오른쪽 민첩한 사격
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
+                elif move == 1:          # 왼쪽 민첩한 사격
+                    self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
             else:
                 if MoveRight:            # 오른쪽 그 외 전부
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
@@ -1466,6 +1534,8 @@ class Character:
         if hit_delay == 0:
             if position == 0 and (state == 1 or Reload_shotgun):
                 self.Hp -= max(damage - shield_enhance, 0) # 데미지 가 감소량 보다 작을 경우 0의 피해를 받음
+            elif not state == 0:
+                self.Hp -= damage
             else:
                 self.Hp -= damage
                 Jump = False
@@ -1552,6 +1622,7 @@ def handle_events():
     global running, MoveRight, Walking, Attack, AttackRight, attack_delay, position, state, Reload_shotgun, Reload_rifle, Reload_handgun,reload_time
     global Hit, hit_delay, Jump, jump_velocity, Fall, fall_velocity, changing, change_time, attack_time, a_pressed, d_pressed, s_pressed
     global Dash, dash_cooldown, move, mouse_x, mouse_y, lc_pressed, projectile, bullet_time_cooldown, spree, Reload_rifle_s, snipe_bullet, target_down_cooldown
+    global agile_shooting_cooldown
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -1601,7 +1672,7 @@ def handle_events():
                 s_pressed = False
 
             # space 누를시 점프
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE and not Jump and not Fall and not (position == 0 and state == 1) and not Dash:
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE and not Jump and not Fall and not (position == 0 and state == 1) and not (position == 2 and Attack or state == 1) and not Dash:
                 Jump = True
                 jump_velocity = 10.0
                 Hit = False
@@ -1613,7 +1684,7 @@ def handle_events():
                 reload_time = 80
 
             # r 누를시 라이플 재장전
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and position == 1 and not Reload_rifle and not Reload_rifle_s and s_pressed and character.Bullet_rifle == 0:
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and position == 1  and state == 0 and not Reload_rifle and not Reload_rifle_s and s_pressed and character.Bullet_rifle == 0:
                 Hit = False
                 Reload_rifle_s = True
                 MoveRight = not MoveRight
@@ -1621,7 +1692,7 @@ def handle_events():
                 hit_delay = 30
 
             # r 누를시 라이플 재장전
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and position == 1 and not Reload_rifle and not Reload_rifle_s and character.Bullet_rifle == 0:
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and position == 1 and state == 0 and not Reload_rifle and not Reload_rifle_s and character.Bullet_rifle == 0:
                 Hit = False
                 Reload_rifle = True
                 MoveRight = not MoveRight
@@ -1629,11 +1700,22 @@ def handle_events():
                 hit_delay = 30
 
             # r 누를시 핸드건 재장전
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and position == 2 and not Reload_handgun and character.Bullet_handgun == 0:
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_r and not Attack and position == 2 and state == 0 and not Reload_handgun and character.Bullet_handgun == 0:
                 Hit = False
                 Reload_handgun = True
                 reload_time = 30
                 hit_delay = 30
+
+            # q 누를시 핸드건 민첩한 사격
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_q and not Attack and position == 2 and state == 0 and agile_shooting_cooldown == 0 and not Reload_handgun:
+                Hit = False
+                state = 2
+                if MoveRight:
+                    move = 0
+                elif not MoveRight:
+                    move = 1
+                projectile += [Projectile("q_handgun_effect_1")]
+                projectile += [Projectile("q_handgun_effect_2")]
 
             # shift 누를시 대쉬
             elif event.type == SDL_KEYDOWN and event.key == SDLK_LSHIFT and dash_cooldown == 0 and reload_time <= 10:
@@ -1702,14 +1784,15 @@ def handle_events():
             elif event.type == SDL_MOUSEMOTION and (lc_pressed or position == 1 and state == 1):
                 mouse_x, mouse_y = event.x, event.y
 
-            # 샷건 일때 우클릭 중 일시 방패를 듬
+            # 샷건 일때 우클릭 중 일시 방어 태세 돌입
             elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_RIGHT and not Attack and position == 0 and state == 0:
                 state = 1
 
-            # 샷건 일때 우클릭 땔시 방패를 내림
+            # 샷건 일때 우클릭 땔시 방어 태세 중지
             elif event.type == SDL_MOUSEBUTTONUP and event.button == SDL_BUTTON_RIGHT and position == 0 and state == 1:
                 state = 0
 
+            # 라이플 일때 우클릭 시 타겟 다운
             elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_RIGHT and not Attack and position == 1 and state == 0 and target_down_cooldown == 0:
                 mouse_x, mouse_y = event.x, event.y
                 state = 1
@@ -1721,6 +1804,7 @@ def handle_events():
                     AttackRight = True
                     MoveRight = True
 
+            # 핸드건 일때 우클릭 시 쌍권총 난사
             elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_RIGHT and not Attack and position == 2 and state == 0 and bullet_time_cooldown == 0 and not Reload_handgun:
                 mouse_x, mouse_y = event.x, event.y
                 state = 1
@@ -1755,6 +1839,7 @@ def handle_events():
                 dash_cooldown = 0
                 target_down_cooldown = 0
                 bullet_time_cooldown = 0
+                agile_shooting_cooldown = 0
 
 def check_collide(object):
     for o in object:
@@ -1894,7 +1979,7 @@ def attacking():
 
             if snipe_bullet > 0:
                 snipe_bullet -= 1
-                projectile += [Projectile("lc_rifle_enhance")]
+                projectile += [Projectile("rc_rifle_effect")]
                 projectile += [Projectile("lc_rifle_effect")]
                 if snipe_bullet == 0:
                     state = 0
