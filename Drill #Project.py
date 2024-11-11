@@ -42,7 +42,7 @@ dash_cooldown = 0  # 360 6초 (60 FPS)
 target_down_cooldown = 0 # 1200 20초 (60 FPS)
 
 bullet_time_cooldown = 0 # 600 10초 (60 FPS)
-agile_shooting_cooldown = 0 # 180 3초 (60 FPS)
+agile_shooting_cooldown = 0 # 360 6초 (60 FPS)
 
 move = 0
 snipe = 2
@@ -790,14 +790,14 @@ class Projectile:
             self.y = y
             if self.temp == 1:
                 self.image = self.images["Q_handgun_effect"]
-            if self.temp <= 12:
+            if self.temp <= 16:
                 for m in mob:
                     if m.state == 0 or m.state == 1 or m.state == 5:
-                        if self.x <= m.left <= self.x + 60 and self.y + 20 >= m.bottom and self.y - 40 <= m.top:
+                        if self.x <= m.left <= self.x + 90 and self.y + 20 >= m.bottom and self.y - 40 <= m.top:
                             m.take_damage(2)
-            if self.temp % 3 == 0:
+            if self.temp % 4 == 0:
                 self.framex = (self.framex + 1) % 8
-            if self.temp == 24:
+            if self.temp == 32:
                 projectile.remove(self)
 
         # 핸드건 민첩한 사격 이펙트 좌
@@ -806,14 +806,14 @@ class Projectile:
             self.y = y
             if self.temp == 1:
                 self.image = self.images["Q_handgun_effect"]
-            if self.temp <= 12:
+            if self.temp <= 16:
                 for m in mob:
                     if m.state == 0 or m.state == 1 or m.state == 5:
-                        if self.x - 60 <= m.right <= self.x and self.y + 20 >= m.bottom and self.y - 40 <= m.top:
+                        if self.x - 90 <= m.right <= self.x and self.y + 20 >= m.bottom and self.y - 40 <= m.top:
                             m.take_damage(2)
-            if self.temp % 3 == 0:
+            if self.temp % 4 == 0:
                 self.framex = (self.framex + 1) % 8
-            if self.temp == 24:
+            if self.temp == 32:
                 projectile.remove(self)
 
         # 대쉬 이펙트
@@ -868,9 +868,9 @@ class Projectile:
             elif not self.attackright:
                 self.image.clip_composite_draw(self.framex * 123, 0, 123, 125, 0, 'h', self.x - 36, self.y - 17, 62, 63)
         elif self.type == "q_handgun_effect_1":
-            self.image.clip_composite_draw(self.framex * 316, 0, 316, 324, 0, 'h', self.x + 50, self.y - 10, 52, 54)
+            self.image.clip_composite_draw(self.framex * 316, 0, 316, 324, 0, 'h', self.x + 60, self.y, 78, 81)
         elif self.type == "q_handgun_effect_2":
-            self.image.clip_composite_draw(self.framex * 316, 0, 316, 324, 0, '', self.x - 50, self.y - 10, 52, 54)
+            self.image.clip_composite_draw(self.framex * 316, 0, 316, 324, 0, '', self.x - 60, self.y, 78, 81)
         elif self.type == "dash_effect":
             if self.moveright:
                 self.image.clip_composite_draw(self.framex * 66, 0, 66, 128, 0, 'h', self.x, self.y - 17, 66, 128)
@@ -965,7 +965,7 @@ class Character:
                         bullet_time_cooldown = 600
                 elif state == 2:
                     if position == 2:
-                        agile_shooting_cooldown = 180
+                        agile_shooting_cooldown = 360
                 state = 0
             die_time -= 1
             if not position == 2:
@@ -1102,7 +1102,7 @@ class Character:
                 spree -= 1
 
         elif position == 2 and state == 2:
-            if self.image != self.images["agile_handgun"]:  # 핸드건 민사
+            if self.image != self.images["agile_handgun"]:  # 핸드건 민첩한 사격
                 self.image = self.images["agile_handgun"]
                 self.temp = 1
                 self.framex = 0
@@ -1120,7 +1120,7 @@ class Character:
                 elif not MoveRight:
                     move = 1
             elif self.temp == 100:
-                agile_shooting_cooldown = 180
+                agile_shooting_cooldown = 360
                 state = 0
 
         elif Hit:
