@@ -1,25 +1,25 @@
-from sdl2 import SDL_KEYDOWN, SDLK_SPACE, SDLK_RIGHT, SDL_KEYUP, SDLK_LEFT
-
-
+from sdl2 import *
 
 def start_event(e):
     return e[0] == 'START'
 
 def right_down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_RIGHT
-
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_d
 
 def right_up(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_RIGHT
-
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_d
 
 def left_down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_LEFT
-
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_a
 
 def left_up(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_LEFT
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_a
 
+def change_stance_z(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_z
+
+def change_stance_x(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_x
 
 def space_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_SPACE
@@ -34,12 +34,10 @@ class StateMachine:
 
     def start(self, state):
         self.cur_state = state
-
         print(f'Enter into {state}')
         self.cur_state.enter(self.o, ('START', 0))
 
     def add_event(self, e):
-        # print(f'    DEBUG: New event {e} added to event Que')
         self.event_que.append(e)
 
     def set_transitions(self, transitions):
@@ -63,5 +61,3 @@ class StateMachine:
                 print(f'Enter into {self.cur_state}')
                 self.cur_state.enter(self.o, e)
                 return
-
-        # print(f'        Warning: Event [{e}] at State [{self.cur_state}] not handled')
