@@ -29,7 +29,7 @@ class Zombie:
                     Zombie.images[name] = [load_image("./zombie/" + name + " (%d)" % i + ".png") for i in range(1, 8 + 1)]
 
     def __init__(self):
-        self.x, self.y = random.randint(600, 1000), 150
+        self.x, self.y = random.randint(600, 1000), 190
         self.load_images()
         self.frame = random.randint(0, 9)
         self.dir = random.choice([-1,1])

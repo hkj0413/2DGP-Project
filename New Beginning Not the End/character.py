@@ -1,4 +1,3 @@
-from numpy import character
 from pico2d import get_time, load_image, load_font, draw_rectangle, clamp
 
 from ball import Ball
@@ -31,7 +30,6 @@ class Idle:
         elif character.stance == 2:
             character.name = 'Idle_HG'
 
-        character.frame = 0
         character.wait_time = get_time()
 
     @staticmethod
@@ -73,8 +71,6 @@ class Walk:
         elif character.stance == 2:
             character.name = 'Walk_HG'
 
-        character.frame = 0
-
     @staticmethod
     def exit(character, e):
         if change_stance_z(e):
@@ -103,6 +99,8 @@ animation_names = ['Idle_SG', 'Idle_RF', 'Idle_HG', 'Walk_SG', 'Walk_RF', 'Walk_
 
 class Character:
     images = None
+    image_Hp = None
+    image_Bullet = None
 
     def load_images(self):
         if Character.images == None:
@@ -122,14 +120,19 @@ class Character:
                     Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
 
     def __init__(self):
-        self.x, self.y = 400, 90
+        self.x, self.y = 34, 140
         self.stance = 0
         self.face_dir = 1
         self.speed = 3
+        self.frame = 0
         self.ball_count = 10
         self.load_images()
         self.name = ''
         self.font = load_font('ENCR10B.TTF', 16)
+        self.Hp = 20
+        self.max_Hp = 20
+        if Character.image_Hp == None:
+            self.Hp_image = load_image('Hp.png')
         self.state_machine = StateMachine(self)
         self.state_machine.start(Idle)
         self.state_machine.set_transitions(
@@ -151,12 +154,23 @@ class Character:
 
     def handle_event(self, event):
         self.state_machine.add_event(('INPUT', event))
-        pass
 
     def draw(self):
         self.state_machine.draw()
         self.font.draw(self.x - 10, self.y + 50, f'{self.ball_count:02d}', (255, 255, 0))
         draw_rectangle(*self.get_bb())
+
+        heart_count = int(self.max_Hp / 2)
+        hx = 20
+        hy = 780
+
+        for i in range(heart_count):
+            if self.Hp >= (i + 1) * 2:
+                self.Hp_image.clip_composite_draw(0, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
+            elif self.Hp == (i * 2) + 1:
+                self.Hp_image.clip_composite_draw(120, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
+            else:
+                self.Hp_image.clip_composite_draw(240, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
 
     def change_z(self):
         if self.stance == 0:
@@ -188,7 +202,7 @@ class Character:
             game_world.add_collision_pairs('zombie:ball', None, ball)
 
     def get_bb(self):
-        return self.x - 17, self.y - 50, self.x + 17, self.y + 18
+        return self.x - 17, self.y - 49, self.x + 17, self.y + 19
 
     def handle_collision(self, group, other):
         if group == 'character:ball':

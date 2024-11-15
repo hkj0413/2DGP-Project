@@ -15,12 +15,10 @@ def add_object(o, depth = 0):
 def add_objects(ol, depth = 0):
     world[depth] += ol
 
-
 def update():
     for layer in world:
         for o in layer:
             o.update()
-
 
 def render():
     for layer in world:
@@ -37,9 +35,9 @@ def remove_collision_object(o):
 def remove_object(o):
     for layer in world:
         if o in layer:
-            layer.remove(o) # world 에서 o를 삭제
-            remove_collision_object(o) # collision pairs 에서 o 를 삭제
-            del o # 메모리 에서 객체 자체를 삭제
+            layer.remove(o)
+            remove_collision_object(o)
+            del o
             return
     raise ValueError('Cannot delete non existing object')
 
@@ -47,9 +45,6 @@ def clear():
     for layer in world:
         layer.clear()
 
-
-
-# fill here
 def collide(a, b):
     al, ab, ar, at = a.get_bb()
     bl, bb, br, bt = b.get_bb()
