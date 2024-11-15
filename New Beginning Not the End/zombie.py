@@ -75,5 +75,3 @@ class Zombie:
             FRAMES_PER_ACTION = 8.0
             if self.hp <= 0:
                 game_world.remove_object(self)
-
-

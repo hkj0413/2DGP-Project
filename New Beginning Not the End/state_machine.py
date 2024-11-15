@@ -27,10 +27,6 @@ def space_down(e):
 def time_out(e):
     return e[0] == 'TIME_OUT'
 
-
-
-
-
 class StateMachine:
     def __init__(self, o):
         self.o = o
