@@ -3,13 +3,12 @@ from pico2d import *
 import random
 
 WIDTH, HEIGHT = 1080, 800
-x, y = 34, 140.0
+x, y = 34, 141.0
 
 position = 0
 state = 0
 shield_enhance = 1
 handgun_max_bullet = 20
-handgun_attack_speed = 12
 
 MoveRight = True
 Walking = False
@@ -611,7 +610,8 @@ class Projectile:
         # 샷건 기본 공격
         if self.type == "lc_shotgun":                 # 샷건 기본 공격 사거리 9칸 / 0 ~ 68
             if self.temp == 1:
-                self.image = self.images["Lc_shotgun"]
+                if self.image != self.images["Lc_shotgun"]:
+                    self.image = self.images["Lc_shotgun"]
             if self.temp <= 15:
                 for m in mob:
                     if m.state == 0 or m.state == 1 or m.state == 5:
@@ -637,7 +637,8 @@ class Projectile:
         # 라이플 기본 공격
         elif self.type == "lc_rifle":                 # 라이플 기본 공격 사거리 24칸, 29칸 / 25 ~ 55, 20 ~ 60
             if self.temp == 1:
-                self.image = self.images["Lc_rifle"]
+                if self.image != self.images["Lc_rifle"]:
+                    self.image = self.images["Lc_rifle"]
             if self.attackright:
                 self.fx += 20
             elif not self.attackright:
@@ -658,7 +659,8 @@ class Projectile:
         # 라이플 기본 공격 강화
         elif self.type == "lc_rifle_enhance":
             if self.temp == 1:
-                self.image = self.images["Lc_rifle_enhance"]
+                if self.image != self.images["Lc_rifle_enhance"]:
+                    self.image = self.images["Lc_rifle_enhance"]
             if self.temp % 4 == 0:
                 self.framex = (self.framex + 1) % 4
             if self.attackright:
@@ -689,7 +691,8 @@ class Projectile:
             elif x < 500 and not ox == 0 and move == 1 and Dash:
                 self.x += 20
             if self.temp == 1:
-                self.image = self.images["Lc_rifle_effect"]
+                if self.image != self.images["Lc_rifle_effect"]:
+                    self.image = self.images["Lc_rifle_effect"]
             if self.temp % 4 == 0:
                 self.framex = (self.framex + 1) % 12
             if self.temp == 48:
@@ -701,7 +704,8 @@ class Projectile:
             self.y = 800 - mouse_y
             if self.temp == 1:
                 self.count = 140 + (snipe_size - 45) * 2
-                self.image = self.images["Rc_rifle"]
+                if self.image != self.images["Rc_rifle"]:
+                    self.image = self.images["Rc_rifle"]
             if self.temp <= 21 and self.temp % 3 == 0:
                 self.count -= 20
             if not state == 1:
@@ -712,7 +716,8 @@ class Projectile:
             if self.temp == 1:
                 self.x = mouse_x
                 self.y = 800 - mouse_y
-                self.image = self.images["Rc_rifle_effect"]
+                if self.image != self.images["Rc_rifle_effect"]:
+                    self.image = self.images["Rc_rifle_effect"]
                 for m in mob:
                     if m.state == 0 or m.state == 1 or m.state == 5:
                         if self.attackright:
@@ -726,7 +731,8 @@ class Projectile:
         # 라이플 장전 투망
         elif self.type == "reload_rifle_effect":
             if self.temp == 1:
-                self.image = self.images["Reload_rifle_effect"]
+                if self.image != self.images["Reload_rifle_effect"]:
+                    self.image = self.images["Reload_rifle_effect"]
             if self.moveright:
                 self.fx -= 12
             elif not self.moveright:
@@ -749,7 +755,8 @@ class Projectile:
         # 핸드건 기본 공격
         elif self.type == "lc_handgun":               # 핸드건 기본 공격 사거리 12칸 / 20 ~ 60
             if self.temp == 1:
-                self.image = self.images["Lc_handgun"]
+                if self.image != self.images["Lc_handgun"]:
+                    self.image = self.images["Lc_handgun"]
             if self.attackright:
                 self.fx += 10
             elif not self.attackright:
@@ -778,7 +785,8 @@ class Projectile:
             elif x < 500 and not ox == 0 and move == 1 and Dash:
                 self.x += 20
             if self.temp == 1:
-                self.image = self.images["Lc_handgun_effect"]
+                if self.image != self.images["Lc_handgun_effect"]:
+                    self.image = self.images["Lc_handgun_effect"]
             if self.temp % 5 == 0:
                 self.framex = (self.framex + 1) % 4
             if self.temp == 20:
@@ -789,7 +797,8 @@ class Projectile:
             self.x = x
             self.y = y
             if self.temp == 1:
-                self.image = self.images["Q_handgun_effect"]
+                if self.image != self.images["Q_handgun_effect"]:
+                    self.image = self.images["Q_handgun_effect"]
             if self.temp <= 16:
                 for m in mob:
                     if m.state == 0 or m.state == 1 or m.state == 5:
@@ -799,13 +808,15 @@ class Projectile:
                 self.framex = (self.framex + 1) % 8
             if self.temp == 32:
                 projectile.remove(self)
+                del projectile
 
         # 핸드건 민첩한 사격 이펙트 좌
         elif self.type == "q_handgun_effect_2":
             self.x = x
             self.y = y
             if self.temp == 1:
-                self.image = self.images["Q_handgun_effect"]
+                if self.image != self.images["Q_handgun_effect"]:
+                    self.image = self.images["Q_handgun_effect"]
             if self.temp <= 16:
                 for m in mob:
                     if m.state == 0 or m.state == 1 or m.state == 5:
@@ -815,6 +826,7 @@ class Projectile:
                 self.framex = (self.framex + 1) % 8
             if self.temp == 32:
                 projectile.remove(self)
+                del projectile
 
         # 대쉬 이펙트
         elif self.type == "dash_effect":
@@ -823,7 +835,8 @@ class Projectile:
             elif x < 500 and not ox == 0 and move == 1:
                 self.x += 40
             if self.temp == 1:
-                self.image = self.images["Dash_effect"]
+                if self.image != self.images["Dash_effect"]:
+                    self.image = self.images["Dash_effect"]
             if self.temp == 10:
                 projectile.remove(self)
 
@@ -868,9 +881,9 @@ class Projectile:
             elif not self.attackright:
                 self.image.clip_composite_draw(self.framex * 123, 0, 123, 125, 0, 'h', self.x - 36, self.y - 17, 62, 63)
         elif self.type == "q_handgun_effect_1":
-            self.image.clip_composite_draw(self.framex * 316, 0, 316, 324, 0, 'h', self.x + 60, self.y, 78, 81)
+            self.image.clip_composite_draw(self.framex * 316, 0, 316, 324, 0, 'vh', self.x + 60, self.y - 10, 78, 81)
         elif self.type == "q_handgun_effect_2":
-            self.image.clip_composite_draw(self.framex * 316, 0, 316, 324, 0, '', self.x - 60, self.y, 78, 81)
+            self.image.clip_composite_draw(self.framex * 316, 0, 316, 324, 0, 'v', self.x - 60, self.y - 10, 78, 81)
         elif self.type == "dash_effect":
             if self.moveright:
                 self.image.clip_composite_draw(self.framex * 66, 0, 66, 128, 0, 'h', self.x, self.y - 17, 66, 128)
@@ -1089,17 +1102,15 @@ class Character:
                 self.framex = 0
             if self.temp % 3 == 0:
                 self.framex = (self.framex + 1) % 7
+            if self.temp % 6 == 0:
+                projectile += [Projectile("lc_handgun")]
+                spree -= 1
+            if self.temp % 12 == 0:
+                projectile += [Projectile("lc_handgun_effect")]
             if spree <= 0:
                 state = 0
                 self.Bullet_handgun = 0
                 bullet_time_cooldown = 600
-            if self.temp % 8 == 0:
-                projectile += [Projectile("lc_handgun")]
-                projectile += [Projectile("lc_handgun_effect")]
-                spree -= 1
-            if self.temp % 8 == 4:
-                projectile += [Projectile("lc_handgun")]
-                spree -= 1
 
         elif position == 2 and state == 2:
             if self.image != self.images["agile_handgun"]:  # 핸드건 민첩한 사격
@@ -1109,12 +1120,10 @@ class Character:
             if self.temp <= 20 or 24 <= self.temp <= 44 or 48 <= self.temp <= 68 or 72 <= self.temp <= 92:
                 if self.temp % 4 == 0:
                     self.framex = (self.framex + 1) % 12
-            if self.temp == 24 or self.temp == 48 or self.temp == 72:
+            if self.temp % 24 == 0:
                 projectile += [Projectile("q_handgun_effect_1")]
                 projectile += [Projectile("q_handgun_effect_2")]
-            elif self.temp == 96:
-                projectile += [Projectile("q_handgun_effect_1")]
-                projectile += [Projectile("q_handgun_effect_2")]
+            if self.temp == 96:
                 if MoveRight:
                     move = 0
                 elif not MoveRight:
@@ -1169,7 +1178,7 @@ class Character:
                 elif position == 1:
                     attack_delay = 60                                       # 라이플 공격 속도 1초 (60 FPS)
                 elif position == 2:
-                    attack_delay = handgun_attack_speed                     # 권총 공격 속도 0.2초 (60 FPS)
+                    attack_delay = 12                                       # 권총 공격 속도 0.2초 (60 FPS)
 
         elif not Walking or (position == 1 and state == 1):
             if Jump or Fall or Dash:
@@ -1452,7 +1461,7 @@ class Character:
                 Fall = True
                 jump_velocity = 10.0
             elif check_collide_jump(Block):
-                y = bottom_o - 18
+                y = bottom_o - 19
                 Jump = False
                 Fall = True
                 jump_velocity = 10.0
@@ -1461,7 +1470,7 @@ class Character:
             y -= fall_velocity                                    # 추락 가속도
             fall_velocity += gravity
             if check_collide_fall(Block):
-                y = top_o + 50
+                y = top_o + 51
                 Fall = False
                 fall_velocity = 0.0
             elif y < -68:
@@ -1528,6 +1537,7 @@ class Character:
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, '', x, y, 170, 170)
                 elif not MoveRight:      # 왼쪽 그 외 전부
                     self.image.clip_composite_draw(self.framex * 340, 0, 340, 340, 0, 'h', x, y, 170, 170)
+        draw_rectangle(x - 17, y - 50, x + 17, y + 18)
 
     def take_damage(self, damage):
         global Walking, a_pressed, d_pressed, s_pressed, Hit, hit_delay, Jump, jump_velocity, Fall, Die, die_time
@@ -1805,10 +1815,11 @@ def handle_events():
                     MoveRight = True
 
             # 핸드건 일때 우클릭 시 쌍권총 난사
-            elif event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_RIGHT and not Attack and position == 2 and state == 0 and bullet_time_cooldown == 0 and not Reload_handgun:
+            elif (event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_RIGHT and not Attack and position == 2 and state == 0
+                  and bullet_time_cooldown == 0 and not Reload_handgun and character.Bullet_handgun > 0):
                 mouse_x, mouse_y = event.x, event.y
                 state = 1
-                spree = character.Bullet_handgun * 2
+                spree = character.Bullet_handgun
                 if mouse_x < x:
                     AttackRight = False
                     MoveRight = False
@@ -1857,11 +1868,12 @@ def collide(cx, cy, o):
     top_o, bottom_o = o.y + 15, o.y - 15
 
     # 사각 충돌 체크
-    if left_c < right_o and bottom_c < top_o and right_c > left_o and top_c > bottom_o:
-        # print(f"캐릭터 좌표: ({left_c}, {right_c}), ({top_c}, {bottom_c})")
-        # print(f"객체 좌표: ({left_o}, {right_o}), ({top_o}, {bottom_o})")
-        return True
-    return False
+    if left_c > right_o: return False
+    if bottom_c > top_o: return False
+    if right_c < left_o: return False
+    if top_c < bottom_o: return False
+
+    return True
 
 def check_collide_ad(object, speed):
     for o in object:
@@ -1880,15 +1892,15 @@ def collide_ad(cx, cy, o, object, speed):
 
     # 오른 쪽에 바닥이 있으면 안 떨어짐
     if MoveRight:
-        if left_c > right_o > left_c - speed * 2 and bottom_c == top_o:
-            if any(o2.x - 15 <= left_c <= o2.x + 15 and bottom_c == o2.y + 15 for o2 in object if o2 != o):
+        if left_c > right_o > left_c - speed * 2 and bottom_c - 1 == top_o:
+            if any(o2.x - 15 <= left_c <= o2.x + 15 and bottom_c - 1 == o2.y + 15 for o2 in object if o2 != o):
                 return False
             return True
 
     # 왼 쪽에 바닥이 있으면 안 떨어짐
     elif not MoveRight:
-        if right_c < left_o < right_c + speed * 2 and bottom_c == top_o:
-            if any(o2.x - 15 <= right_c <= o2.x + 15 and bottom_c == o2.y + 15 for o2 in object if o2 != o):
+        if right_c < left_o < right_c + speed * 2 and bottom_c - 1 == top_o:
+            if any(o2.x - 15 <= right_c <= o2.x + 15 and bottom_c - 1 == o2.y + 15 for o2 in object if o2 != o):
                 return False
             return True
     return False
