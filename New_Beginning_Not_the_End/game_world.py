@@ -1,3 +1,5 @@
+import character
+
 world = [[] for _ in range(4)]
 collision_pairs = {}
 
@@ -56,11 +58,41 @@ def collide(a, b):
 
     return True
 
+def collide_fall(a, b):
+    al, ab, ar, at = a.get_bb()
+    bl, bb, br, bt = b.get_bb()
+
+    if al < br and ab < bt and ar > bl and ab + character.fall_velocity > bt:
+        return True
+    return False
+
+def collide_jump(a, b):
+    al, ab, ar, at = a.get_bb()
+    bl, bb, br, bt = b.get_bb()
+
+    if al < br and at > bb and ar > bl and at - character.jump_velocity < bb:
+        return True
+    return False
+
 def handle_collisions():
     for group, pairs in collision_pairs.items():
         for a in pairs[0]:
             for b in pairs[1]:
-                if collide(a, b):
-                    print(f'{group} collide')
-                    a.handle_collision(group, b)
-                    b.handle_collision(group, a)
+                if group == 'character:ground':
+                    if collide_fall(a, b) and character.Fall:
+                        print(f'{group} collide_fall')
+                        a.handle_collision_fall(group, b)
+                        b.handle_collision_fall(group, a)
+                    if collide_jump(a, b) and character.Jump:
+                        print(f'{group} collide_jump')
+                        a.handle_collision_jump(group, b)
+                        b.handle_collision_jump(group, a)
+                    if collide(a, b):
+                        print(f'{group} collide')
+                        a.handle_collision(group, b)
+                        b.handle_collision(group, a)
+                else:
+                    if collide(a, b):
+                        print(f'{group} collide')
+                        a.handle_collision(group, b)
+                        b.handle_collision(group, a)

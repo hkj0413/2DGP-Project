@@ -21,8 +21,11 @@ def change_stance_z(e):
 def change_stance_x(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_x
 
-def space_down(e):
+def jump(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_SPACE
+
+def die(e):
+    return e[0] == 'DIE'
 
 def time_out(e):
     return e[0] == 'TIME_OUT'

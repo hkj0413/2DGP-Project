@@ -3,7 +3,6 @@ from pico2d import get_time, load_image, load_font, draw_rectangle, clamp
 import game_world
 import game_framework
 import ground
-import wall
 
 from state_machine import *
 
@@ -12,6 +11,13 @@ RUN_SPEED_KMPH = 10.0 # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+Jump = False
+Fall = False
+
+jump_velocity = 8.5
+fall_velocity = 0.0
+gravity = 0.1
 
 class Idle:
     @staticmethod
@@ -37,35 +43,60 @@ class Idle:
 
     @staticmethod
     def exit(character, e):
-        if change_stance_z(e):
+        global Jump
+        if change_stance_z(e) and not Jump and not Fall:
             character.change_z()
-        elif change_stance_x(e):
+        elif change_stance_x(e) and not Jump and not Fall:
             character.change_x()
-        elif space_down(e):
-            pass
+        elif jump(e) and not Jump and not Fall:
+            Jump = True
+            character.frame = 0
 
     @staticmethod
     def do(character):
-        if character.stance == 0 or character.stance == 1:
-            character.frame = (character.frame + 14.0 * 1.5 * game_framework.frame_time) % 14
-        elif character.stance == 2:
-            character.frame = (character.frame + 11.0 * 1.5 * game_framework.frame_time) % 11
+        if not Jump and not Fall:
+            if character.stance == 0 or character.stance == 1:
+                character.frame = (character.frame + 14.0 * 1.5 * game_framework.frame_time) % 14
+            elif character.stance == 2:
+                character.frame = (character.frame + 11.0 * 1.5 * game_framework.frame_time) % 11
 
     @staticmethod
     def draw(character):
-        if character.face_dir == 1:
-            character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                 character.x, character.y, 170, 170)
+        if Jump or Fall:
+            if character.face_dir == 1:
+                if character.stance == 0:
+                    character.images['Walk_SG'].clip_composite_draw(0, 0, 340, 340, 0, '',
+                                                                         character.x, character.y, 170, 170)
+                elif character.stance == 1:
+                    character.images['Walk_RF'].clip_composite_draw(0, 0, 340, 340, 0, '',
+                                                                    character.x, character.y, 170, 170)
+                elif character.stance == 2:
+                    character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, '',
+                                                                    character.x, character.y, 170, 170)
+            else:
+                if character.stance == 0:
+                    character.images['Walk_SG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
+                                                                    character.x, character.y, 170, 170)
+                elif character.stance == 1:
+                    character.images['Walk_RF'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
+                                                                    character.x, character.y, 170, 170)
+                elif character.stance == 2:
+                    character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
+                                                                    character.x, character.y, 170, 170)
         else:
-            character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                 character.x, character.y, 170, 170)
+            if character.face_dir == 1:
+                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
+                                                                     character.x, character.y, 170, 170)
+            else:
+                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
+                                                                     character.x, character.y, 170, 170)
 class Walk:
     @staticmethod
     def enter(character, e):
         if right_down(e) or left_up(e):
             character.face_dir = 1
         elif left_down(e) or right_up(e):
-            character.face_dir= -1
+            character.face_dir = -1
 
         if character.stance == 0:
             character.name = 'Walk_SG'
@@ -78,18 +109,20 @@ class Walk:
 
     @staticmethod
     def exit(character, e):
-        if change_stance_z(e):
+        global Jump
+        if change_stance_z(e) and not Jump and not Fall:
             character.change_z()
-        elif change_stance_x(e):
+        elif change_stance_x(e) and not Jump and not Fall:
             character.change_x()
-        elif space_down(e):
-            pass
+        elif jump(e) and not Jump and not Fall:
+            Jump = True
+            character.frame = 0
 
     @staticmethod
     def do(character):
-        character.frame = (character.frame + 6.0 * 2.0 * game_framework.frame_time) % 6
+        if not Jump and not Fall:
+            character.frame = (character.frame + 6.0 * 2.0 * game_framework.frame_time) % 6
         character.x += character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
-        pass
 
     @staticmethod
     def draw(character):
@@ -125,7 +158,7 @@ class Character:
                     Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
 
     def __init__(self):
-        self.x, self.y = 34, 140
+        self.x, self.y = 34, 140.0
         self.stance = 0
         self.face_dir = 1
         self.speed = 3
@@ -144,25 +177,38 @@ class Character:
             {
                 Idle: {
                     right_down: Walk, left_down: Walk, left_up: Walk, right_up: Walk, change_stance_z: Idle, change_stance_x: Idle,
-                    space_down: Idle
+                    jump: Idle,
                 },
                 Walk: {
                     right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, change_stance_z: Walk, change_stance_x: Walk,
-                    space_down: Walk
+                    jump: Walk,
                 },
             }
         )
 
     def update(self):
+        global Jump, jump_velocity, Fall, fall_velocity
         self.state_machine.update()
         self.x = clamp(17, self.x, 1063)
+
+        if Jump:
+            self.y += jump_velocity * RUN_SPEED_PPS * game_framework.frame_time
+            jump_velocity -= gravity
+            if jump_velocity <= 0:
+                Jump = False
+                Fall = True
+                jump_velocity = 8.5
+
+        if Fall:
+            self.y -= fall_velocity * RUN_SPEED_PPS * game_framework.frame_time
+            fall_velocity += gravity
 
     def handle_event(self, event):
         self.state_machine.add_event(('INPUT', event))
 
     def draw(self):
         self.state_machine.draw()
-        self.font.draw(self.x - 10, self.y + 50, f'{self.ball_count:02d}', (255, 255, 0))
+        self.font.draw(self.x - 10, self.y + 50.0, f'{self.ball_count:02d}', (255, 255, 0))
         draw_rectangle(*self.get_bb())
 
         heart_count = int(self.max_Hp / 2)
@@ -200,16 +246,31 @@ class Character:
             self.speed = 4
 
     def get_bb(self):
-        return self.x - 17, self.y - 49, self.x + 17, self.y + 19
+        return self.x - 17, self.y - 49.0, self.x + 17, self.y + 19.0
 
     def handle_collision(self, group, other):
         if group == 'character:wall':
             if self.face_dir == 1:
-                self.x = wall.Wall.collide_left(other)
+                self.x -= self.speed * RUN_SPEED_PPS * game_framework.frame_time
             elif self.face_dir == -1:
-                self.x = wall.Wall.collide_right(other)
+                self.x += self.speed * RUN_SPEED_PPS * game_framework.frame_time
         elif group == 'character:ground':
             if self.face_dir == 1:
-                self.x = ground.Ground.collide_left(other)
+                self.x -= self.speed * RUN_SPEED_PPS * game_framework.frame_time
             elif self.face_dir == -1:
-                self.x = ground.Ground.collide_right(other)
+                self.x += self.speed * RUN_SPEED_PPS * game_framework.frame_time
+
+    def handle_collision_fall(self, group, other):
+        global Fall, fall_velocity
+        if group == 'character:ground' and Fall:
+            self.y = ground.Ground.collide_fall(other)
+            Fall = False
+            fall_velocity = 0.0
+
+    def handle_collision_jump(self, group, other):
+        global Jump, jump_velocity, Fall
+        if group == 'character:ground' and Jump:
+            self.y = ground.Ground.collide_jump(other)
+            Jump = False
+            Fall = True
+            jump_velocity = 8.5
