@@ -1,9 +1,9 @@
 from pico2d import get_time, load_image, load_font, draw_rectangle, clamp
 
-from ball import Ball
-
 import game_world
 import game_framework
+import ground
+import wall
 
 from state_machine import *
 
@@ -25,10 +25,13 @@ class Idle:
 
         if character.stance == 0:
             character.name = 'Idle_SG'
+            character.frame = clamp(0, character.frame, 14)
         elif character.stance == 1:
             character.name = 'Idle_RF'
+            character.frame = clamp(0, character.frame, 14)
         elif character.stance == 2:
             character.name = 'Idle_HG'
+            character.frame = clamp(0, character.frame, 11)
 
         character.wait_time = get_time()
 
@@ -39,7 +42,7 @@ class Idle:
         elif change_stance_x(e):
             character.change_x()
         elif space_down(e):
-            character.fire_ball()
+            pass
 
     @staticmethod
     def do(character):
@@ -71,6 +74,8 @@ class Walk:
         elif character.stance == 2:
             character.name = 'Walk_HG'
 
+        character.frame = clamp(0, character.frame, 6)
+
     @staticmethod
     def exit(character, e):
         if change_stance_z(e):
@@ -78,7 +83,7 @@ class Walk:
         elif change_stance_x(e):
             character.change_x()
         elif space_down(e):
-            character.fire_ball()
+            pass
 
     @staticmethod
     def do(character):
@@ -194,18 +199,17 @@ class Character:
             self.stance = 1
             self.speed = 4
 
-    def fire_ball(self):
-        if self.ball_count > 0:
-            self.ball_count -= 1
-            ball = Ball(self.x, self.y, self.face_dir * 10)
-            game_world.add_object(ball)
-            game_world.add_collision_pairs('zombie:ball', None, ball)
-
     def get_bb(self):
         return self.x - 17, self.y - 49, self.x + 17, self.y + 19
 
     def handle_collision(self, group, other):
-        if group == 'character:ball':
-            self.ball_count += 1
-        elif group == 'character:zombie':
-            game_framework.running = False
+        if group == 'character:wall':
+            if self.face_dir == 1:
+                self.x = wall.Wall.collide_left(other)
+            elif self.face_dir == -1:
+                self.x = wall.Wall.collide_right(other)
+        elif group == 'character:ground':
+            if self.face_dir == 1:
+                self.x = ground.Ground.collide_left(other)
+            elif self.face_dir == -1:
+                self.x = ground.Ground.collide_right(other)

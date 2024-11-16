@@ -1,6 +1,6 @@
 from pico2d import load_image
 
-class Wall:
+class Ground:
     image = None
 
     def __init__(self, i=0, j=0, k=0):
@@ -8,8 +8,8 @@ class Wall:
         self.base_x = i * 30 + 15
         self.y = j * 30 + 15
         self.framex = k
-        if Wall.image == None:
-            Wall.image = load_image('Block.png')
+        if Ground.image == None:
+            Ground.image = load_image('Block.png')
 
     def update(self):
         self.x = self.base_x
@@ -19,6 +19,12 @@ class Wall:
 
     def get_bb(self):
         return self.x - 15, self.y - 15, self.x + 15, self.y + 15
+
+    def collide_left(self):
+        return self.x - 33
+
+    def collide_right(self):
+        return self.x + 33
 
     def handle_collision(self, group, other):
         pass
