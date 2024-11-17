@@ -12,6 +12,8 @@ RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
+a_pressed = False
+d_pressed = False
 Jump = False
 Fall = False
 
@@ -22,12 +24,16 @@ gravity = 0.1
 class Idle:
     @staticmethod
     def enter(character, e):
+        global Jump
         if start_event(e):
             character.face_dir = 1
-        elif right_down(e) or left_up(e):
-            character.face_dir = -1
-        elif left_down(e) or right_up(e):
-            character.face_dir = 1
+        elif change_stance_z(e) and not Jump and not Fall:
+            character.change_z()
+        elif change_stance_x(e) and not Jump and not Fall:
+            character.change_x()
+        elif jump(e) and not Jump and not Fall:
+            Jump = True
+            character.frame = 0
 
         if character.stance == 0:
             character.name = 'Idle_SG'
@@ -43,14 +49,10 @@ class Idle:
 
     @staticmethod
     def exit(character, e):
-        global Jump
-        if change_stance_z(e) and not Jump and not Fall:
-            character.change_z()
-        elif change_stance_x(e) and not Jump and not Fall:
-            character.change_x()
-        elif jump(e) and not Jump and not Fall:
-            Jump = True
-            character.frame = 0
+        if right_down(e):
+            character.face_dir = 1
+        elif left_down(e):
+            character.face_dir = -1
 
     @staticmethod
     def do(character):
@@ -93,10 +95,32 @@ class Idle:
 class Walk:
     @staticmethod
     def enter(character, e):
-        if right_down(e) or left_up(e):
+        global a_pressed, d_pressed, Jump
+        if right_down(e):
+            d_pressed = True
             character.face_dir = 1
-        elif left_down(e) or right_up(e):
+        elif right_up(e):
+            d_pressed = False
+            if a_pressed:
+                character.face_dir = -1
+            elif not a_pressed:
+                character.state_machine.add_event(('CHANGE', 0))
+        elif left_down(e):
+            a_pressed = True
             character.face_dir = -1
+        elif left_up(e):
+            a_pressed = False
+            if d_pressed:
+                character.face_dir = 1
+            elif not d_pressed:
+                character.state_machine.add_event(('CHANGE', 0))
+        elif change_stance_z(e) and not Jump and not Fall:
+            character.change_z()
+        elif change_stance_x(e) and not Jump and not Fall:
+            character.change_x()
+        elif jump(e) and not Jump and not Fall:
+            Jump = True
+            character.frame = 0
 
         if character.stance == 0:
             character.name = 'Walk_SG'
@@ -109,20 +133,27 @@ class Walk:
 
     @staticmethod
     def exit(character, e):
-        global Jump
-        if change_stance_z(e) and not Jump and not Fall:
-            character.change_z()
-        elif change_stance_x(e) and not Jump and not Fall:
-            character.change_x()
-        elif jump(e) and not Jump and not Fall:
-            Jump = True
-            character.frame = 0
+        pass
 
     @staticmethod
     def do(character):
+        global Fall
         if not Jump and not Fall:
             character.frame = (character.frame + 6.0 * 2.0 * game_framework.frame_time) % 6
+
         character.x += character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+
+        for block in game_world.collision_pairs['character:ground'][1] + game_world.collision_pairs['character:wall'][1]:
+            if game_world.collide(character, block):
+                character.x -= character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+                return
+
+        ground_objects = game_world.collision_pairs['character:ground'][1]
+        for block in ground_objects:
+            if game_world.collide_ad(character, block, ground_objects):
+                Fall = True
+                print('collide_ad')
+                return
 
     @staticmethod
     def draw(character):
@@ -133,7 +164,51 @@ class Walk:
             character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
                                                                  character.x, character.y, 170, 170)
 
-animation_names = ['Idle_SG', 'Idle_RF', 'Idle_HG', 'Walk_SG', 'Walk_RF', 'Walk_HG']
+class Hit:
+    @staticmethod
+    def enter(character, e):
+        global a_pressed, d_pressed, Jump, jump_velocity, Fall
+        Jump = False
+        jump_velocity = 8.5
+        Fall = True
+        character.wait_time = get_time()
+        character.frame = 0
+
+    @staticmethod
+    def exit(character, e):
+        pass
+
+    @staticmethod
+    def do(character):
+        if get_time() - character.wait_time > 1:
+            character.state_machine.add_event(('TIME_OUT', 0))
+
+    @staticmethod
+    def draw(character):
+        if character.face_dir == 1:
+            if character.stance == 0:
+                character.images['Die_SG'].clip_composite_draw(1 * 340, 0, 340, 340, 0, '',
+                                                                character.x - 48, character.y, 170, 170)
+            elif character.stance == 1:
+                character.images['Die_RF'].clip_composite_draw(1 * 340, 0, 340, 340, 0, '',
+                                                                character.x - 11, character.y, 170, 170)
+            elif character.stance == 2:
+                character.images['Die_HG'].clip_composite_draw(2 * 340, 0, 340, 340, 0, '',
+                                                                character.x, character.y, 170, 170)
+        else:
+            if character.stance == 0:
+                character.images['Die_SG'].clip_composite_draw(1 * 340, 0, 340, 340, 0, 'h',
+                                                                     character.x + 48, character.y, 170, 170)
+            elif character.stance == 1:
+                character.images['Die_RF'].clip_composite_draw(1 * 340, 0, 340, 340, 0, 'h',
+                                                                     character.x + 11, character.y, 170, 170)
+            elif character.stance == 2:
+                character.images['Die_HG'].clip_composite_draw(2 * 340, 0, 340, 340, 0, 'h',
+                                                                     character.x, character.y, 170, 170)
+
+animation_names = ['Idle_SG', 'Idle_RF', 'Idle_HG',
+                   'Walk_SG', 'Walk_RF', 'Walk_HG',
+                   'Die_SG', 'Die_RF', 'Die_HG']
 
 class Character:
     images = None
@@ -155,6 +230,12 @@ class Character:
                 elif name == 'Walk_RF':
                     Character.images[name] = load_image("./R93/" + name + ".png")
                 elif name == 'Walk_HG':
+                    Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
+                elif name == 'Die_SG':
+                    Character.images[name] = load_image("./HKCAWS/" + name + ".png")
+                elif name == 'Die_RF':
+                    Character.images[name] = load_image("./R93/" + name + ".png")
+                elif name == 'Die_HG':
                     Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
 
     def __init__(self):
@@ -178,10 +259,15 @@ class Character:
                 Idle: {
                     right_down: Walk, left_down: Walk, left_up: Walk, right_up: Walk, change_stance_z: Idle, change_stance_x: Idle,
                     jump: Idle,
+                    temp_damage: Hit
                 },
                 Walk: {
-                    right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, change_stance_z: Walk, change_stance_x: Walk,
-                    jump: Walk,
+                    right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
+                    change: Idle, jump: Walk,
+                    temp_damage: Hit
+                },
+                Hit: {
+                    time_out: Idle
                 },
             }
         )
@@ -249,16 +335,7 @@ class Character:
         return self.x - 17, self.y - 49.0, self.x + 17, self.y + 19.0
 
     def handle_collision(self, group, other):
-        if group == 'character:wall':
-            if self.face_dir == 1:
-                self.x -= self.speed * RUN_SPEED_PPS * game_framework.frame_time
-            elif self.face_dir == -1:
-                self.x += self.speed * RUN_SPEED_PPS * game_framework.frame_time
-        elif group == 'character:ground':
-            if self.face_dir == 1:
-                self.x -= self.speed * RUN_SPEED_PPS * game_framework.frame_time
-            elif self.face_dir == -1:
-                self.x += self.speed * RUN_SPEED_PPS * game_framework.frame_time
+        pass
 
     def handle_collision_fall(self, group, other):
         global Fall, fall_velocity

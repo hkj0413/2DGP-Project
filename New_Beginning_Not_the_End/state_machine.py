@@ -27,8 +27,14 @@ def jump(e):
 def die(e):
     return e[0] == 'DIE'
 
+def change(e):
+    return e[0] == 'CHANGE'
+
 def time_out(e):
     return e[0] == 'TIME_OUT'
+
+def temp_damage(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_t
 
 class StateMachine:
     def __init__(self, o):
