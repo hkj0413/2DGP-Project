@@ -168,6 +168,8 @@ class Hit:
     @staticmethod
     def enter(character, e):
         global a_pressed, d_pressed, Jump, jump_velocity, Fall
+        a_pressed = False
+        d_pressed = False
         Jump = False
         jump_velocity = 8.5
         Fall = True
@@ -257,7 +259,7 @@ class Character:
         self.state_machine.set_transitions(
             {
                 Idle: {
-                    right_down: Walk, left_down: Walk, left_up: Walk, right_up: Walk, change_stance_z: Idle, change_stance_x: Idle,
+                    right_down: Walk, left_down: Walk, left_up: Idle, right_up: Idle, change_stance_z: Idle, change_stance_x: Idle,
                     jump: Idle,
                     temp_damage: Hit
                 },

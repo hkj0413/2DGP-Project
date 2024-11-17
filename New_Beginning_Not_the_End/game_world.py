@@ -80,13 +80,13 @@ def collide_ad(a, b, objects):
 
     if a.face_dir == 1:
         if al - a.speed * 4 > br > al - a.speed * 5 and ab - 1 == bt:
-            if any(o.x - 15 <= al - a.speed * 4 <= o.x + 15 and ab - 1 == o.y + 15 for o in objects if o != b):
+            if any(o.x - 15 <= al <= o.x + 15 and ab - 1 == o.y + 15 for o in objects if o != b):
                 return False
             return True
 
     elif a.face_dir == -1:
         if ar + a.speed * 4 < bl < ar + a.speed * 5 and ab - 1 == bt:
-            if any(o.x - 15 <= ar + a.speed * 4 <= o.x + 15 and ab - 1 == o.y + 15 for o in objects if o != b):
+            if any(o.x - 15 <= ar <= o.x + 15 and ab - 1 == o.y + 15 for o in objects if o != b):
                 return False
             return True
     return False
