@@ -35,13 +35,13 @@ class Idle:
             Jump = True
             character.frame = 0
 
-        if character.stance == 0:
+        if Character.stance == 0:
             character.name = 'Idle_SG'
             character.frame = clamp(0, character.frame, 14)
-        elif character.stance == 1:
+        elif Character.stance == 1:
             character.name = 'Idle_RF'
             character.frame = clamp(0, character.frame, 14)
-        elif character.stance == 2:
+        elif Character.stance == 2:
             character.name = 'Idle_HG'
             character.frame = clamp(0, character.frame, 11)
 
@@ -57,32 +57,32 @@ class Idle:
     @staticmethod
     def do(character):
         if not Jump and not Fall:
-            if character.stance == 0 or character.stance == 1:
+            if Character.stance == 0 or Character.stance == 1:
                 character.frame = (character.frame + 14.0 * 1.5 * game_framework.frame_time) % 14
-            elif character.stance == 2:
+            elif Character.stance == 2:
                 character.frame = (character.frame + 11.0 * 1.5 * game_framework.frame_time) % 11
 
     @staticmethod
     def draw(character):
         if Jump or Fall:
             if character.face_dir == 1:
-                if character.stance == 0:
+                if Character.stance == 0:
                     character.images['Walk_SG'].clip_composite_draw(0, 0, 340, 340, 0, '',
                                                                          character.x, character.y, 170, 170)
-                elif character.stance == 1:
+                elif Character.stance == 1:
                     character.images['Walk_RF'].clip_composite_draw(0, 0, 340, 340, 0, '',
                                                                     character.x, character.y, 170, 170)
-                elif character.stance == 2:
+                elif Character.stance == 2:
                     character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, '',
                                                                     character.x, character.y, 170, 170)
             else:
-                if character.stance == 0:
+                if Character.stance == 0:
                     character.images['Walk_SG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
                                                                     character.x, character.y, 170, 170)
-                elif character.stance == 1:
+                elif Character.stance == 1:
                     character.images['Walk_RF'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
                                                                     character.x, character.y, 170, 170)
-                elif character.stance == 2:
+                elif Character.stance == 2:
                     character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
                                                                     character.x, character.y, 170, 170)
         else:
@@ -122,11 +122,11 @@ class Walk:
             Jump = True
             character.frame = 0
 
-        if character.stance == 0:
+        if Character.stance == 0:
             character.name = 'Walk_SG'
-        elif character.stance == 1:
+        elif Character.stance == 1:
             character.name = 'Walk_RF'
-        elif character.stance == 2:
+        elif Character.stance == 2:
             character.name = 'Walk_HG'
 
         character.frame = clamp(0, character.frame, 6)
@@ -188,23 +188,23 @@ class Hit:
     @staticmethod
     def draw(character):
         if character.face_dir == 1:
-            if character.stance == 0:
+            if Character.stance == 0:
                 character.images['Die_SG'].clip_composite_draw(1 * 340, 0, 340, 340, 0, '',
                                                                 character.x - 48, character.y, 170, 170)
-            elif character.stance == 1:
+            elif Character.stance == 1:
                 character.images['Die_RF'].clip_composite_draw(1 * 340, 0, 340, 340, 0, '',
                                                                 character.x - 11, character.y, 170, 170)
-            elif character.stance == 2:
+            elif Character.stance == 2:
                 character.images['Die_HG'].clip_composite_draw(2 * 340, 0, 340, 340, 0, '',
                                                                 character.x, character.y, 170, 170)
         else:
-            if character.stance == 0:
+            if Character.stance == 0:
                 character.images['Die_SG'].clip_composite_draw(1 * 340, 0, 340, 340, 0, 'h',
                                                                      character.x + 48, character.y, 170, 170)
-            elif character.stance == 1:
+            elif Character.stance == 1:
                 character.images['Die_RF'].clip_composite_draw(1 * 340, 0, 340, 340, 0, 'h',
                                                                      character.x + 11, character.y, 170, 170)
-            elif character.stance == 2:
+            elif Character.stance == 2:
                 character.images['Die_HG'].clip_composite_draw(2 * 340, 0, 340, 340, 0, 'h',
                                                                      character.x, character.y, 170, 170)
 
@@ -216,6 +216,13 @@ class Character:
     images = None
     image_Hp = None
     image_Bullet = None
+    stance = 0
+    hp = 20
+    max_hp = 20
+    bullet_SG = 8
+    bullet_RF = 4
+    max_bullet_HG = 20
+    bullet_HG = max_bullet_HG
 
     def load_images(self):
         if Character.images == None:
@@ -242,7 +249,6 @@ class Character:
 
     def __init__(self):
         self.x, self.y = 34, 140.0
-        self.stance = 0
         self.face_dir = 1
         self.speed = 3
         self.frame = 0
@@ -250,8 +256,6 @@ class Character:
         self.load_images()
         self.name = ''
         self.font = load_font('ENCR10B.TTF', 16)
-        self.Hp = 20
-        self.max_Hp = 20
         if Character.image_Hp == None:
             self.Hp_image = load_image('Hp.png')
         self.state_machine = StateMachine(self)
@@ -299,38 +303,26 @@ class Character:
         self.font.draw(self.x - 10, self.y + 50.0, f'{self.ball_count:02d}', (255, 255, 0))
         draw_rectangle(*self.get_bb())
 
-        heart_count = int(self.max_Hp / 2)
-        hx = 20
-        hy = 780
-
-        for i in range(heart_count):
-            if self.Hp >= (i + 1) * 2:
-                self.Hp_image.clip_composite_draw(0, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
-            elif self.Hp == (i * 2) + 1:
-                self.Hp_image.clip_composite_draw(120, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
-            else:
-                self.Hp_image.clip_composite_draw(240, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
-
     def change_z(self):
-        if self.stance == 0:
-            self.stance = 1
+        if Character.stance == 0:
+            Character.stance = 1
             self.speed = 4
-        elif self.stance == 1:
-            self.stance = 2
+        elif Character.stance == 1:
+            Character.stance = 2
             self.speed = 5
-        elif self.stance == 2:
-            self.stance = 0
+        elif Character.stance == 2:
+            Character.stance = 0
             self.speed = 3
 
     def change_x(self):
-        if self.stance == 0:
-            self.stance = 2
+        if Character.stance == 0:
+            Character.stance = 2
             self.speed = 5
-        elif self.stance == 1:
-            self.stance = 0
+        elif Character.stance == 1:
+            Character.stance = 0
             self.speed = 3
-        elif self.stance == 2:
-            self.stance = 1
+        elif Character.stance == 2:
+            Character.stance = 1
             self.speed = 4
 
     def get_bb(self):

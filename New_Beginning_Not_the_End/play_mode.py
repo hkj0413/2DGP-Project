@@ -1,13 +1,13 @@
-import random
-
 from pico2d import *
 
 import game_framework
 
 import game_world
+
 from ground import Ground
 from wall import Wall
 from character import Character
+from ui import UI
 
 def handle_events():
     events = get_events()
@@ -25,6 +25,9 @@ def init():
     # 캐릭터
     character = Character()
     game_world.add_object(character, 1)
+
+    ui = UI()
+    game_world.add_object(ui, 3)
 
     # a, d 판정만 있는 블럭
     game_world.add_collision_pairs('character:wall', character, None)
