@@ -33,7 +33,10 @@ def die(e):
 def change(e):
     return e[0] == 'CHANGE'
 
-def take_damage(e):
+def get_hit(e):
+    return e[0] == 'GET_HIT'
+
+def take_hit(e):
     return e[0] == 'HIT'
 
 def use_dash(e):

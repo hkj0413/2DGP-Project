@@ -60,13 +60,13 @@ class Idle:
                 character.name = 'Idle_SG'
             elif Character.state == 1:
                 character.name = 'Rc_SG'
-            character.frame = clamp(0, character.frame, 14)
+            character.frame = clamp(0, character.frame, 13)
         elif Character.stance == 1:
             character.name = 'Idle_RF'
-            character.frame = clamp(0, character.frame, 14)
+            character.frame = clamp(0, character.frame, 13)
         elif Character.stance == 2:
             character.name = 'Idle_HG'
-            character.frame = clamp(0, character.frame, 11)
+            character.frame = clamp(0, character.frame, 10)
 
         character.wait_time = get_time()
 
@@ -169,9 +169,9 @@ class Walk:
             character.name = 'Walk_HG'
 
         if Character.stance == 0 and Character.state == 1:
-            character.frame = clamp(0, character.frame, 14)
+            character.frame = clamp(0, character.frame, 13)
         else:
-            character.frame = clamp(0, character.frame, 6)
+            character.frame = clamp(0, character.frame, 5)
 
     @staticmethod
     def exit(character, e):
@@ -212,14 +212,14 @@ class Hit:
     @staticmethod
     def enter(character, e):
         global a_pressed, d_pressed, Jump, jump_velocity, Fall
-        if take_damage(e):
-            character.wait_time = get_time()
-            Character.hit_delay = 1
+        if take_hit(e):
             if Character.stance == 0 and Character.state == 1:
-                Character.hp = max(0, Character.hp - max(0, (8 - Character.shield_def)))
-                if d_pressed or a_pressed:
-                    if Character.stance == 0 and Character.state == 1:
-                        character.state_machine.add_event(('CHANGE', 0))
+                Character.hp = max(0, Character.hp - max(0, (Character.damage - Character.shield_def)))
+                if Character.hp == 0:
+                    Character.speed = 3
+                    character.state_machine.add_event(('DIE', 0))
+                elif a_pressed or d_pressed:
+                    character.state_machine.add_event(('CHANGE', 0))
             elif Character.state == 0:
                 a_pressed = False
                 d_pressed = False
@@ -228,6 +228,10 @@ class Hit:
                 Fall = True
                 character.frame = 0
                 Character.hp = max(0, Character.hp - 8)
+                if Character.hp == 0:
+                    character.state_machine.add_event(('DIE', 0))
+            character.wait_time = get_time()
+            Character.hit_delay = 1
         elif right_down(e):
             d_pressed = True
             if Character.stance == 0 and Character.state == 1:
@@ -282,6 +286,62 @@ class Hit:
             else:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
                                                                  character.x, character.y, 170, 170)
+
+class Die:
+    @staticmethod
+    def enter(character, e):
+        global a_pressed, d_pressed, Jump, jump_velocity, Fall, fall_velocity
+        if die(e):
+            Jump = False
+            Fall = False
+            a_pressed = False
+            d_pressed = False
+            jump_velocity = 0.0
+            fall_velocity = 0.0
+            character.frame = 0
+            Character.state = 0
+            character.wait_time = get_time()
+
+    @staticmethod
+    def exit(character, e):
+        if time_out(e):
+            character.x, character.y = 34, 140.0
+            Character.hit_delay = 1
+            if Character.hp == 0:
+                Character.hp = Character.max_hp
+
+    @staticmethod
+    def do(character):
+        if get_time() - character.wait_time > 3:
+            character.state_machine.add_event(('TIME_OUT', 0))
+
+        if Character.stance == 0 or Character.stance == 1:
+            character.frame = character.frame + 18.0 * 1.0 * game_framework.frame_time
+        elif Character.stance == 2:
+            character.frame = character.frame + 21.0 * 0.6 * game_framework.frame_time
+
+    @staticmethod
+    def draw(character):
+        if character.face_dir == 1:
+            if Character.stance == 0:
+                character.images['Die_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
+                                                               character.x - 48, character.y, 170, 170)
+            elif Character.stance == 1:
+                character.images['Die_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
+                                                               character.x - 11, character.y, 170, 170)
+            elif Character.stance == 2:
+                character.images['Die_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
+                                                               character.x, character.y, 170, 170)
+        else:
+            if Character.stance == 0:
+                character.images['Die_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
+                                                               character.x + 48, character.y, 170, 170)
+            elif Character.stance == 1:
+                character.images['Die_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
+                                                               character.x + 11, character.y, 170, 170)
+            elif Character.stance == 2:
+                character.images['Die_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
+                                                               character.x, character.y, 170, 170)
 
 class Dash:
     @staticmethod
@@ -361,6 +421,7 @@ class Character:
     speed = 3
     hp = 20
     max_hp = 20
+    damage = 8
     bullet_SG = 8
     bullet_RF = 4
     max_bullet_HG = 20
@@ -406,7 +467,6 @@ class Character:
         self.x, self.y = 34, 140.0
         self.face_dir = 1
         self.frame = 0
-        self.ball_count = 10
         self.load_images()
         self.name = ''
         self.delay = 0
@@ -418,16 +478,19 @@ class Character:
                 Idle: {
                     right_down: Walk, left_down: Walk, left_up: Idle, right_up: Idle, change_stance_z: Idle, change_stance_x: Idle,
                     change: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash,
-                    temp_damage: Idle, take_damage: Hit
+                    temp_damage: Idle, take_hit: Hit, die: Die
                 },
                 Walk: {
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
                     change: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash,
-                    temp_damage: Walk, take_damage: Hit
+                    temp_damage: Walk, take_hit: Hit, die: Die
                 },
                 Hit: {
                     right_down: Hit, left_down: Hit, rc_up: Hit, time_out: Idle,
-                    change: Walk,
+                    change: Walk, die: Die
+                },
+                Die: {
+                    time_out: Idle
                 },
                 Dash: {
                     left_up: Dash, right_up: Dash, rc_up: Dash, time_out: Idle, change: Walk
@@ -451,6 +514,10 @@ class Character:
         if Fall:
             self.y -= fall_velocity * RUN_SPEED_PPS * game_framework.frame_time
             fall_velocity += gravity * RUN_SPEED_PPS * game_framework.frame_time
+            if self.y < -68:
+                Fall = False
+                fall_velocity = 0.0
+                self.state_machine.add_event(('DIE', 0))
 
         if not Character.hit_delay == 0:
             if self.delay == 0:
@@ -515,3 +582,6 @@ class Character:
             Jump = False
             Fall = True
             jump_velocity = 10.0
+
+    def take_damage(self, damage):
+        Character.damage = damage
