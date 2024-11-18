@@ -70,8 +70,8 @@ class UI:
                     else:
                         self.bullet_image.clip_composite_draw(136, 0, 27, 50, 0, '', bx - i * 28, by, 27, 50)
 
-        self.font.draw(300, 40.0, 'Dash ', (0, 0, 175))
+        self.font.draw(100, 40.0, 'Dash ', (0, 0, 175))
         if Character.dash_cooldown == 0:
-            self.font.draw(350, 40.0, 'on', (0, 155, 0))
+            self.font.draw(150, 40.0, 'on', (0, 155, 0))
         elif not Character.dash_cooldown == 0:
-            self.font.draw(350, 40.0, 'off', (205, 0, 0))
+            self.font.draw(150, 40.0, 'off', (205, 0, 0))

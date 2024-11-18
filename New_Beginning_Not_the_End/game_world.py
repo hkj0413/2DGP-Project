@@ -1,4 +1,5 @@
 import character
+import game_framework
 
 world = [[] for _ in range(4)]
 collision_pairs = {}
@@ -62,7 +63,7 @@ def collide_fall(a, b):
     al, ab, ar, at = a.get_bb()
     bl, bb, br, bt = b.get_bb()
 
-    if al < br and ab < bt and ar > bl and ab + character.fall_velocity > bt:
+    if al < br and ab < bt and ar > bl and ab + character.fall_velocity * character.RUN_SPEED_PPS * game_framework.frame_time > bt:
         return True
     return False
 
@@ -70,7 +71,7 @@ def collide_jump(a, b):
     al, ab, ar, at = a.get_bb()
     bl, bb, br, bt = b.get_bb()
 
-    if al < br and at > bb and ar > bl and at - character.jump_velocity < bb:
+    if al < br and at > bb and ar > bl and at - character.jump_velocity * character.RUN_SPEED_PPS * game_framework.frame_time < bb:
         return True
     return False
 
