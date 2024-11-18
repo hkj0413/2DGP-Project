@@ -1000,7 +1000,7 @@ class Character:
                 MoveRight = True
                 Die = False
                 x = 34
-                y = 140.0
+                y = 141.0
                 ox -= xpos
                 for o in world:
                     o.x -= xpos
