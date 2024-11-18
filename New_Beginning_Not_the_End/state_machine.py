@@ -24,11 +24,20 @@ def change_stance_x(e):
 def jump(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_SPACE
 
+def dash(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_LSHIFT
+
 def die(e):
     return e[0] == 'DIE'
 
 def change(e):
     return e[0] == 'CHANGE'
+
+def take_damage(e):
+    return e[0] == 'HIT'
+
+def use_dash(e):
+    return e[0] == 'USE_DASH'
 
 def time_out(e):
     return e[0] == 'TIME_OUT'
