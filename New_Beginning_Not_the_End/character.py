@@ -17,9 +17,9 @@ d_pressed = False
 Jump = False
 Fall = False
 
-jump_velocity = 8.5
+jump_velocity = 10.0
 fall_velocity = 0.0
-gravity = 0.1
+gravity = 0.5
 
 class Idle:
     @staticmethod
@@ -224,7 +224,7 @@ class Hit:
                 a_pressed = False
                 d_pressed = False
                 Jump = False
-                jump_velocity = 8.5
+                jump_velocity = 10.0
                 Fall = True
                 character.frame = 0
                 Character.hp = max(0, Character.hp - 8)
@@ -289,7 +289,7 @@ class Dash:
         global Jump, jump_velocity, Fall, fall_velocity, d_pressed, a_pressed
         if use_dash(e):
             Jump = False
-            jump_velocity = 8.5
+            jump_velocity = 10.0
             Fall = False
             fall_velocity = 0.0
             character.wait_time = get_time()
@@ -442,15 +442,15 @@ class Character:
 
         if Jump:
             self.y += jump_velocity * RUN_SPEED_PPS * game_framework.frame_time
-            jump_velocity -= gravity
+            jump_velocity -= gravity * RUN_SPEED_PPS * game_framework.frame_time
             if jump_velocity <= 0:
                 Jump = False
                 Fall = True
-                jump_velocity = 8.5
+                jump_velocity = 10.0
 
         if Fall:
             self.y -= fall_velocity * RUN_SPEED_PPS * game_framework.frame_time
-            fall_velocity += gravity
+            fall_velocity += gravity * RUN_SPEED_PPS * game_framework.frame_time
 
         if not Character.hit_delay == 0:
             if self.delay == 0:
@@ -514,4 +514,4 @@ class Character:
             self.y = ground.Ground.collide_jump(other)
             Jump = False
             Fall = True
-            jump_velocity = 8.5
+            jump_velocity = 10.0
