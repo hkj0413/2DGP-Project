@@ -612,7 +612,7 @@ class Character:
     bullet_RF = 4
     max_bullet_HG = 20
     bullet_HG = max_bullet_HG
-    shield_def = 1
+    shield_def = 1 # 방어 태세 방어도
     hit_delay = 0 # 피격 면역
     attack_delay = 0 # 공격 속도
     dash_cooldown = 0 # 대쉬 쿨타임 6초
