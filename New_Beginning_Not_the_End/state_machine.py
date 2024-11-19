@@ -66,6 +66,15 @@ def ms(e):
 def temp_damage(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_t
 
+def temp_more(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_y
+
+def temp_heal(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_u
+
+def temp_bullet(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_i
+
 class StateMachine:
     def __init__(self, o):
         self.o = o

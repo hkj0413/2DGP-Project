@@ -72,6 +72,15 @@ class Idle:
         elif dash(e) and Character.dash_cooldown == 0:
             character.state_machine.add_event(('USE_DASH', 0))
 
+        elif temp_more(e):
+            Character.max_hp += 2
+        elif temp_heal(e) and Character.hit_delay == 0:
+            Character.hp = min(Character.hp + 1, Character.max_hp)
+        elif temp_bullet(e) and Character.hit_delay == 0:
+            Character.bullet_SG = 0
+            Character.bullet_RF = 0
+            Character.bullet_HG = 0
+
         if Character.stance == 0:
             if Character.state == 0:
                 if character.name != 'Idle_SG':
@@ -665,12 +674,13 @@ class Character:
                 Idle: {
                     right_down: Walk, left_down: Walk, left_up: Idle, right_up: Idle, change_stance_z: Idle, change_stance_x: Idle,
                     walk: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash, lc_down: Idle, lc_up: Idle,
-                    temp_damage: Idle, take_hit: Hit, die: Die
+                    temp_damage: Idle, take_hit: Hit, die: Die,
+                    temp_more: Idle, temp_heal: Idle, temp_bullet: Idle
                 },
                 Walk: {
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
                     idle: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash, lc_down: Walk, lc_up: Walk,
-                    temp_damage: Walk, take_hit: Hit, die: Die
+                    temp_damage: Walk, take_hit: Hit, die: Die,
                 },
                 Hit: {
                     right_down: Hit, left_down: Hit, rc_up: Hit, lc_down: Hit, lc_up: Hit,
@@ -712,15 +722,23 @@ class Character:
 
         if attacking and not Attack:
             if Character.attack_delay == 0:
-                if Character.stance == 1 and not Move:
+                if Character.stance == 0 and Character.bullet_SG > 0:
                     if self.attack_time == 0:
                         self.attack_time = get_time()
                         self.frame = 0
+                        Character.bullet_SG -= 1
                         Attack = True
-                elif not Character.stance == 1:
+                elif Character.stance == 1 and not Move and Character.bullet_RF > 0:
                     if self.attack_time == 0:
                         self.attack_time = get_time()
                         self.frame = 0
+                        Character.bullet_RF -= 1
+                        Attack = True
+                elif Character.stance == 2 and Character.bullet_HG > 0:
+                    if self.attack_time == 0:
+                        self.attack_time = get_time()
+                        self.frame = 0
+                        Character.bullet_HG -= 1
                         Attack = True
         if Attack:
             if Character.stance == 0:
