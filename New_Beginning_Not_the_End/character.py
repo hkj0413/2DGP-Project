@@ -410,9 +410,9 @@ class Dash:
                 character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
                                                                character.x, character.y, 170, 170)
 
-animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Rc_SG',
-                   'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF',
-                   'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG']
+animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Rc_SG',
+                   'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF',
+                   'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG',]
 
 class Character:
     images = None
@@ -428,6 +428,7 @@ class Character:
     bullet_HG = max_bullet_HG
     shield_def = 1
     hit_delay = 0 # 피격 면역
+    attack_dealy = 0 # 공격 속도
     dash_cooldown = 0 # 대쉬 쿨타임 6초
 
     def load_images(self):
@@ -442,6 +443,8 @@ class Character:
                     Character.images[name] = load_image("./HKCAWS/" + name + ".png")
                 elif name == 'Die_SG':
                     Character.images[name] = load_image("./HKCAWS/" + name + ".png")
+                elif name == 'Attack_SG':
+                    Character.images[name] = load_image("./HKCAWS/" + name + ".png")
                 elif name == 'Rc_SG':
                     Character.images[name] = load_image("./HKCAWS/" + name + ".png")
 
@@ -453,6 +456,8 @@ class Character:
                     Character.images[name] = load_image("./R93/" + name + ".png")
                 elif name == 'Die_RF':
                     Character.images[name] = load_image("./R93/" + name + ".png")
+                elif name == 'Attack_RF':
+                    Character.images[name] = load_image("./R93/" + name + ".png")
 
                 elif name == 'Idle_HG':
                     Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
@@ -462,6 +467,8 @@ class Character:
                     Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
                 elif name == 'Die_HG':
                     Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
+                elif name == 'Attack_HG':
+                    Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
 
     def __init__(self):
         self.x, self.y = 34, 140.0
@@ -469,7 +476,7 @@ class Character:
         self.frame = 0
         self.load_images()
         self.name = ''
-        self.delay = 0
+        self.hit_cool = 0
         self.Lshift_cool = 0
         self.state_machine = StateMachine(self)
         self.state_machine.start(Idle)
@@ -520,11 +527,11 @@ class Character:
                 self.state_machine.add_event(('DIE', 0))
 
         if not Character.hit_delay == 0:
-            if self.delay == 0:
-                self.delay = get_time()
-            if get_time() - self.delay > Character.hit_delay:
+            if self.hit_cool == 0:
+                self.hit_cool = get_time()
+            if get_time() - self.hit_cool > Character.hit_delay:
                 Character.hit_delay = 0
-                self.delay = 0
+                self.hit_cool = 0
 
         if not Character.dash_cooldown == 0:
             if self.Lshift_cool == 0:
