@@ -1,4 +1,4 @@
-from pico2d import get_time, load_image, draw_rectangle, clamp
+from pico2d import get_time, load_image, draw_rectangle, clamp, get_events
 
 import game_world
 import game_framework
@@ -16,10 +16,12 @@ a_pressed = False
 d_pressed = False
 Jump = False
 Fall = False
+attacking = False
 
 jump_velocity = 10.0
 fall_velocity = 0.0
 gravity = 0.5
+mouse_x, mouse_y = 0, 0
 
 class Idle:
     @staticmethod
@@ -31,9 +33,9 @@ class Idle:
             d_pressed = False
         elif left_up(e):
             a_pressed = False
-        elif change(e):
+        elif walk(e):
             if a_pressed or d_pressed:
-                character.state_machine.add_event(('CHANGE', 0))
+                character.state_machine.add_event(('WALK', 0))
         elif change_stance_z(e) and not Jump and not Fall and Character.state == 0:
             character.change_z()
         elif change_stance_x(e) and not Jump and not Fall and Character.state == 0:
@@ -57,15 +59,19 @@ class Idle:
 
         if Character.stance == 0:
             if Character.state == 0:
-                character.name = 'Idle_SG'
+                if character.name != 'Idle_SG':
+                    character.name = 'Idle_SG'
             elif Character.state == 1:
-                character.name = 'Rc_SG'
+                if character.name != 'Rc_SG':
+                    character.name = 'Rc_SG'
             character.frame = clamp(0, character.frame, 13)
         elif Character.stance == 1:
-            character.name = 'Idle_RF'
+            if character.name != 'Idle_RF':
+                character.name = 'Idle_RF'
             character.frame = clamp(0, character.frame, 13)
         elif Character.stance == 2:
-            character.name = 'Idle_HG'
+            if character.name != 'Idle_HG':
+                character.name = 'Idle_HG'
             character.frame = clamp(0, character.frame, 10)
 
         character.wait_time = get_time()
@@ -98,7 +104,7 @@ class Idle:
                 elif Character.stance == 2:
                     character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, '',
                                                                     character.x, character.y, 170, 170)
-            else:
+            elif character.face_dir == -1:
                 if Character.stance == 0:
                     character.images['Walk_SG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
                                                                     character.x, character.y, 170, 170)
@@ -112,7 +118,7 @@ class Idle:
             if character.face_dir == 1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
                                                                      character.x, character.y, 170, 170)
-            else:
+            elif character.face_dir == -1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
                                                                      character.x, character.y, 170, 170)
 class Walk:
@@ -127,7 +133,7 @@ class Walk:
             if a_pressed:
                 character.face_dir = -1
             elif not a_pressed:
-                character.state_machine.add_event(('CHANGE', 0))
+                character.state_machine.add_event(('IDLE', 0))
         elif left_down(e):
             a_pressed = True
             character.face_dir = -1
@@ -136,7 +142,7 @@ class Walk:
             if d_pressed:
                 character.face_dir = 1
             elif not d_pressed:
-                character.state_machine.add_event(('CHANGE', 0))
+                character.state_machine.add_event(('IDLE', 0))
         elif change_stance_z(e) and not Jump and not Fall and Character.state == 0:
             character.change_z()
         elif change_stance_x(e) and not Jump and not Fall and Character.state == 0:
@@ -160,13 +166,17 @@ class Walk:
 
         if Character.stance == 0:
             if Character.state == 0:
-                character.name = 'Walk_SG'
+                if character.name != 'Walk_SG':
+                    character.name = 'Walk_SG'
             elif Character.state == 1:
-                character.name = 'Rc_SG'
+                if character.name != 'Rc_SG':
+                    character.name = 'Rc_SG'
         elif Character.stance == 1:
-            character.name = 'Walk_RF'
+            if character.name != 'Walk_RF':
+                character.name = 'Walk_RF'
         elif Character.stance == 2:
-            character.name = 'Walk_HG'
+            if character.name != 'Walk_HG':
+                character.name = 'Walk_HG'
 
         if Character.stance == 0 and Character.state == 1:
             character.frame = clamp(0, character.frame, 13)
@@ -204,7 +214,7 @@ class Walk:
         if character.face_dir == 1:
             character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
                                                                  character.x, character.y, 170, 170)
-        else:
+        elif character.face_dir == -1:
             character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
                                                                  character.x, character.y, 170, 170)
 
@@ -219,7 +229,7 @@ class Hit:
                     Character.speed = 3
                     character.state_machine.add_event(('DIE', 0))
                 elif a_pressed or d_pressed:
-                    character.state_machine.add_event(('CHANGE', 0))
+                    character.state_machine.add_event(('WALK', 0))
             elif Character.state == 0:
                 a_pressed = False
                 d_pressed = False
@@ -235,11 +245,11 @@ class Hit:
         elif right_down(e):
             d_pressed = True
             if Character.stance == 0 and Character.state == 1:
-                character.state_machine.add_event(('CHANGE', 0))
+                character.state_machine.add_event(('WALK', 0))
         elif left_down(e):
             a_pressed = True
             if Character.stance == 0 and Character.state == 1:
-                character.state_machine.add_event(('CHANGE', 0))
+                character.state_machine.add_event(('WALK', 0))
         elif rc_up(e):
             if Character.stance == 0 and Character.state == 1:
                 Character.state = 0
@@ -258,7 +268,7 @@ class Hit:
 
     @staticmethod
     def draw(character):
-        if Character.state == 0:
+        if Character.state == 0 and Character.attack_delay == 0:
             if character.face_dir == 1:
                 if Character.stance == 0:
                     character.images['Hit_SG'].clip_composite_draw(0, 0, 340, 340, 0, '',
@@ -269,7 +279,7 @@ class Hit:
                 elif Character.stance == 2:
                     character.images['Hit_HG'].clip_composite_draw(0, 0, 340, 340, 0, '',
                                                                    character.x, character.y, 170, 170)
-            else:
+            elif character.face_dir == -1:
                 if Character.stance == 0:
                     character.images['Hit_SG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
                                                                    character.x, character.y, 170, 170)
@@ -283,7 +293,7 @@ class Hit:
             if character.face_dir == 1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
                                                                  character.x, character.y, 170, 170)
-            else:
+            elif character.face_dir == -1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
                                                                  character.x, character.y, 170, 170)
 
@@ -332,7 +342,7 @@ class Die:
             elif Character.stance == 2:
                 character.images['Die_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
                                                                character.x, character.y, 170, 170)
-        else:
+        elif character.face_dir == -1:
             if Character.stance == 0:
                 character.images['Die_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
                                                                character.x + 48, character.y, 170, 170)
@@ -342,6 +352,81 @@ class Die:
             elif Character.stance == 2:
                 character.images['Die_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
                                                                character.x, character.y, 170, 170)
+
+class Attack:
+    @staticmethod
+    def enter(character, e):
+        global Jump, jump_velocity, Fall, fall_velocity, d_pressed, a_pressed, attacking
+        if lc_down(e):
+            attacking = True
+        elif lc_up(e):
+            if a_pressed or d_pressed:
+                character.state_machine.add_event(('WALK', 0))
+            else:
+                character.state_machine.add_event(('IDLE', 0))
+        elif right_down(e):
+            d_pressed = True
+            character.face_dir = 1
+        elif right_up(e):
+            d_pressed = False
+            if a_pressed:
+                character.face_dir = -1
+        elif left_down(e):
+            a_pressed = True
+            character.face_dir = -1
+        elif left_up(e):
+            a_pressed = False
+            if d_pressed:
+                character.face_dir = 1
+        elif jump(e) and not Jump and not Fall:
+            if not Character.stance == 1:
+                Jump = True
+        elif temp_damage(e) and Character.hit_delay == 0:
+            character.state_machine.add_event(('HIT', 0))
+        elif dash(e) and Character.dash_cooldown == 0:
+            character.state_machine.add_event(('USE_DASH', 0))
+
+        if Character.stance == 0:
+            if character.name != 'Attack_SG':
+                character.name = 'Attack_SG'
+        elif Character.stance == 1:
+            if character.name != 'Attack_RF':
+                character.name = 'Attack_RF'
+        elif Character.stance == 2:
+            if character.name != 'Attack_HG':
+                character.name = 'Attack_HG'
+
+    @staticmethod
+    def exit(character, e):
+        global attacking
+        attacking = False
+
+    @staticmethod
+    def do(character):
+        global Fall
+        character.x += Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+
+        for block in game_world.collision_pairs['character:ground'][1] + game_world.collision_pairs['character:wall'][1]:
+            if game_world.collide(character, block):
+                character.x -= Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+                return
+
+        if attacking:
+            if Character.attack_delay == 0:
+                Character.attack_delay = 100
+                if mouse_x > character.x:
+                    character.attack_dir = 1
+                elif mouse_x < character.x:
+                    character.attack_dir = -1
+
+    @staticmethod
+    def draw(character):
+        if character.attack_dir == 1:
+            character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
+                                                                 character.x, character.y, 170, 170)
+        elif character.attack_dir == -1:
+            character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
+                                                                 character.x, character.y, 170, 170)
 
 class Dash:
     @staticmethod
@@ -369,7 +454,7 @@ class Dash:
     def exit(character, e):
         if time_out(e):
             if d_pressed or a_pressed:
-                character.state_machine.add_event(('CHANGE', 0))
+                character.state_machine.add_event(('WALK', 0))
 
     @staticmethod
     def do(character):
@@ -428,7 +513,7 @@ class Character:
     bullet_HG = max_bullet_HG
     shield_def = 1
     hit_delay = 0 # 피격 면역
-    attack_dealy = 0 # 공격 속도
+    attack_delay = 0 # 공격 속도
     dash_cooldown = 0 # 대쉬 쿨타임 6초
 
     def load_images(self):
@@ -473,10 +558,12 @@ class Character:
     def __init__(self):
         self.x, self.y = 34, 140.0
         self.face_dir = 1
+        self.attack_dir = 1
         self.frame = 0
         self.load_images()
         self.name = ''
         self.hit_cool = 0
+        self.attack_cool = 0
         self.Lshift_cool = 0
         self.state_machine = StateMachine(self)
         self.state_machine.start(Idle)
@@ -484,23 +571,28 @@ class Character:
             {
                 Idle: {
                     right_down: Walk, left_down: Walk, left_up: Idle, right_up: Idle, change_stance_z: Idle, change_stance_x: Idle,
-                    change: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash,
+                    walk: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash, lc_down: Attack,
                     temp_damage: Idle, take_hit: Hit, die: Die
                 },
                 Walk: {
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
-                    change: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash,
+                    idle: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash, lc_down: Attack,
                     temp_damage: Walk, take_hit: Hit, die: Die
                 },
                 Hit: {
                     right_down: Hit, left_down: Hit, rc_up: Hit, time_out: Idle,
-                    change: Walk, die: Die
+                    walk: Walk, die: Die
                 },
                 Die: {
                     time_out: Idle
                 },
                 Dash: {
-                    left_up: Dash, right_up: Dash, rc_up: Dash, time_out: Idle, change: Walk
+                    left_up: Dash, right_up: Dash, rc_up: Dash, time_out: Idle, walk: Walk
+                },
+                Attack: {
+                    right_down: Attack, left_down: Attack, left_up: Attack, right_up: Attack, lc_down: Attack, lc_up: Attack,
+                    idle: Idle, walk: Walk,jump: Attack, dash: Attack, use_dash: Dash,
+                    temp_damage: Attack, take_hit: Hit,
                 },
             }
         )
@@ -532,6 +624,13 @@ class Character:
             if get_time() - self.hit_cool > Character.hit_delay:
                 Character.hit_delay = 0
                 self.hit_cool = 0
+
+        if not Character.attack_delay == 0:
+            if self.attack_cool == 0:
+                self.attack_cool = get_time()
+            if get_time() - self.attack_cool > Character.attack_delay:
+                Character.attack_delay = 0
+                self.attack_cool = 0
 
         if not Character.dash_cooldown == 0:
             if self.Lshift_cool == 0:

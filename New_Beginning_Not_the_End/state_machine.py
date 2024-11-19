@@ -27,17 +27,20 @@ def jump(e):
 def dash(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_LSHIFT
 
-def die(e):
-    return e[0] == 'DIE'
+def idle(e):
+    return e[0] == 'IDLE'
 
-def change(e):
-    return e[0] == 'CHANGE'
+def walk(e):
+    return e[0] == 'WALK'
 
 def get_hit(e):
     return e[0] == 'GET_HIT'
 
 def take_hit(e):
     return e[0] == 'HIT'
+
+def die(e):
+    return e[0] == 'DIE'
 
 def use_dash(e):
     return e[0] == 'USE_DASH'
