@@ -1,3 +1,4 @@
+import server
 import character
 import game_framework
 
@@ -96,7 +97,7 @@ def handle_collisions():
     for group, pairs in collision_pairs.items():
         for a in pairs[0]:
             for b in pairs[1]:
-                if group == 'character:ground':
+                if group == 'server.character:ground':
                     if collide_fall(a, b) and character.Fall:
                         print(f'{group} collide_fall')
                         a.handle_collision_fall(group, b)
