@@ -24,10 +24,10 @@ class Ground:
         return self.sx - 15.0, self.y - 15.0, self.sx + 15.0, self.y + 15.0
 
     def collide_jump(self):
-        return self.y - 35
+        return self.y - 35.0
 
     def collide_fall(self):
-        return self.y + 65
+        return self.y + 65.0
 
     def handle_collision(self, group, other):
         pass

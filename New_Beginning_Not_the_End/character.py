@@ -138,56 +138,55 @@ class Idle:
 
     @staticmethod
     def draw(character):
-        sx = character.x - server.background.window_left
         if Attack:
             if character.attack_dir == 1:
                 if Character.stance == 0:
                     character.images['Attack_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      sx, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
                     character.images['Attack_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      sx, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
                     character.images['Attack_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      sx, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
             elif character.attack_dir == -1:
                 if Character.stance == 0:
                     character.images['Attack_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      sx, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
                     character.images['Attack_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      sx, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
                     character.images['Attack_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      sx, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
         elif Jump or Fall:
             if character.face_dir == 1:
                 if Character.stance == 0:
                     character.images['Walk_SG'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                                         sx, character.y, 170, 170)
+                                                                         character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
                     character.images['Walk_RF'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                                    sx, character.y, 170, 170)
+                                                                    character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
                     character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                                    sx, character.y, 170, 170)
+                                                                    character.sx, character.y, 170, 170)
             elif character.face_dir == -1:
                 if Character.stance == 0:
                     character.images['Walk_SG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                                    sx, character.y, 170, 170)
+                                                                    character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
                     character.images['Walk_RF'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                                    sx, character.y, 170, 170)
+                                                                    character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
                     character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                                    sx, character.y, 170, 170)
+                                                                    character.sx, character.y, 170, 170)
         else:
             if character.face_dir == 1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                     sx, character.y, 170, 170)
+                                                                     character.sx, character.y, 170, 170)
             elif character.face_dir == -1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                     sx, character.y, 170, 170)
+                                                                     character.sx, character.y, 170, 170)
 class Walk:
     @staticmethod
     def enter(character, e):
@@ -316,35 +315,34 @@ class Walk:
 
     @staticmethod
     def draw(character):
-        sx = character.x - server.background.window_left
         if Attack:
             if character.attack_dir == 1:
                 if Character.stance == 0:
                     character.images['Attack_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      sx, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
                     character.images['Attack_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      sx, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
                     character.images['Attack_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      sx, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
             elif character.attack_dir == -1:
                 if Character.stance == 0:
                     character.images['Attack_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      sx, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
                     character.images['Attack_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      sx, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
                     character.images['Attack_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      sx, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
         else:
             if character.face_dir == 1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                     sx, character.y, 170, 170)
+                                                                     character.sx, character.y, 170, 170)
             elif character.face_dir == -1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                     sx, character.y, 170, 170)
+                                                                     character.sx, character.y, 170, 170)
 
 class Hit:
     @staticmethod
@@ -413,51 +411,51 @@ class Hit:
             if character.attack_dir == 1:
                 if Character.stance == 0:
                     character.images['Attack_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      character.x, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
                     character.images['Attack_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      character.x, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
                     character.images['Attack_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      character.x, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
             elif character.attack_dir == -1:
                 if Character.stance == 0:
                     character.images['Attack_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      character.x, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
                     character.images['Attack_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      character.x, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
                     character.images['Attack_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      character.x, character.y, 170, 170)
+                                                                      character.sx, character.y, 170, 170)
         elif Character.state == 0:
             if character.face_dir == 1:
                 if Character.stance == 0:
                     character.images['Hit_SG'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                                   character.x, character.y, 170, 170)
+                                                                   character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
                     character.images['Hit_RF'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                                   character.x, character.y, 170, 170)
+                                                                   character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
                     character.images['Hit_HG'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                                   character.x, character.y, 170, 170)
+                                                                   character.sx, character.y, 170, 170)
             elif character.face_dir == -1:
                 if Character.stance == 0:
                     character.images['Hit_SG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                                   character.x, character.y, 170, 170)
+                                                                   character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
                     character.images['Hit_RF'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                                   character.x, character.y, 170, 170)
+                                                                   character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
                     character.images['Hit_HG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                                   character.x, character.y, 170, 170)
+                                                                   character.sx, character.y, 170, 170)
         else:
             if character.face_dir == 1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                 character.x, character.y, 170, 170)
+                                                                 character.sx, character.y, 170, 170)
             elif character.face_dir == -1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                 character.x, character.y, 170, 170)
+                                                                 character.sx, character.y, 170, 170)
 
 class Die:
     @staticmethod
@@ -504,23 +502,23 @@ class Die:
         if character.face_dir == 1:
             if Character.stance == 0:
                 character.images['Die_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                               character.x - 48, character.y, 170, 170)
+                                                               character.sx - 48, character.y, 170, 170)
             elif Character.stance == 1:
                 character.images['Die_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                               character.x - 11, character.y, 170, 170)
+                                                               character.sx - 11, character.y, 170, 170)
             elif Character.stance == 2:
                 character.images['Die_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                               character.x, character.y, 170, 170)
+                                                               character.sx, character.y, 170, 170)
         elif character.face_dir == -1:
             if Character.stance == 0:
                 character.images['Die_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                               character.x + 48, character.y, 170, 170)
+                                                               character.sx + 48, character.y, 170, 170)
             elif Character.stance == 1:
                 character.images['Die_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                               character.x + 11, character.y, 170, 170)
+                                                               character.sx + 11, character.y, 170, 170)
             elif Character.stance == 2:
                 character.images['Die_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                               character.x, character.y, 170, 170)
+                                                               character.sx, character.y, 170, 170)
 
 class Dash:
     @staticmethod
@@ -583,27 +581,26 @@ class Dash:
 
     @staticmethod
     def draw(character):
-        sx = character.x - server.background.window_left
         if character.face_dir == 1:
             if Character.stance == 0:
                 character.images['Walk_SG'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                               sx, character.y, 170, 170)
+                                                               character.sx, character.y, 170, 170)
             elif Character.stance == 1:
                 character.images['Walk_RF'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                               sx, character.y, 170, 170)
+                                                               character.sx, character.y, 170, 170)
             elif Character.stance == 2:
                 character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                               sx, character.y, 170, 170)
+                                                               character.sx, character.y, 170, 170)
         else:
             if Character.stance == 0:
                 character.images['Walk_SG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                               sx, character.y, 170, 170)
+                                                               character.sx, character.y, 170, 170)
             elif Character.stance == 1:
                 character.images['Walk_RF'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                               sx, character.y, 170, 170)
+                                                               character.sx, character.y, 170, 170)
             elif Character.stance == 2:
                 character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                               sx, character.y, 170, 170)
+                                                               character.sx, character.y, 170, 170)
 
 animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Rc_SG',
                    'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF',
@@ -670,6 +667,7 @@ class Character:
         self.face_dir = 1
         self.attack_dir = 1
         self.frame = 0
+        self.sx = 0
         self.load_images()
         self.name = ''
         self.hit_cool = 0
@@ -709,6 +707,7 @@ class Character:
         global Jump, jump_velocity, Fall, fall_velocity, Attack, Move
         self.state_machine.update()
         self.x = clamp(17.0, self.x, server.background.w - 17.0)
+        self.sx = self.x - server.background.window_left
 
         if Jump:
             if not Move:
@@ -823,8 +822,7 @@ class Character:
             Character.speed = 4
 
     def get_bb(self):
-        sx = self.x - server.background.window_left
-        return sx - 17.0, self.y - 49.0, sx + 17.0, self.y + 19.0
+        return self.sx - 17.0, self.y - 49.0, self.sx + 17.0, self.y + 19.0
 
     def handle_collision(self, group, other):
         pass
