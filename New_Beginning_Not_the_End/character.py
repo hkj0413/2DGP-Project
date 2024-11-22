@@ -93,6 +93,9 @@ class Idle:
             Character.bullet_SG = 0
             Character.bullet_RF = 0
             Character.bullet_HG = 0
+        elif temp_reset_cool(e):
+            Character.dash_cooldown = 0
+            character.Lshift_cool = 0
 
         if Character.stance == 0:
             if Character.state == 0:
@@ -634,34 +637,32 @@ class R_RF:
         if time_out(e):
             if d_pressed or a_pressed:
                 character.state_machine.add_event(('WALK', 0))
-        if get_time() - character.wait_time > 0.2:
-            if dash(e) and Character.dash_cooldown == 0:
-                character.state_machine.add_event(('USE_DASH', 0))
+        if get_time() - character.wait_time > 0.2 and dash(e) and Character.dash_cooldown == 0:
+            character.state_machine.add_event(('USE_DASH', 0))
 
     @staticmethod
     def do(character):
         global Jump, jump_velocity, Fall, fall_velocity, Reload_RF
 
         if get_time() - character.wait_time > 0.1:
-            character.x += 8 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
             if not Reload_RF:
                 Jump = True
                 jump_velocity = 6.0
                 Fall = False
                 fall_velocity = 0.0
                 Reload_RF = True
+            character.x += 8 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
 
         if get_time() - character.wait_time > 0.3:
             Fall = True
+            Reload_RF = False
             character.state_machine.add_event(('TIME_OUT', 0))
 
-        for block in game_world.collision_pairs['server.character:ground'][1] + \
-                     game_world.collision_pairs['server.character:wall'][1]:
+        for block in game_world.collision_pairs['server.character:ground'][1] + game_world.collision_pairs['server.character:wall'][1]:
             if screen_left - 15 <= block.x <= screen_right + 15:
                 if game_world.collide(character, block):
                     character.x -= 8 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
                     Fall = True
-                    character.state_machine.add_event(('TIME_OUT', 0))
                     return
 
     @staticmethod
@@ -758,7 +759,7 @@ class Character:
                     walk: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash, lc_down: Idle, lc_up: Idle,
                     reload: Idle, rf_reload: R_RF,
                     temp_damage: Idle, take_hit: Hit, die: Die,
-                    temp_more: Idle, temp_heal: Idle, temp_bullet: Idle
+                    temp_more: Idle, temp_heal: Idle, temp_bullet: Idle, temp_reset_cool: Idle
                 },
                 Walk: {
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
