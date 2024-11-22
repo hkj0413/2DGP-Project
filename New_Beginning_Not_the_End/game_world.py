@@ -1,4 +1,3 @@
-import server
 import character
 import game_framework
 
@@ -96,18 +95,20 @@ def collide_ad(a, b, objects):
 def handle_collisions():
     for group, pairs in collision_pairs.items():
         for a in pairs[0]:
-            for b in pairs[1]:
-                if group == 'server.character:ground':
-                    if collide_fall(a, b) and character.Fall:
-                        print(f'{group} collide_fall')
-                        a.handle_collision_fall(group, b)
-                        b.handle_collision_fall(group, a)
-                    if collide_jump(a, b) and character.Jump:
-                        print(f'{group} collide_jump')
-                        a.handle_collision_jump(group, b)
-                        b.handle_collision_jump(group, a)
-                else:
-                    if collide(a, b):
-                        print(f'{group} collide')
-                        a.handle_collision(group, b)
-                        b.handle_collision(group, a)
+            if character.screen_left - 15 <= a.x <= character.screen_right + 15:
+                for b in pairs[1]:
+                    if character.screen_left - 15 <= b.x <= character.screen_right + 15:
+                        if group == 'server.character:ground':
+                            if collide_fall(a, b) and character.Fall:
+                                print(f'{group} collide_fall')
+                                a.handle_collision_fall(group, b)
+                                b.handle_collision_fall(group, a)
+                            if collide_jump(a, b) and character.Jump:
+                                print(f'{group} collide_jump')
+                                a.handle_collision_jump(group, b)
+                                b.handle_collision_jump(group, a)
+                        else:
+                            if collide(a, b):
+                                print(f'{group} collide')
+                                a.handle_collision(group, b)
+                                b.handle_collision(group, a)

@@ -21,7 +21,7 @@ class Ground:
             self.image.clip_draw(self.framex * 120, 0, 120, 120, self.sx, self.y, 30, 30)
 
     def get_bb(self):
-        return self.sx - 15.0, self.y - 15.0, self.sx + 15.0, self.y + 15.0
+        return self.x - 15.0, self.y - 15.0, self.x + 15.0, self.y + 15.0
 
     def collide_jump(self):
         return self.y - 35.0

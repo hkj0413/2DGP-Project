@@ -25,6 +25,8 @@ jump_velocity = 10.0
 fall_velocity = 0.0
 gravity = 0.5
 mouse_x, mouse_y = 0, 0
+screen_left = 0
+screen_right = 1080
 
 class Idle:
     @staticmethod
@@ -302,16 +304,18 @@ class Walk:
                 character.x += Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
 
         for block in game_world.collision_pairs['server.character:ground'][1] + game_world.collision_pairs['server.character:wall'][1]:
-            if game_world.collide(character, block):
-                character.x -= Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
-                return
+            if screen_left - 15 <= block.x <= screen_right + 15:
+                if game_world.collide(character, block):
+                    character.x -= Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+                    return
 
         ground_objects = game_world.collision_pairs['server.character:ground'][1]
         for block in ground_objects:
-            if game_world.collide_ad(character, block, ground_objects):
-                Fall = True
-                print('collide_ad')
-                return
+            if screen_left - 15 <= block.x <= screen_right + 15:
+                if game_world.collide_ad(character, block, ground_objects):
+                    Fall = True
+                    print('collide_ad')
+                    return
 
     @staticmethod
     def draw(character):
@@ -569,11 +573,12 @@ class Dash:
         character.x += 20 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
 
         for block in game_world.collision_pairs['server.character:ground'][1] + game_world.collision_pairs['server.character:wall'][1]:
-            if game_world.collide(character, block):
-                character.x -= 20 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
-                Fall = True
-                character.state_machine.add_event(('TIME_OUT', 0))
-                return
+            if screen_left - 15 <= block.x <= screen_right + 15:
+                if game_world.collide(character, block):
+                    character.x -= 20 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+                    Fall = True
+                    character.state_machine.add_event(('TIME_OUT', 0))
+                    return
 
         if get_time() - character.wait_time > 0.15:
             Fall = True
@@ -704,10 +709,12 @@ class Character:
         )
 
     def update(self):
-        global Jump, jump_velocity, Fall, fall_velocity, Attack, Move
+        global Jump, jump_velocity, Fall, fall_velocity, Attack, Move, screen_left, screen_right
         self.state_machine.update()
         self.x = clamp(17.0, self.x, server.background.w - 17.0)
         self.sx = self.x - server.background.window_left
+        screen_left = server.background.window_left
+        screen_right = server.background.window_left + 1080
 
         if Jump:
             if not Move:
@@ -797,7 +804,7 @@ class Character:
 
     def draw(self):
         self.state_machine.draw()
-        draw_rectangle(*self.get_bb())
+        draw_rectangle(*self.get_rect())
 
     def change_z(self):
         if Character.stance == 0:
@@ -822,6 +829,9 @@ class Character:
             Character.speed = 4
 
     def get_bb(self):
+        return self.x - 17.0, self.y - 49.0, self.x + 17.0, self.y + 19.0
+
+    def get_rect(self):
         return self.sx - 17.0, self.y - 49.0, self.sx + 17.0, self.y + 19.0
 
     def handle_collision(self, group, other):
