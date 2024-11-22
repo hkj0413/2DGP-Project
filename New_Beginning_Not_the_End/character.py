@@ -20,6 +20,9 @@ Jump = False
 Fall = False
 Attack = False
 attacking = False
+Reload_SG = False
+Reload_RF = False
+Reload_HG = False
 
 jump_velocity = 10.0
 fall_velocity = 0.0
@@ -74,6 +77,13 @@ class Idle:
             character.state_machine.add_event(('HIT', 0))
         elif dash(e) and Character.dash_cooldown == 0:
             character.state_machine.add_event(('USE_DASH', 0))
+        elif reload(e):
+            if Character.stance == 0 and Character.bullet_SG == 0:
+                pass
+            elif Character.stance == 1 and Character.bullet_RF == 0:
+                character.state_machine.add_event(('RF_RELOAD', 0))
+            elif Character.stance == 2 and Character.bullet_HG == 0:
+                pass
 
         elif temp_more(e):
             Character.max_hp += 2
@@ -558,7 +568,6 @@ class Dash:
             if d_pressed or a_pressed:
                 character.state_machine.add_event(('WALK', 0))
 
-
     @staticmethod
     def do(character):
         global Fall
@@ -596,7 +605,7 @@ class Dash:
             elif Character.stance == 2:
                 character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, '',
                                                                character.sx, character.y, 170, 170)
-        else:
+        elif character.face_dir == -1:
             if Character.stance == 0:
                 character.images['Walk_SG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
                                                                character.sx, character.y, 170, 170)
@@ -607,9 +616,66 @@ class Dash:
                 character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
                                                                character.sx, character.y, 170, 170)
 
-animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Rc_SG',
+class R_RF:
+    @staticmethod
+    def enter(character, e):
+        global d_pressed, a_pressed, attacking
+        if rf_reload(e):
+            character.wait_time = get_time()
+        elif right_up(e):
+            d_pressed = False
+        elif left_up(e):
+            a_pressed = False
+        elif lc_up(e):
+            attacking = False
+
+    @staticmethod
+    def exit(character, e):
+        if time_out(e):
+            if d_pressed or a_pressed:
+                character.state_machine.add_event(('WALK', 0))
+        if get_time() - character.wait_time > 0.2:
+            if dash(e) and Character.dash_cooldown == 0:
+                character.state_machine.add_event(('USE_DASH', 0))
+
+    @staticmethod
+    def do(character):
+        global Jump, jump_velocity, Fall, fall_velocity, Reload_RF
+
+        if get_time() - character.wait_time > 0.1:
+            character.x += 8 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+            if not Reload_RF:
+                Jump = True
+                jump_velocity = 6.0
+                Fall = False
+                fall_velocity = 0.0
+                Reload_RF = True
+
+        if get_time() - character.wait_time > 0.3:
+            Fall = True
+            character.state_machine.add_event(('TIME_OUT', 0))
+
+        for block in game_world.collision_pairs['server.character:ground'][1] + \
+                     game_world.collision_pairs['server.character:wall'][1]:
+            if screen_left - 15 <= block.x <= screen_right + 15:
+                if game_world.collide(character, block):
+                    character.x -= 8 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+                    Fall = True
+                    character.state_machine.add_event(('TIME_OUT', 0))
+                    return
+
+    @staticmethod
+    def draw(character):
+        if character.face_dir == 1:
+            character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
+                                                                 character.sx, character.y, 170, 170)
+        elif character.face_dir == -1:
+            character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
+                                                                 character.sx, character.y, 170, 170)
+
+animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reload_SG', 'Rc_SG',
                    'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF',
-                   'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG',]
+                   'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG',]
 
 class Character:
     images = None
@@ -642,6 +708,8 @@ class Character:
                     Character.images[name] = load_image("./HKCAWS/" + name + ".png")
                 elif name == 'Attack_SG':
                     Character.images[name] = load_image("./HKCAWS/" + name + ".png")
+                elif name == 'Reload_SG':
+                    Character.images[name] = load_image("./HKCAWS/" + name + ".png")
                 elif name == 'Rc_SG':
                     Character.images[name] = load_image("./HKCAWS/" + name + ".png")
 
@@ -666,6 +734,8 @@ class Character:
                     Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
                 elif name == 'Attack_HG':
                     Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
+                elif name == 'Reload_HG':
+                    Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
 
     def __init__(self):
         self.x, self.y = 34.0, 140.0
@@ -686,12 +756,14 @@ class Character:
                 Idle: {
                     right_down: Walk, left_down: Walk, left_up: Idle, right_up: Idle, change_stance_z: Idle, change_stance_x: Idle,
                     walk: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash, lc_down: Idle, lc_up: Idle,
+                    reload: Idle, rf_reload: R_RF,
                     temp_damage: Idle, take_hit: Hit, die: Die,
                     temp_more: Idle, temp_heal: Idle, temp_bullet: Idle
                 },
                 Walk: {
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
                     idle: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash, lc_down: Walk, lc_up: Walk,
+                    reload: Idle, rf_reload: R_RF,
                     temp_damage: Walk, take_hit: Hit, die: Die,
                 },
                 Hit: {
@@ -703,6 +775,10 @@ class Character:
                 },
                 Dash: {
                     left_up: Dash, right_up: Dash, rc_up: Dash, lc_up: Dash,
+                    time_out: Idle, walk: Walk
+                },
+                R_RF: {
+                    left_up: R_RF, right_up: R_RF, lc_up: R_RF, dash: R_RF, use_dash: Dash,
                     time_out: Idle, walk: Walk
                 },
             }

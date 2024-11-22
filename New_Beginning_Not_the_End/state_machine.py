@@ -27,6 +27,9 @@ def jump(e):
 def dash(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_LSHIFT
 
+def reload(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_r
+
 def idle(e):
     return e[0] == 'IDLE'
 
@@ -44,6 +47,9 @@ def die(e):
 
 def use_dash(e):
     return e[0] == 'USE_DASH'
+
+def rf_reload(e):
+    return e[0] == 'RF_RELOAD'
 
 def time_out(e):
     return e[0] == 'TIME_OUT'
