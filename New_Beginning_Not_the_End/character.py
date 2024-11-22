@@ -22,6 +22,7 @@ Attack = False
 attacking = False
 Reload_SG = False
 Reload_RF = False
+rrf = False
 Reload_HG = False
 
 jump_velocity = 10.0
@@ -619,11 +620,12 @@ class Dash:
                 character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
                                                                character.sx, character.y, 170, 170)
 
-class R_RF:
+class RRF:
     @staticmethod
     def enter(character, e):
-        global d_pressed, a_pressed, attacking
-        if rf_reload(e):
+        global d_pressed, a_pressed, attacking, Reload_RF
+        if rf_reload(e) and not Reload_RF:
+            Reload_RF = True
             character.wait_time = get_time()
         elif right_up(e):
             d_pressed = False
@@ -634,34 +636,38 @@ class R_RF:
 
     @staticmethod
     def exit(character, e):
+        global Reload_RF, rrf
         if time_out(e):
             if d_pressed or a_pressed:
                 character.state_machine.add_event(('WALK', 0))
-        if get_time() - character.wait_time > 0.2 and dash(e) and Character.dash_cooldown == 0:
+        if get_time() - character.wait_time > 0.35 and dash(e) and Character.dash_cooldown == 0:
+            Reload_RF = False
+            rrf = False
             character.state_machine.add_event(('USE_DASH', 0))
 
     @staticmethod
     def do(character):
-        global Jump, jump_velocity, Fall, fall_velocity, Reload_RF
+        global Jump, jump_velocity, Fall, fall_velocity, Reload_RF, rrf
 
-        if get_time() - character.wait_time > 0.1:
-            if not Reload_RF:
+        if get_time() - character.wait_time > 0.15:
+            if not rrf:
                 Jump = True
                 jump_velocity = 6.0
                 Fall = False
                 fall_velocity = 0.0
-                Reload_RF = True
-            character.x += 8 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+                rrf = True
+            character.x -= 8 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
 
-        if get_time() - character.wait_time > 0.3:
+        if get_time() - character.wait_time > 0.4:
             Fall = True
             Reload_RF = False
+            rrf = False
             character.state_machine.add_event(('TIME_OUT', 0))
 
         for block in game_world.collision_pairs['server.character:ground'][1] + game_world.collision_pairs['server.character:wall'][1]:
             if screen_left - 15 <= block.x <= screen_right + 15:
                 if game_world.collide(character, block):
-                    character.x -= 8 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+                    character.x += 8 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
                     Fall = True
                     return
 
@@ -757,14 +763,14 @@ class Character:
                 Idle: {
                     right_down: Walk, left_down: Walk, left_up: Idle, right_up: Idle, change_stance_z: Idle, change_stance_x: Idle,
                     walk: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash, lc_down: Idle, lc_up: Idle,
-                    reload: Idle, rf_reload: R_RF,
+                    reload: Idle, rf_reload: RRF,
                     temp_damage: Idle, take_hit: Hit, die: Die,
                     temp_more: Idle, temp_heal: Idle, temp_bullet: Idle, temp_reset_cool: Idle
                 },
                 Walk: {
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
                     idle: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash, lc_down: Walk, lc_up: Walk,
-                    reload: Idle, rf_reload: R_RF,
+                    reload: Idle, rf_reload: RRF,
                     temp_damage: Walk, take_hit: Hit, die: Die,
                 },
                 Hit: {
@@ -778,8 +784,8 @@ class Character:
                     left_up: Dash, right_up: Dash, rc_up: Dash, lc_up: Dash,
                     time_out: Idle, walk: Walk
                 },
-                R_RF: {
-                    left_up: R_RF, right_up: R_RF, lc_up: R_RF, dash: R_RF, use_dash: Dash,
+                RRF: {
+                    left_up: RRF, right_up: RRF, lc_up: RRF, dash: RRF, use_dash: Dash,
                     time_out: Idle, walk: Walk
                 },
             }
