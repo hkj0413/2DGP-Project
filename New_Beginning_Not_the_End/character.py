@@ -15,6 +15,7 @@ RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
 a_pressed = False
 d_pressed = False
+s_pressed = False
 Move = False
 Jump = False
 Fall = False
@@ -35,7 +36,7 @@ screen_right = 1080
 class Idle:
     @staticmethod
     def enter(character, e):
-        global Jump, d_pressed, a_pressed, attacking, Reload_SG, Reload_HG
+        global Jump, d_pressed, a_pressed, attacking, Reload_SG, Reload_HG, s_pressed
         if start_event(e):
             character.face_dir = 1
         elif right_up(e):
@@ -45,6 +46,10 @@ class Idle:
         elif walk(e):
             if a_pressed or d_pressed:
                 character.state_machine.add_event(('WALK', 0))
+        elif under_down(e):
+            s_pressed = True
+        elif under_up(e):
+            s_pressed = False
         elif change_stance_z(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG:
             character.change_z()
         elif change_stance_x(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG:
@@ -87,7 +92,10 @@ class Idle:
                     character.frame = 0
                     character.reload_time = get_time()
             elif Character.stance == 1 and Character.bullet_RF == 0 and Character.state == 0:
-                character.state_machine.add_event(('RF_RELOAD', 0))
+                if s_pressed:
+                    character.state_machine.add_event(('RF_RELOAD_S', 0))
+                elif not s_pressed:
+                    character.state_machine.add_event(('RF_RELOAD', 0))
             elif Character.stance == 2 and Character.bullet_HG == 0 and Character.state == 0:
                 if not Reload_HG:
                     Reload_HG = True
@@ -250,7 +258,7 @@ class Idle:
 class Walk:
     @staticmethod
     def enter(character, e):
-        global a_pressed, d_pressed, Jump, attacking, Reload_SG, Reload_HG
+        global a_pressed, d_pressed, Jump, attacking, Reload_SG, Reload_HG, s_pressed
         if right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -269,6 +277,10 @@ class Walk:
                 character.face_dir = 1
             elif not d_pressed:
                 character.state_machine.add_event(('IDLE', 0))
+        elif under_down(e):
+            s_pressed = True
+        elif under_up(e):
+            s_pressed = False
         elif change_stance_z(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG:
             character.change_z()
         elif change_stance_x(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG:
@@ -311,7 +323,10 @@ class Walk:
                     character.frame = 0
                     character.reload_time = get_time()
             elif Character.stance == 1 and Character.bullet_RF == 0 and Character.state == 0:
-                character.state_machine.add_event(('RF_RELOAD', 0))
+                if s_pressed:
+                    character.state_machine.add_event(('RF_RELOAD_S', 0))
+                elif not s_pressed:
+                    character.state_machine.add_event(('RF_RELOAD', 0))
             elif Character.stance == 2 and Character.bullet_HG == 0 and Character.state == 0:
                 if not Reload_HG:
                     Reload_HG = True
@@ -475,7 +490,7 @@ class Walk:
 class Hit:
     @staticmethod
     def enter(character, e):
-        global a_pressed, d_pressed, Jump, jump_velocity, Fall, attacking
+        global a_pressed, d_pressed, Jump, jump_velocity, Fall, attacking, s_pressed
         if take_hit(e):
             if Character.stance == 0 and (Character.state == 1 or Reload_SG):
                 Character.hp = max(0, Character.hp - max(0, (Character.damage - Character.shield_def)))
@@ -509,6 +524,10 @@ class Hit:
             a_pressed = True
             if Character.stance == 0 and Character.state == 1:
                 character.state_machine.add_event(('WALK', 0))
+        elif under_down(e):
+            s_pressed = True
+        elif under_up(e):
+            s_pressed = False
         elif rc_up(e):
             if Character.stance == 0 and Character.state == 1:
                 Character.state = 0
@@ -590,7 +609,7 @@ class Hit:
 class Die:
     @staticmethod
     def enter(character, e):
-        global a_pressed, d_pressed, Jump, jump_velocity, Fall, fall_velocity, Attack, attacking, Move
+        global a_pressed, d_pressed, Jump, jump_velocity, Fall, fall_velocity, Attack, attacking, Move, s_pressed
         global Reload_SG, Reload_RF, rrf, Reload_HG
         if die(e):
             Move = False
@@ -600,6 +619,7 @@ class Die:
             attacking = False
             a_pressed = False
             d_pressed = False
+            s_pressed = False
             Reload_SG = False
             Reload_RF = False
             rrf = False
@@ -668,7 +688,7 @@ class Die:
 class Dash:
     @staticmethod
     def enter(character, e):
-        global Jump, jump_velocity, Fall, fall_velocity, d_pressed, a_pressed, attacking
+        global Jump, jump_velocity, Fall, fall_velocity, d_pressed, a_pressed, attacking, s_pressed
         if use_dash(e):
             Jump = False
             jump_velocity = 10.0
@@ -686,6 +706,8 @@ class Dash:
             d_pressed = False
         elif left_up(e):
             a_pressed = False
+        elif under_up(e):
+            s_pressed = False
         elif lc_up(e):
             attacking = False
         elif rc_up(e):
@@ -751,7 +773,7 @@ class Dash:
 class RRF:
     @staticmethod
     def enter(character, e):
-        global d_pressed, a_pressed, attacking, Reload_RF, rrf
+        global d_pressed, a_pressed, attacking, Reload_RF, rrf, s_pressed
         if rf_reload(e) and not Reload_RF:
             Reload_RF = True
             character.wait_time = get_time()
@@ -760,6 +782,8 @@ class RRF:
             d_pressed = False
         elif left_up(e):
             a_pressed = False
+        elif under_up(e):
+            s_pressed = False
         elif lc_up(e):
             attacking = False
 
@@ -770,6 +794,7 @@ class RRF:
             Fall = True
             Reload_RF = False
             Character.bullet_RF = 4
+            Character.hit_delay = 0.1
             if d_pressed or a_pressed:
                 character.state_machine.add_event(('WALK', 0))
 
@@ -795,6 +820,58 @@ class RRF:
                     character.x += 8 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
                     Fall = True
                     return
+
+    @staticmethod
+    def draw(character):
+        if character.face_dir == 1:
+            character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
+                                                                 character.sx, character.y, 170, 170)
+        elif character.face_dir == -1:
+            character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
+                                                                 character.sx, character.y, 170, 170)
+
+class RsRF:
+    @staticmethod
+    def enter(character, e):
+        global d_pressed, a_pressed, attacking, Reload_RF, rrf, s_pressed
+        if rf_reload_s(e) and not Reload_RF:
+            Reload_RF = True
+            character.wait_time = get_time()
+            rrf = False
+        elif right_up(e):
+            d_pressed = False
+        elif left_up(e):
+            a_pressed = False
+        elif under_up(e):
+            s_pressed = False
+        elif lc_up(e):
+            attacking = False
+
+    @staticmethod
+    def exit(character, e):
+        global Fall, Reload_RF
+        if time_out(e):
+            Fall = True
+            Reload_RF = False
+            Character.bullet_RF = 4
+            Character.hit_delay = 0.1
+            if d_pressed or a_pressed:
+                character.state_machine.add_event(('WALK', 0))
+
+    @staticmethod
+    def do(character):
+        global Jump, jump_velocity, Fall, fall_velocity, Reload_RF, rrf
+
+        if get_time() - character.wait_time > 0.15:
+            if not rrf:
+                Jump = True
+                jump_velocity = 6.0
+                Fall = False
+                fall_velocity = 0.0
+                rrf = True
+
+        if get_time() - character.wait_time > 0.4:
+            character.state_machine.add_event(('TIME_OUT', 0))
 
     @staticmethod
     def draw(character):
@@ -889,30 +966,34 @@ class Character:
                 Idle: {
                     right_down: Walk, left_down: Walk, left_up: Idle, right_up: Idle, change_stance_z: Idle, change_stance_x: Idle,
                     walk: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash, lc_down: Idle, lc_up: Idle,
-                    reload: Idle, rf_reload: RRF, idle: Idle,
+                    reload: Idle, rf_reload: RRF, idle: Idle, under_down: Idle, under_up: Idle, rf_reload_s: RsRF,
                     temp_damage: Idle, take_hit: Hit, die: Die,
                     temp_more: Idle, temp_heal: Idle, temp_bullet: Idle, temp_reset_cool: Idle
                 },
                 Walk: {
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
                     idle: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash, lc_down: Walk, lc_up: Walk,
-                    reload: Walk, rf_reload: RRF, walk: Walk,
+                    reload: Walk, rf_reload: RRF, walk: Walk, under_down: Walk, under_up: Walk, rf_reload_s: RsRF,
                     temp_damage: Walk, take_hit: Hit, die: Die,
                     temp_more: Walk, temp_heal: Walk, temp_bullet: Walk, temp_reset_cool: Walk
                 },
                 Hit: {
-                    right_down: Hit, left_down: Hit, rc_up: Hit, lc_down: Hit, lc_up: Hit,
+                    right_down: Hit, left_down: Hit, under_down: Hit, under_up: Hit, rc_up: Hit, lc_down: Hit, lc_up: Hit,
                     time_out: Idle, walk: Walk, die: Die
                 },
                 Die: {
                     time_out: Idle
                 },
                 Dash: {
-                    left_up: Dash, right_up: Dash, rc_up: Dash, lc_up: Dash,
+                    left_up: Dash, right_up: Dash, under_up: Dash, rc_up: Dash, lc_up: Dash,
                     time_out: Idle, walk: Walk
                 },
                 RRF: {
-                    left_up: RRF, right_up: RRF, lc_up: RRF,
+                    left_up: RRF, right_up: RRF, under_up: RRF, lc_up: RRF,
+                    time_out: Idle, walk: Walk
+                },
+                RsRF: {
+                    left_up: RsRF, right_up: RsRF, under_up: RsRF, lc_up: RsRF,
                     time_out: Idle, walk: Walk
                 },
             }

@@ -15,6 +15,12 @@ def left_down(e):
 def left_up(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_a
 
+def under_down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_s
+
+def under_up(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_s
+
 def change_stance_z(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_z
 
@@ -50,6 +56,9 @@ def use_dash(e):
 
 def rf_reload(e):
     return e[0] == 'RF_RELOAD'
+
+def rf_reload_s(e):
+    return e[0] == 'RF_RELOAD_S'
 
 def time_out(e):
     return e[0] == 'TIME_OUT'
