@@ -79,15 +79,15 @@ class Idle:
         elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG:
             character.state_machine.add_event(('USE_DASH', 0))
         elif reload(e):
-            if Character.stance == 0 and Character.bullet_SG == 0:
+            if Character.stance == 0 and Character.bullet_SG == 0 and Character.state <= 1:
                 if not Reload_SG:
                     Reload_SG = True
                     Character.speed = 1
                     character.frame = 0
                     character.reload_time = get_time()
-            elif Character.stance == 1 and Character.bullet_RF == 0:
+            elif Character.stance == 1 and Character.bullet_RF == 0 and Character.state == 0:
                 character.state_machine.add_event(('RF_RELOAD', 0))
-            elif Character.stance == 2 and Character.bullet_HG == 0:
+            elif Character.stance == 2 and Character.bullet_HG == 0 and Character.state == 0:
                 pass
 
         elif temp_more(e):
@@ -274,16 +274,16 @@ class Walk:
         elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG:
             character.state_machine.add_event(('USE_DASH', 0))
         elif reload(e):
-            if Character.stance == 0 and Character.bullet_SG == 0:
+            if Character.stance == 0 and Character.bullet_SG == 0 and Character.state <= 1:
                 if not Reload_SG:
                     Reload_SG = True
                     Character.speed = 1
                     character.frame = 0
                     character.reload_time = get_time()
-            elif Character.stance == 1 and Character.bullet_RF == 0:
-                    character.state_machine.add_event(('RF_RELOAD', 0))
-            elif Character.stance == 2 and Character.bullet_HG == 0:
-                    pass
+            elif Character.stance == 1 and Character.bullet_RF == 0 and Character.state == 0:
+                character.state_machine.add_event(('RF_RELOAD', 0))
+            elif Character.stance == 2 and Character.bullet_HG == 0 and Character.state == 0:
+                pass
 
         if Character.stance == 0 and not Reload_SG:
             if Character.state == 0:
@@ -915,7 +915,10 @@ class Character:
         if Reload_SG:
             if get_time() - self.reload_time > 1.5:
                 self.reload_time = 0
-                Character.speed = 3
+                if Character.state == 0:
+                    Character.speed = 3
+                elif Character.state == 1:
+                    Character.speed = 1
                 Character.bullet_SG = 8
                 Reload_SG = False
                 if d_pressed or a_pressed:
