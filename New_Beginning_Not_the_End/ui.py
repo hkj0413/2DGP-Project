@@ -1,5 +1,8 @@
 from pico2d import load_image, load_font
+
 from character import Character
+
+import character
 
 class UI:
     image_hp = None
@@ -37,7 +40,7 @@ class UI:
                     self.bullet_image.clip_composite_draw(0, 0, 27, 50, 0, '', bx - i * 27, by, 27, 50)
                 else:
                     self.bullet_image.clip_composite_draw(27, 0, 27, 50, 0, '', bx - i * 27, by, 27, 50)
-            if Character.state == 1:
+            if Character.state == 1 or character.Reload_SG:
                 for i in range(Character.shield_def):
                     self.bullet_image.clip_composite_draw(162, 0, 54, 50, 0, '', bx - i * 27 + 2, by - 40, 32, 30)
         elif Character.stance == 1:
