@@ -778,6 +778,8 @@ class RRF:
             Reload_RF = True
             character.wait_time = get_time()
             rrf = False
+            character.name = 'Attack_RF'
+            character.frame = 0
         elif right_up(e):
             d_pressed = False
         elif left_up(e):
@@ -802,6 +804,15 @@ class RRF:
     def do(character):
         global Jump, jump_velocity, Fall, fall_velocity, Reload_RF, rrf
 
+        if get_time() - character.wait_time > 0.4:
+            character.state_machine.add_event(('TIME_OUT', 0))
+
+        elif get_time() - character.wait_time > 0.35:
+            character.name = 'Walk_RF'
+
+        elif get_time() - character.wait_time > 0.25:
+            character.frame = 0
+
         if get_time() - character.wait_time > 0.15:
             if not rrf:
                 Jump = True
@@ -809,10 +820,8 @@ class RRF:
                 Fall = False
                 fall_velocity = 0.0
                 rrf = True
+                character.frame = 1
             character.x -= 8 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
-
-        if get_time() - character.wait_time > 0.4:
-            character.state_machine.add_event(('TIME_OUT', 0))
 
         for block in game_world.collision_pairs['server.character:ground'][1] + game_world.collision_pairs['server.character:wall'][1]:
             if screen_left - 15 <= block.x <= screen_right + 15:
@@ -824,10 +833,10 @@ class RRF:
     @staticmethod
     def draw(character):
         if character.face_dir == 1:
-            character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
+            character.images[character.name].clip_composite_draw(character.frame * 340, 0, 340, 340, 0, '',
                                                                  character.sx, character.y, 170, 170)
         elif character.face_dir == -1:
-            character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
+            character.images[character.name].clip_composite_draw(character.frame * 340, 0, 340, 340, 0, 'h',
                                                                  character.sx, character.y, 170, 170)
 
 class RsRF:
@@ -838,6 +847,8 @@ class RsRF:
             Reload_RF = True
             character.wait_time = get_time()
             rrf = False
+            character.name = 'Attack_RF'
+            character.frame = 0
         elif right_up(e):
             d_pressed = False
         elif left_up(e):
@@ -862,24 +873,31 @@ class RsRF:
     def do(character):
         global Jump, jump_velocity, Fall, fall_velocity, Reload_RF, rrf
 
-        if get_time() - character.wait_time > 0.15:
+        if get_time() - character.wait_time > 0.4:
+            character.state_machine.add_event(('TIME_OUT', 0))
+
+        elif get_time() - character.wait_time > 0.35:
+            character.name = 'Walk_RF'
+
+        elif get_time() - character.wait_time > 0.25:
+            character.frame = 0
+
+        elif get_time() - character.wait_time > 0.15:
             if not rrf:
                 Jump = True
                 jump_velocity = 6.0
                 Fall = False
                 fall_velocity = 0.0
                 rrf = True
-
-        if get_time() - character.wait_time > 0.4:
-            character.state_machine.add_event(('TIME_OUT', 0))
+                character.frame = 1
 
     @staticmethod
     def draw(character):
         if character.face_dir == 1:
-            character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
+            character.images[character.name].clip_composite_draw(character.frame * 340, 0, 340, 340, 0, '',
                                                                  character.sx, character.y, 170, 170)
         elif character.face_dir == -1:
-            character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
+            character.images[character.name].clip_composite_draw(character.frame * 340, 0, 340, 340, 0, 'h',
                                                                  character.sx, character.y, 170, 170)
 
 animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reload_SG', 'Rc_SG',
