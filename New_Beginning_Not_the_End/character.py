@@ -313,7 +313,24 @@ class Walk:
             elif Character.stance == 1 and Character.bullet_RF == 0 and Character.state == 0:
                 character.state_machine.add_event(('RF_RELOAD', 0))
             elif Character.stance == 2 and Character.bullet_HG == 0 and Character.state == 0:
-                pass
+                if not Reload_HG:
+                    Reload_HG = True
+                    Character.speed = 7
+                    character.frame = 0
+                    Character.hit_delay = 0.5
+                    character.reload_time = get_time()
+
+        elif temp_more(e):
+            Character.max_hp += 2
+        elif temp_heal(e) and Character.hit_delay == 0:
+            Character.hp = min(Character.hp + 1, Character.max_hp)
+        elif temp_bullet(e) and Character.hit_delay == 0:
+            Character.bullet_SG = 0
+            Character.bullet_RF = 0
+            Character.bullet_HG = 0
+        elif temp_reset_cool(e):
+            Character.dash_cooldown = 0
+            character.Lshift_cool = 0
 
         if Character.stance == 0 and not Reload_SG:
             if Character.state == 0:
@@ -328,9 +345,12 @@ class Walk:
         elif Character.stance == 1:
             if character.name != 'Walk_RF':
                 character.name = 'Walk_RF'
-        elif Character.stance == 2:
+        elif Character.stance == 2 and not Reload_HG:
             if character.name != 'Walk_HG':
                 character.name = 'Walk_HG'
+        elif Character.stance == 2 and Reload_HG:
+            if character.name != 'Reload_HG':
+                character.name = 'Reload_HG'
 
         if Character.stance == 0 and Character.state == 1:
             character.frame = clamp(0, character.frame, 13)
@@ -346,6 +366,7 @@ class Walk:
         global Fall, Move, mouse_x
         if not Move:
             Move = True
+
         if Attack:
             if character.frame == 0 and not Character.stance == 1:
                 if character.x > 1080:
@@ -360,8 +381,13 @@ class Walk:
                 character.frame = (character.frame + 7.0 * 2.0 * game_framework.frame_time) % 7
             elif Character.stance == 2:
                 character.frame = (character.frame + 5.0 * 3.0 * game_framework.frame_time) % 5
+
         elif Reload_SG:
             character.frame = (character.frame + 16.0 * 0.7 * game_framework.frame_time) % 16
+
+        elif Reload_HG:
+            character.frame = (character.frame + 10.0 * 1.8 * game_framework.frame_time) % 10
+
         else:
             if Character.stance == 0 and Character.state == 1:
                 character.frame = (character.frame + 14.0 * 1.5 * game_framework.frame_time) % 14
@@ -415,13 +441,29 @@ class Walk:
                 elif Character.stance == 2:
                     character.images['Attack_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
                                                                       character.sx, character.y, 170, 170)
-        elif Reload_SG or Reload_HG:
+        elif Reload_SG:
             if character.face_dir == 1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
                                                                   character.sx, character.y, 170, 170)
             elif character.face_dir == -1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
                                                                   character.sx, character.y, 170, 170)
+        elif Reload_HG:
+            if character.face_dir == 1:
+                if 0 <= int(character.frame) <= 4:
+                    roll = 60 - int(character.frame) * 15
+                else:
+                    roll = -15
+                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
+                                                                     character.sx + roll, character.y, 170, 170)
+            elif character.face_dir == -1:
+                if 0 <= int(character.frame) <= 4:
+                    roll = 60 - int(character.frame) * 15
+                else:
+                    roll = -15
+                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
+                                                                     character.sx - roll, character.y, 170, 170)
+
         else:
             if character.face_dir == 1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
@@ -856,6 +898,7 @@ class Character:
                     idle: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash, lc_down: Walk, lc_up: Walk,
                     reload: Walk, rf_reload: RRF, walk: Walk,
                     temp_damage: Walk, take_hit: Hit, die: Die,
+                    temp_more: Walk, temp_heal: Walk, temp_bullet: Walk, temp_reset_cool: Walk
                 },
                 Hit: {
                     right_down: Hit, left_down: Hit, rc_up: Hit, lc_down: Hit, lc_up: Hit,
