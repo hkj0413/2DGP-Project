@@ -568,6 +568,7 @@ class Dash:
 
     @staticmethod
     def exit(character, e):
+        global Reload_RF
         if time_out(e):
             if d_pressed or a_pressed:
                 character.state_machine.add_event(('WALK', 0))
@@ -623,10 +624,11 @@ class Dash:
 class RRF:
     @staticmethod
     def enter(character, e):
-        global d_pressed, a_pressed, attacking, Reload_RF
+        global d_pressed, a_pressed, attacking, Reload_RF, rrf
         if rf_reload(e) and not Reload_RF:
             Reload_RF = True
             character.wait_time = get_time()
+            rrf = False
         elif right_up(e):
             d_pressed = False
         elif left_up(e):
@@ -636,14 +638,13 @@ class RRF:
 
     @staticmethod
     def exit(character, e):
-        global Reload_RF, rrf
+        global Fall, Reload_RF
         if time_out(e):
+            Fall = True
+            Reload_RF = False
+            Character.bullet_RF = 4
             if d_pressed or a_pressed:
                 character.state_machine.add_event(('WALK', 0))
-        if get_time() - character.wait_time > 0.35 and dash(e) and Character.dash_cooldown == 0:
-            Reload_RF = False
-            rrf = False
-            character.state_machine.add_event(('USE_DASH', 0))
 
     @staticmethod
     def do(character):
@@ -659,9 +660,6 @@ class RRF:
             character.x -= 8 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
 
         if get_time() - character.wait_time > 0.4:
-            Fall = True
-            Reload_RF = False
-            rrf = False
             character.state_machine.add_event(('TIME_OUT', 0))
 
         for block in game_world.collision_pairs['server.character:ground'][1] + game_world.collision_pairs['server.character:wall'][1]:
@@ -785,7 +783,7 @@ class Character:
                     time_out: Idle, walk: Walk
                 },
                 RRF: {
-                    left_up: RRF, right_up: RRF, lc_up: RRF, dash: RRF, use_dash: Dash,
+                    left_up: RRF, right_up: RRF, lc_up: RRF,
                     time_out: Idle, walk: Walk
                 },
             }
