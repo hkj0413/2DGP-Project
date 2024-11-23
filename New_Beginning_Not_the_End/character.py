@@ -89,7 +89,12 @@ class Idle:
             elif Character.stance == 1 and Character.bullet_RF == 0 and Character.state == 0:
                 character.state_machine.add_event(('RF_RELOAD', 0))
             elif Character.stance == 2 and Character.bullet_HG == 0 and Character.state == 0:
-                pass
+                if not Reload_HG:
+                    Reload_HG = True
+                    Character.speed = 7
+                    character.frame = 0
+                    Character.hit_delay = 0.5
+                    character.reload_time = get_time()
 
         elif temp_more(e):
             Character.max_hp += 2
@@ -118,10 +123,13 @@ class Idle:
             if character.name != 'Idle_RF':
                 character.name = 'Idle_RF'
             character.frame = clamp(0, character.frame, 13)
-        elif Character.stance == 2:
+        elif Character.stance == 2 and not Reload_HG:
             if character.name != 'Idle_HG':
                 character.name = 'Idle_HG'
             character.frame = clamp(0, character.frame, 10)
+        elif Character.stance == 2 and Reload_HG:
+            if character.name != 'Reload_HG':
+                character.name = 'Reload_HG'
 
     @staticmethod
     def exit(character, e):
@@ -152,6 +160,9 @@ class Idle:
 
         elif Reload_SG:
             character.frame = (character.frame + 16.0 * 0.7 * game_framework.frame_time) % 16
+
+        elif Reload_HG:
+            character.frame = (character.frame + 10.0 * 1.8 * game_framework.frame_time) % 10
 
         elif not Jump and not Fall:
             if Move:
@@ -184,13 +195,30 @@ class Idle:
                 elif Character.stance == 2:
                     character.images['Attack_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
                                                                       character.sx, character.y, 170, 170)
-        elif Reload_SG or Reload_HG:
+        elif Reload_SG:
             if character.face_dir == 1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
                                                                   character.sx, character.y, 170, 170)
             elif character.face_dir == -1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
                                                                   character.sx, character.y, 170, 170)
+        elif Reload_HG:
+            if character.face_dir == 1:
+                if 0 <= int(character.frame) <= 4:
+                    roll = 60 - int(character.frame) * 15
+                else:
+                    roll = -15
+                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
+                                                                     character.sx + roll, character.y, 170, 170)
+
+            elif character.face_dir == -1:
+                if 0 <= int(character.frame) <= 4:
+                    roll = 60 - int(character.frame) * 15
+                else:
+                    roll = -15
+                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
+                                                                     character.sx - roll, character.y, 170, 170)
+
         elif Jump or Fall:
             if character.face_dir == 1:
                 if Character.stance == 0:
@@ -848,7 +876,7 @@ class Character:
         )
 
     def update(self):
-        global Jump, jump_velocity, Fall, fall_velocity, Attack, Move, screen_left, screen_right, Reload_SG
+        global Jump, jump_velocity, Fall, fall_velocity, Attack, Move, screen_left, screen_right, Reload_SG, Reload_HG
         self.state_machine.update()
         self.x = clamp(17.0, self.x, server.background.w - 17.0)
         self.sx = self.x - server.background.window_left
@@ -923,6 +951,17 @@ class Character:
                     Character.speed = 1
                 Character.bullet_SG = 8
                 Reload_SG = False
+                if d_pressed or a_pressed:
+                    self.state_machine.add_event(('WALK', 0))
+                else:
+                    self.state_machine.add_event(('IDLE', 0))
+
+        if Reload_HG:
+            if get_time() - self.reload_time > 0.5:
+                self.reload_time = 0
+                Character.speed = 5
+                Character.bullet_HG = Character.max_bullet_HG
+                Reload_HG = False
                 if d_pressed or a_pressed:
                     self.state_machine.add_event(('WALK', 0))
                 else:
