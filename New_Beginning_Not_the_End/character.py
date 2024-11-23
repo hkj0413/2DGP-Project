@@ -60,7 +60,8 @@ class Idle:
         elif rc_up(e):
             if Character.stance == 0:
                 Character.state = 0
-                Character.speed = 3
+                if not Reload_SG:
+                    Character.speed = 3
         elif jump(e) and not Jump and not Fall:
             if Character.stance == 0 and Character.state == 0:
                 Jump = True
@@ -255,7 +256,8 @@ class Walk:
         elif rc_up(e):
             if Character.stance == 0:
                 Character.state = 0
-                Character.speed = 3
+                if not Reload_SG:
+                    Character.speed = 3
         elif jump(e) and not Jump and not Fall:
             if Character.stance == 0 and Character.state == 0:
                 Jump = True
