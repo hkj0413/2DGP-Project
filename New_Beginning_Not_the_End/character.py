@@ -45,9 +45,9 @@ class Idle:
         elif walk(e):
             if a_pressed or d_pressed:
                 character.state_machine.add_event(('WALK', 0))
-        elif change_stance_z(e) and not Jump and not Fall and not Attack and Character.state == 0:
+        elif change_stance_z(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG:
             character.change_z()
-        elif change_stance_x(e) and not Jump and not Fall and not Attack and Character.state == 0:
+        elif change_stance_x(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG:
             character.change_x()
         elif lc_down(e):
             attacking = True
@@ -76,7 +76,7 @@ class Idle:
                     character.frame = 0
         elif temp_damage(e) and Character.hit_delay == 0:
             character.state_machine.add_event(('HIT', 0))
-        elif dash(e) and Character.dash_cooldown == 0:
+        elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG:
             character.state_machine.add_event(('USE_DASH', 0))
         elif reload(e):
             if Character.stance == 0 and Character.bullet_SG == 0:
@@ -240,9 +240,9 @@ class Walk:
                 character.face_dir = 1
             elif not d_pressed:
                 character.state_machine.add_event(('IDLE', 0))
-        elif change_stance_z(e) and not Jump and not Fall and not Attack and Character.state == 0:
+        elif change_stance_z(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG:
             character.change_z()
-        elif change_stance_x(e) and not Jump and not Fall and not Attack and Character.state == 0:
+        elif change_stance_x(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG:
             character.change_x()
         elif lc_down(e):
             attacking = True
@@ -269,6 +269,10 @@ class Walk:
                 Jump = True
                 if not Attack and not Reload_HG:
                     character.frame = 0
+        elif temp_damage(e) and Character.hit_delay == 0:
+            character.state_machine.add_event(('HIT', 0))
+        elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG:
+            character.state_machine.add_event(('USE_DASH', 0))
         elif reload(e):
             if Character.stance == 0 and Character.bullet_SG == 0:
                 if not Reload_SG:
@@ -280,11 +284,6 @@ class Walk:
                     character.state_machine.add_event(('RF_RELOAD', 0))
             elif Character.stance == 2 and Character.bullet_HG == 0:
                     pass
-
-        elif temp_damage(e) and Character.hit_delay == 0:
-            character.state_machine.add_event(('HIT', 0))
-        elif dash(e) and Character.dash_cooldown == 0:
-            character.state_machine.add_event(('USE_DASH', 0))
 
         if Character.stance == 0 and not Reload_SG:
             if Character.state == 0:
