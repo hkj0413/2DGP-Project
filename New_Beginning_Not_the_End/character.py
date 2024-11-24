@@ -624,7 +624,7 @@ class Die:
             Reload_RF = False
             rrf = False
             Reload_HG = False
-            jump_velocity = 0.0
+            jump_velocity = 10.0
             fall_velocity = 0.0
             character.frame = 0
             Character.state = 0
