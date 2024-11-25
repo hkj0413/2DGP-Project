@@ -8,6 +8,7 @@ import server
 
 from ground import Ground
 from wall import Wall
+from ladder import Ladder
 from character import Character
 from ui import UI
 from background import Background
@@ -35,6 +36,16 @@ def init():
     ui = UI()
     game_world.add_object(ui, 3)
 
+    # 사다리
+    ladder_positions = [
+        (range(3, 12), 39),
+    ]
+
+    for i_range, j in ladder_positions:
+        ladders = [Ladder(j, i, 3, 0) for i in i_range]
+        game_world.add_objects(ladders, 0)
+
+
     # a, d 판정만 있는 블럭
     game_world.add_collision_pairs('server.character:wall', server.character, None)
 
@@ -50,10 +61,10 @@ def init():
 
     wall_positions = [
         (1, range(0, 30)),
-        (1, range(34, 44)),
+        (1, range(35, 44)),
         (1, range(50, 109)),
         (0, range(0, 30)),
-        (0, range(34, 44)),
+        (0, range(35, 44)),
         (0, range(50, 109)),
     ]
 
@@ -74,7 +85,7 @@ def init():
         (7, range(11, 16)),
         (5, range(19, 26)),
         (2, range(0, 30)),
-        (2, range(34, 44)),
+        (2, range(35, 44)),
         (2, range(50, 109)),
     ]
 
