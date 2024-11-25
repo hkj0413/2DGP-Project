@@ -54,6 +54,7 @@ def init():
     game_world.add_collision_pairs('server.character:wall', server.character, None)
 
     wall_positions = [
+        (range(18, 23), 49),
         (range(3, 12), 29),
     ]
 

@@ -194,7 +194,7 @@ class Idle:
                 for block in game_world.collision_pairs['server.character:ground'][1]:
                     if screen_left - 15 <= block.x <= screen_right + 15:
                         if game_world.collide(character, block):
-                            character.y = block.y - 35
+                            character.y -= Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
                             return
             elif s_pressed and not w_pressed:
                 if not Move:
@@ -203,7 +203,7 @@ class Idle:
                 for block in game_world.collision_pairs['server.character:ground'][1]:
                     if screen_left - 15 <= block.x <= screen_right + 15:
                         if game_world.collide(character, block):
-                            character.y = block.y + 65
+                            character.y += Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
                             return
 
     @staticmethod
@@ -449,14 +449,14 @@ class Walk:
                 for block in game_world.collision_pairs['server.character:ground'][1]:
                     if screen_left - 15 <= block.x <= screen_right + 15:
                         if game_world.collide(character, block):
-                            character.y = block.y - 35
+                            character.y -= Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
                             return
             elif s_pressed and not w_pressed:
                 character.y -= Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
                 for block in game_world.collision_pairs['server.character:ground'][1]:
                     if screen_left - 15 <= block.x <= screen_right + 15:
                         if game_world.collide(character, block):
-                            character.y = block.y + 65
+                            character.y += Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
                             return
 
         if d_pressed or a_pressed:
