@@ -579,6 +579,7 @@ class Hit:
                     character.frame = 0
                 Character.hp = max(0, Character.hp - Character.damage)
                 if Character.hp == 0:
+                    Character.score -= 100
                     character.state_machine.add_event(('DIE', 0))
             character.wait_time = get_time()
             Character.hit_delay = 1
@@ -994,6 +995,7 @@ class Character:
     speed = 3
     hp = 20
     max_hp = 20
+    score = 0
     damage = 0
     bullet_SG = 8
     bullet_RF = 4
