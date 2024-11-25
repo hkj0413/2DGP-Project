@@ -24,5 +24,8 @@ class Wall:
     def get_bb(self):
         return self.x - 15.0, self.y - 15.0, self.x + 15.0, self.y + 15.0
 
+    def get_rect(self):
+        return self.sx - 15.0, self.y - 15.0, self.sx + 15.0, self.y + 15.0
+
     def handle_collision(self, group, other):
         pass

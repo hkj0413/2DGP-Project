@@ -24,6 +24,9 @@ class Ground:
     def get_bb(self):
         return self.x - 15.0, self.y - 15.0, self.x + 15.0, self.y + 15.0
 
+    def get_rect(self):
+        return self.sx - 15.0, self.y - 15.0, self.sx + 15.0, self.y + 15.0
+
     def collide_jump(self):
         return self.y - 35.0
 
