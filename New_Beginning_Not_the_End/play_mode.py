@@ -37,13 +37,17 @@ def init():
     game_world.add_object(ui, 3)
 
     # 사다리
+    game_world.add_collision_pairs('server.character:ladder', server.character, None)
+
     ladder_positions = [
-        (range(3, 12), 39),
+        (range(3, 15), 39),
     ]
 
     for i_range, j in ladder_positions:
         ladders = [Ladder(j, i, 3, 0) for i in i_range]
         game_world.add_objects(ladders, 0)
+        for ladder in ladders:
+            game_world.add_collision_pairs('server.character:ladder', None, ladder)
 
 
     # a, d 판정만 있는 블럭

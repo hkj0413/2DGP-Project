@@ -20,6 +20,7 @@ s_pressed = False
 Move = False
 Jump = False
 Fall = False
+Climb = False
 Attack = False
 attacking = False
 Reload_SG = False
@@ -37,7 +38,7 @@ screen_right = 1080
 class Idle:
     @staticmethod
     def enter(character, e):
-        global Jump, d_pressed, a_pressed, attacking, Reload_SG, Reload_HG, s_pressed
+        global Jump, d_pressed, a_pressed, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed
         if start_event(e):
             character.face_dir = 1
         elif right_up(e):
@@ -47,6 +48,10 @@ class Idle:
         elif walk(e):
             if a_pressed or d_pressed:
                 character.state_machine.add_event(('WALK', 0))
+        elif on_down(e):
+            w_pressed = True
+        elif on_up(e):
+            w_pressed = False
         elif under_down(e):
             s_pressed = True
         elif under_up(e):
@@ -987,6 +992,7 @@ class Character:
                     right_down: Walk, left_down: Walk, left_up: Idle, right_up: Idle, change_stance_z: Idle, change_stance_x: Idle,
                     walk: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash, lc_down: Idle, lc_up: Idle,
                     reload: Idle, rf_reload: RRF, idle: Idle, under_down: Idle, under_up: Idle, rf_reload_s: RsRF,
+                    on_up: Idle, on_down: Idle,
                     temp_damage: Idle, take_hit: Hit, die: Die,
                     temp_more: Idle, temp_heal: Idle, temp_bullet: Idle, temp_reset_cool: Idle
                 },
@@ -994,26 +1000,27 @@ class Character:
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
                     idle: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash, lc_down: Walk, lc_up: Walk,
                     reload: Walk, rf_reload: RRF, walk: Walk, under_down: Walk, under_up: Walk, rf_reload_s: RsRF,
+                    on_up: Walk, on_down: Walk,
                     temp_damage: Walk, take_hit: Hit, die: Die,
                     temp_more: Walk, temp_heal: Walk, temp_bullet: Walk, temp_reset_cool: Walk
                 },
                 Hit: {
-                    right_down: Hit, left_down: Hit, under_down: Hit, under_up: Hit, rc_up: Hit, lc_down: Hit, lc_up: Hit,
+                    right_down: Hit, left_down: Hit, on_down: Hit, under_down: Hit, under_up: Hit, rc_up: Hit, lc_down: Hit, lc_up: Hit,
                     time_out: Idle, walk: Walk, die: Die
                 },
                 Die: {
                     time_out: Idle
                 },
                 Dash: {
-                    left_up: Dash, right_up: Dash, under_up: Dash, rc_up: Dash, lc_up: Dash,
+                    left_up: Dash, right_up: Dash, on_up: Dash, under_up: Dash, rc_up: Dash, lc_up: Dash,
                     time_out: Idle, walk: Walk
                 },
                 RRF: {
-                    left_up: RRF, right_up: RRF, under_up: RRF, lc_up: RRF,
+                    left_up: RRF, right_up: RRF, on_up: RRF, under_up: RRF, lc_up: RRF,
                     time_out: Idle, walk: Walk
                 },
                 RsRF: {
-                    left_up: RsRF, right_up: RsRF, under_up: RsRF, lc_up: RsRF,
+                    left_up: RsRF, right_up: RsRF, on_up: RsRF, under_up: RsRF, lc_up: RsRF,
                     time_out: Idle, walk: Walk
                 },
             }
@@ -1171,7 +1178,13 @@ class Character:
         return self.sx - 17.0, self.y - 49.0, self.sx + 17.0, self.y + 19.0
 
     def handle_collision(self, group, other):
-        pass
+        global Jump, jump_velocity, Fall, fall_velocity, Climb
+        if group == 'server.character:ladder':
+            if not Climb:
+                Climb = True
+            if Fall:
+                Fall = False
+                fall_velocity = 0.0
 
     def handle_collision_fall(self, group, other):
         global Fall, fall_velocity
