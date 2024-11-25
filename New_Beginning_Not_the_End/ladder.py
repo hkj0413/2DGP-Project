@@ -21,8 +21,8 @@ class Ladder:
     def draw(self):
         if -15 <= self.sx <= 1095:
             self.image.clip_draw(self.framex * 120, self.framey * 120, 120, 120, self.sx, self.y, 30, 30)
-        if character.RectMode:
-            draw_rectangle(*self.get_rect())
+            if character.RectMode:
+                draw_rectangle(*self.get_rect())
 
     def get_bb(self):
         return self.x - 15.0, self.y - 15.0, self.x + 15.0, self.y + 15.0
