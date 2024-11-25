@@ -1,4 +1,4 @@
-from pico2d import get_time, load_image, draw_rectangle, clamp, get_events
+from pico2d import get_time, load_image, draw_rectangle, clamp
 
 import game_world
 import game_framework
@@ -35,10 +35,12 @@ mouse_x, mouse_y = 0, 0
 screen_left = 0
 screen_right = 1080
 
+RectMode = False
+
 class Idle:
     @staticmethod
     def enter(character, e):
-        global Jump, d_pressed, a_pressed, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed
+        global Jump, d_pressed, a_pressed, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, RectMode
         if start_event(e):
             character.face_dir = 1
         elif right_up(e):
@@ -121,6 +123,8 @@ class Idle:
         elif temp_reset_cool(e):
             Character.dash_cooldown = 0
             character.Lshift_cool = 0
+        elif temp_rectmode(e):
+           RectMode = not RectMode
 
         if Character.stance == 0 and not Reload_SG:
             if Character.state == 0:
@@ -284,7 +288,7 @@ class Idle:
 class Walk:
     @staticmethod
     def enter(character, e):
-        global a_pressed, d_pressed, Jump, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed
+        global a_pressed, d_pressed, Jump, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, RectMode
         if right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -380,6 +384,8 @@ class Walk:
         elif temp_reset_cool(e):
             Character.dash_cooldown = 0
             character.Lshift_cool = 0
+        elif temp_rectmode(e):
+           RectMode = not RectMode
 
         if Character.stance == 0 and not Reload_SG:
             if Character.state == 0:
@@ -1062,7 +1068,7 @@ class Character:
                     reload: Idle, rf_reload: RRF, idle: Idle, under_down: Idle, under_up: Idle, rf_reload_s: RsRF,
                     on_up: Idle, on_down: Idle,
                     temp_damage: Idle, take_hit: Hit, die: Die,
-                    temp_more: Idle, temp_heal: Idle, temp_bullet: Idle, temp_reset_cool: Idle
+                    temp_more: Idle, temp_heal: Idle, temp_bullet: Idle, temp_reset_cool: Idle, temp_rectmode: Idle,
                 },
                 Walk: {
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
@@ -1070,7 +1076,7 @@ class Character:
                     reload: Walk, rf_reload: RRF, walk: Walk, under_down: Walk, under_up: Walk, rf_reload_s: RsRF,
                     on_up: Walk, on_down: Walk,
                     temp_damage: Walk, take_hit: Hit, die: Die,
-                    temp_more: Walk, temp_heal: Walk, temp_bullet: Walk, temp_reset_cool: Walk
+                    temp_more: Walk, temp_heal: Walk, temp_bullet: Walk, temp_reset_cool: Walk, temp_rectmode: Walk,
                 },
                 Hit: {
                     right_down: Hit, left_down: Hit, on_down: Hit, under_down: Hit, under_up: Hit, rc_up: Hit, lc_down: Hit, lc_up: Hit,
@@ -1215,7 +1221,8 @@ class Character:
 
     def draw(self):
         self.state_machine.draw()
-        draw_rectangle(*self.get_rect())
+        if RectMode:
+            draw_rectangle(*self.get_rect())
 
     def change_z(self):
         if Character.stance == 0:

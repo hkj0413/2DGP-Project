@@ -99,6 +99,9 @@ def temp_bullet(e):
 def temp_reset_cool(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_f
 
+def temp_rectmode(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_g
+
 class StateMachine:
     def __init__(self, o):
         self.o = o
