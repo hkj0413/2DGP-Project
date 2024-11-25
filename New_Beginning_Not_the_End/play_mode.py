@@ -83,6 +83,7 @@ def init():
 
     ground_positions = [
         (18, range(38, 41)),
+        (16, range(46, 48)),
         (14, range(41, 45)),
         (13, range(13, 21)),
         (12, range(26, 30)),

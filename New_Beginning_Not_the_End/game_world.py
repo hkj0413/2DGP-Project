@@ -97,11 +97,11 @@ def collide_ladder(a, b):
     bl, bb, br, bt = b.get_bb()
 
     if a.face_dir == 1:
-        if al > br > al - a.speed * character.RUN_SPEED_PPS * game_framework.frame_time:
+        if al > br > al - a.speed * character.RUN_SPEED_PPS * game_framework.frame_time and ab < bt and at > bb:
             return True
 
     elif a.face_dir == -1:
-        if ar < bl < ar + a.speed * character.RUN_SPEED_PPS * game_framework.frame_time:
+        if ar < bl < ar + a.speed * character.RUN_SPEED_PPS * game_framework.frame_time and ab < bt and at > bb:
             return True
     return False
 
