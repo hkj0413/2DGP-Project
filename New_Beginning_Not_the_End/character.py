@@ -115,9 +115,9 @@ class Idle:
 
         elif temp_more(e):
             Character.max_hp += 2
-        elif temp_heal(e) and Character.hit_delay == 0:
+        elif temp_heal(e):
             Character.hp = min(Character.hp + 1, Character.max_hp)
-        elif temp_bullet(e) and Character.hit_delay == 0:
+        elif temp_bullet(e):
             Character.bullet_SG = 0
             Character.bullet_RF = 0
             Character.bullet_HG = 0
@@ -377,9 +377,9 @@ class Walk:
 
         elif temp_more(e):
             Character.max_hp += 2
-        elif temp_heal(e) and Character.hit_delay == 0:
+        elif temp_heal(e):
             Character.hp = min(Character.hp + 1, Character.max_hp)
-        elif temp_bullet(e) and Character.hit_delay == 0:
+        elif temp_bullet(e):
             Character.bullet_SG = 0
             Character.bullet_RF = 0
             Character.bullet_HG = 0
@@ -1282,3 +1282,6 @@ class Character:
         if Character.hit_delay == 0:
             Character.damage = damage
             self.state_machine.add_event(('HIT', 0))
+
+    def take_heal(self, heal):
+        Character.hp = min(Character.hp + heal, Character.max_hp)

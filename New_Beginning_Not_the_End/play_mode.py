@@ -1,17 +1,16 @@
 from pico2d import *
 
 import game_framework
-
 import game_world
-
 import server
-from New_Beginning_Not_the_End.coconut import Coconut
 
 from ground import Ground
 from wall import Wall
 from ladder import Ladder
 from character import Character
 from ui import UI
+from coconut import Coconut
+from heal import Heal
 from background import Background
 
 def handle_events():
@@ -104,7 +103,7 @@ def init():
         for ground in grounds:
             game_world.add_collision_pairs('server.character:ground', None, ground)
 
-    # a, d, 점프, 추락 판정이 있는 블럭
+    # 낙하 장애물 코코넛 k = 박자
     game_world.add_collision_pairs('server.character:coconut', server.character, None)
 
     coconut_positions = [
@@ -119,6 +118,13 @@ def init():
         game_world.add_objects(coconuts, 2)
         for coconut in coconuts:
             game_world.add_collision_pairs('server.character:coconut', None, coconut)
+
+    # 회복 아이템 k = 힐량
+    game_world.add_collision_pairs('server.character:heal', server.character, None)
+
+    heal = Heal(39, 19, 4)
+    game_world.add_object(heal, 2)
+    game_world.add_collision_pairs('server.character:heal', None, heal)
 
 def finish():
     game_world.clear()

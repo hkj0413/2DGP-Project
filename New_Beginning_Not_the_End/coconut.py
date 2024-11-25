@@ -4,7 +4,6 @@ import game_framework
 
 from pico2d import load_image, draw_rectangle, get_time
 
-
 class Coconut:
     image = None
 
