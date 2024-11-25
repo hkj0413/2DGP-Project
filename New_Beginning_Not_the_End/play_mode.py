@@ -43,7 +43,7 @@ def init():
     ]
 
     for i_range, j in wall_positions:
-        walls = [Wall(j, i, 2) for i in i_range]
+        walls = [Wall(j, i, 2, 0) for i in i_range]
         game_world.add_objects(walls, 0)
         for wall in walls:
             game_world.add_collision_pairs('server.character:wall', None, wall)
@@ -58,7 +58,7 @@ def init():
     ]
 
     for j, i_range in wall_positions:
-        walls = [Wall(i, j, 0) for i in i_range]
+        walls = [Wall(i, j, 0, 0) for i in i_range]
         game_world.add_objects(walls, 0)
         for wall in walls:
             game_world.add_collision_pairs('server.character:wall', None, wall)
@@ -79,7 +79,7 @@ def init():
     ]
 
     for j, i_range in ground_positions:
-        grounds = [Ground(i, j, 1) for i in i_range]
+        grounds = [Ground(i, j, 1, 0) for i in i_range]
         game_world.add_objects(grounds, 0)
         for ground in grounds:
             game_world.add_collision_pairs('server.character:ground', None, ground)
