@@ -89,6 +89,7 @@ class Idle:
                 if not Attack and not Reload_HG:
                     character.frame = 0
         elif temp_damage(e) and Character.hit_delay == 0:
+            Character.damage = 8
             character.state_machine.add_event(('HIT', 0))
         elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG:
             character.state_machine.add_event(('USE_DASH', 0))
@@ -350,6 +351,7 @@ class Walk:
                 if not Attack and not Reload_HG:
                     character.frame = 0
         elif temp_damage(e) and Character.hit_delay == 0:
+            Character.damage = 8
             character.state_machine.add_event(('HIT', 0))
         elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG:
             character.state_machine.add_event(('USE_DASH', 0))
@@ -575,7 +577,7 @@ class Hit:
                 Fall = True
                 if not Attack:
                     character.frame = 0
-                Character.hp = max(0, Character.hp - 8)
+                Character.hp = max(0, Character.hp - Character.damage)
                 if Character.hp == 0:
                     character.state_machine.add_event(('DIE', 0))
             character.wait_time = get_time()
@@ -992,7 +994,7 @@ class Character:
     speed = 3
     hp = 20
     max_hp = 20
-    damage = 8
+    damage = 0
     bullet_SG = 8
     bullet_RF = 4
     max_bullet_HG = 20
@@ -1277,4 +1279,6 @@ class Character:
             jump_velocity = 10.0
 
     def take_damage(self, damage):
-        Character.damage = damage
+        if Character.hit_delay == 0:
+            Character.damage = damage
+            self.state_machine.add_event(('HIT', 0))

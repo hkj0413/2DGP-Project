@@ -5,6 +5,7 @@ import game_framework
 import game_world
 
 import server
+from New_Beginning_Not_the_End.coconut import Coconut
 
 from ground import Ground
 from wall import Wall
@@ -102,6 +103,22 @@ def init():
         game_world.add_objects(grounds, 0)
         for ground in grounds:
             game_world.add_collision_pairs('server.character:ground', None, ground)
+
+    # a, d, 점프, 추락 판정이 있는 블럭
+    game_world.add_collision_pairs('server.character:coconut', server.character, None)
+
+    coconut_positions = [
+        (9, 20, 1),
+        (32, 25, 2),
+        (45, 15, 1),
+        (48, 17, 2),
+    ]
+
+    for i, j, k in coconut_positions:
+        coconuts = [Coconut(i, j, k)]
+        game_world.add_objects(coconuts, 2)
+        for coconut in coconuts:
+            game_world.add_collision_pairs('server.character:coconut', None, coconut)
 
 def finish():
     game_world.clear()
