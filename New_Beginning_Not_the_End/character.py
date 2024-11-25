@@ -15,6 +15,7 @@ RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
 a_pressed = False
 d_pressed = False
+w_pressed = False
 s_pressed = False
 Move = False
 Jump = False
@@ -609,7 +610,7 @@ class Hit:
 class Die:
     @staticmethod
     def enter(character, e):
-        global a_pressed, d_pressed, Jump, jump_velocity, Fall, fall_velocity, Attack, attacking, Move, s_pressed
+        global a_pressed, d_pressed, Jump, jump_velocity, Fall, fall_velocity, Attack, attacking, Move, s_pressed, w_pressed
         global Reload_SG, Reload_RF, rrf, Reload_HG
         if die(e):
             Move = False
@@ -619,6 +620,7 @@ class Die:
             attacking = False
             a_pressed = False
             d_pressed = False
+            w_pressed = False
             s_pressed = False
             Reload_SG = False
             Reload_RF = False
