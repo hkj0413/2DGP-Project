@@ -40,7 +40,7 @@ def init():
     game_world.add_collision_pairs('server.character:ladder', server.character, None)
 
     ladder_positions = [
-        (range(3, 15), 39),
+        (range(3, 18), 39),
     ]
 
     for i_range, j in ladder_positions:
@@ -82,6 +82,8 @@ def init():
     game_world.add_collision_pairs('server.character:ground', server.character, None)
 
     ground_positions = [
+        (18, range(38, 41)),
+        (14, range(41, 45)),
         (13, range(13, 21)),
         (12, range(26, 30)),
         (11, range(2, 4)),

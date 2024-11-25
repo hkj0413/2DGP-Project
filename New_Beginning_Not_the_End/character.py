@@ -186,6 +186,26 @@ class Idle:
             elif Character.stance == 2:
                 character.frame = (character.frame + 11.0 * 1.5 * game_framework.frame_time) % 11
 
+        if Climb:
+            if w_pressed and not s_pressed:
+                if not Move:
+                    Move = True
+                character.y += Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                for block in game_world.collision_pairs['server.character:ground'][1]:
+                    if screen_left - 15 <= block.x <= screen_right + 15:
+                        if game_world.collide(character, block):
+                            character.y = block.y - 35
+                            return
+            elif s_pressed and not w_pressed:
+                if not Move:
+                    Move = True
+                character.y -= Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                for block in game_world.collision_pairs['server.character:ground'][1]:
+                    if screen_left - 15 <= block.x <= screen_right + 15:
+                        if game_world.collide(character, block):
+                            character.y = block.y + 65
+                            return
+
     @staticmethod
     def draw(character):
         if Attack:
@@ -264,7 +284,7 @@ class Idle:
 class Walk:
     @staticmethod
     def enter(character, e):
-        global a_pressed, d_pressed, Jump, attacking, Reload_SG, Reload_HG, s_pressed
+        global a_pressed, d_pressed, Jump, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed
         if right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -283,10 +303,18 @@ class Walk:
                 character.face_dir = 1
             elif not d_pressed:
                 character.state_machine.add_event(('IDLE', 0))
+        elif on_down(e):
+            w_pressed = True
+        elif on_up(e):
+            w_pressed = False
+            if not d_pressed and not a_pressed and not s_pressed and Climb:
+                character.state_machine.add_event(('IDLE', 0))
         elif under_down(e):
             s_pressed = True
         elif under_up(e):
             s_pressed = False
+            if not d_pressed and not a_pressed and not w_pressed and Climb:
+                character.state_machine.add_event(('IDLE', 0))
         elif change_stance_z(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG:
             character.change_z()
         elif change_stance_x(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG:
@@ -384,7 +412,7 @@ class Walk:
 
     @staticmethod
     def do(character):
-        global Fall, Move, mouse_x
+        global Fall, Move, mouse_x, Climb
         if not Move:
             Move = True
 
@@ -415,29 +443,54 @@ class Walk:
             elif not Jump and not Fall:
                 character.frame = (character.frame + 6.0 * 2.0 * game_framework.frame_time) % 6
 
-        if Character.stance == 0:
-            if not Attack:
-                character.x += Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
-        elif Character.stance == 1:
-            if Character.state == 0 and not Attack:
-                character.x += Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
-        elif Character.stance == 2:
-            if not Character.state == 1:
-                character.x += Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+        if Climb:
+            if w_pressed and not s_pressed:
+                character.y += Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                for block in game_world.collision_pairs['server.character:ground'][1]:
+                    if screen_left - 15 <= block.x <= screen_right + 15:
+                        if game_world.collide(character, block):
+                            character.y = block.y - 35
+                            return
+            elif s_pressed and not w_pressed:
+                character.y -= Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                for block in game_world.collision_pairs['server.character:ground'][1]:
+                    if screen_left - 15 <= block.x <= screen_right + 15:
+                        if game_world.collide(character, block):
+                            character.y = block.y + 65
+                            return
 
-        for block in game_world.collision_pairs['server.character:ground'][1] + game_world.collision_pairs['server.character:wall'][1]:
-            if screen_left - 15 <= block.x <= screen_right + 15:
-                if game_world.collide(character, block):
-                    character.x -= Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
-                    return
+        if d_pressed or a_pressed:
+            if Character.stance == 0:
+                if not Attack:
+                    character.x += Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+            elif Character.stance == 1:
+                if Character.state == 0 and not Attack:
+                    character.x += Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+            elif Character.stance == 2:
+                if not Character.state == 1:
+                    character.x += Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
 
-        ground_objects = game_world.collision_pairs['server.character:ground'][1]
-        for block in ground_objects:
-            if screen_left - 15 <= block.x <= screen_right + 15:
-                if game_world.collide_ad(character, block, ground_objects):
-                    Fall = True
-                    print('collide_ad')
-                    return
+            for block in game_world.collision_pairs['server.character:ground'][1] + game_world.collision_pairs['server.character:wall'][1]:
+                if screen_left - 15 <= block.x <= screen_right + 15:
+                    if game_world.collide(character, block):
+                        character.x -= Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+                        return
+
+            ground_objects = game_world.collision_pairs['server.character:ground'][1]
+            for block in ground_objects:
+                if screen_left - 15 <= block.x <= screen_right + 15:
+                    if game_world.collide_ad(character, block, ground_objects):
+                        Fall = True
+                        print('collide_ad')
+                        return
+
+            for block in game_world.collision_pairs['server.character:ladder'][1]:
+                if screen_left - 15 <= block.x <= screen_right + 15:
+                    if game_world.collide_ladder(character, block):
+                        Fall = True
+                        Climb = False
+                        print('collide_ladder')
+                        return
 
     @staticmethod
     def draw(character):
@@ -496,7 +549,7 @@ class Walk:
 class Hit:
     @staticmethod
     def enter(character, e):
-        global a_pressed, d_pressed, Jump, jump_velocity, Fall, attacking, s_pressed
+        global a_pressed, d_pressed, Jump, jump_velocity, Fall, attacking, s_pressed, w_pressed
         if take_hit(e):
             if Character.stance == 0 and (Character.state == 1 or Reload_SG):
                 Character.hp = max(0, Character.hp - max(0, (Character.damage - Character.shield_def)))
@@ -508,6 +561,9 @@ class Hit:
             elif Character.state == 0:
                 a_pressed = False
                 d_pressed = False
+                if Climb:
+                    w_pressed = False
+                    s_pressed = False
                 Jump = False
                 jump_velocity = 10.0
                 Fall = True
@@ -530,6 +586,10 @@ class Hit:
             a_pressed = True
             if Character.stance == 0 and Character.state == 1:
                 character.state_machine.add_event(('WALK', 0))
+        elif on_down(e):
+            w_pressed = True
+        elif on_up(e):
+            w_pressed = False
         elif under_down(e):
             s_pressed = True
         elif under_up(e):
@@ -616,11 +676,12 @@ class Die:
     @staticmethod
     def enter(character, e):
         global a_pressed, d_pressed, Jump, jump_velocity, Fall, fall_velocity, Attack, attacking, Move, s_pressed, w_pressed
-        global Reload_SG, Reload_RF, rrf, Reload_HG
+        global Reload_SG, Reload_RF, rrf, Reload_HG, Climb
         if die(e):
             Move = False
             Jump = False
             Fall = False
+            Climb = False
             Attack = False
             attacking = False
             a_pressed = False
@@ -695,12 +756,13 @@ class Die:
 class Dash:
     @staticmethod
     def enter(character, e):
-        global Jump, jump_velocity, Fall, fall_velocity, d_pressed, a_pressed, attacking, s_pressed
+        global Jump, jump_velocity, Fall, fall_velocity, d_pressed, a_pressed, attacking, s_pressed, w_pressed, Climb
         if use_dash(e):
             Jump = False
             jump_velocity = 10.0
             Fall = False
             fall_velocity = 0.0
+            Climb = False
             character.wait_time = get_time()
             Character.hit_delay = 0.3
             Character.dash_cooldown = 6
@@ -713,6 +775,8 @@ class Dash:
             d_pressed = False
         elif left_up(e):
             a_pressed = False
+        elif on_up(e):
+            w_pressed = False
         elif under_up(e):
             s_pressed = False
         elif lc_up(e):
@@ -780,7 +844,7 @@ class Dash:
 class RRF:
     @staticmethod
     def enter(character, e):
-        global d_pressed, a_pressed, attacking, Reload_RF, rrf, s_pressed
+        global d_pressed, a_pressed, attacking, Reload_RF, rrf, s_pressed, w_pressed
         if rf_reload(e) and not Reload_RF:
             Reload_RF = True
             character.wait_time = get_time()
@@ -791,6 +855,8 @@ class RRF:
             d_pressed = False
         elif left_up(e):
             a_pressed = False
+        elif on_up(e):
+            w_pressed = False
         elif under_up(e):
             s_pressed = False
         elif lc_up(e):
@@ -849,7 +915,7 @@ class RRF:
 class RsRF:
     @staticmethod
     def enter(character, e):
-        global d_pressed, a_pressed, attacking, Reload_RF, rrf, s_pressed
+        global d_pressed, a_pressed, attacking, Reload_RF, rrf, s_pressed, w_pressed
         if rf_reload_s(e) and not Reload_RF:
             Reload_RF = True
             character.wait_time = get_time()
@@ -860,6 +926,8 @@ class RsRF:
             d_pressed = False
         elif left_up(e):
             a_pressed = False
+        elif on_up(e):
+            w_pressed = False
         elif under_up(e):
             s_pressed = False
         elif lc_up(e):
@@ -1178,7 +1246,7 @@ class Character:
         return self.sx - 17.0, self.y - 49.0, self.sx + 17.0, self.y + 19.0
 
     def handle_collision(self, group, other):
-        global Jump, jump_velocity, Fall, fall_velocity, Climb
+        global Fall, fall_velocity, Climb
         if group == 'server.character:ladder':
             if not Climb:
                 Climb = True
