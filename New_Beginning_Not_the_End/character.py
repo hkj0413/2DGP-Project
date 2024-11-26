@@ -476,7 +476,6 @@ class Walk:
                 if screen_left - 15 <= block.x <= screen_right + 15:
                     if game_world.collide_ad(character, block, ground_objects):
                         Fall = True
-                        print('collide_ad')
                         return
 
             for block in game_world.collision_pairs['server.character:ladder'][1]:
@@ -484,7 +483,6 @@ class Walk:
                     if game_world.collide_ladder(character, block):
                         Fall = True
                         Climb = False
-                        print('collide_ladder')
                         return
 
     @staticmethod
@@ -1131,16 +1129,24 @@ class Character:
                         self.attack_dir = -1
                         if not Move:
                             self.face_dir = -1
+
                     if self.attack_time == 0:
                         self.attack_time = get_time()
                         self.frame = 0
                         Character.bullet_SG -= 1
+
                         normalsg1 = NormalSG1(self.attack_dir)
-                        normalsg2 = NormalSG2(self.attack_dir)
-                        normalsg3 = NormalSG3(self.attack_dir)
                         game_world.add_object(normalsg1, 3)
+                        game_world.add_collision_pairs('normalsg1:spore', normalsg1, None)
+
+                        normalsg2 = NormalSG2(self.attack_dir)
                         game_world.add_object(normalsg2, 3)
+                        game_world.add_collision_pairs('normalsg2:spore', normalsg2, None)
+
+                        normalsg3 = NormalSG3(self.attack_dir)
                         game_world.add_object(normalsg3, 3)
+                        game_world.add_collision_pairs('normalsg3:spore', normalsg3, None)
+
                         Attack = True
                 elif Character.stance == 1 and not Move and Character.bullet_RF > 0:
                     if self.x > 1080:

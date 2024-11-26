@@ -104,6 +104,8 @@ def init():
         for ground in grounds:
             game_world.add_collision_pairs('server.character:ground', None, ground)
 
+    projectile_group = ['normalsg1', 'normalsg2', 'normalsg3']
+
     # 몹 스포아
     game_world.add_collision_pairs('server.character:spore', server.character, None)
 
@@ -120,9 +122,8 @@ def init():
         game_world.add_objects(spores, 2)
         for spore in spores:
             game_world.add_collision_pairs('server.character:spore', None, spore)
-            game_world.add_collision_pairs('normalsg1:spore', None, spore)
-            game_world.add_collision_pairs('normalsg2:spore', None, spore)
-            game_world.add_collision_pairs('normalsg3:spore', None, spore)
+            for projectile in projectile_group:
+                game_world.add_collision_pairs(f'{projectile}:spore', None, spore)
 
     # 낙하 장애물 코코넛 k = 박자
     game_world.add_collision_pairs('server.character:coconut', server.character, None)

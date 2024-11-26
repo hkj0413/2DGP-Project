@@ -17,7 +17,7 @@ class NormalSG2:
     def update(self):
         self.sx = self.x - server.background.window_left
         self.framex = self.framex + 9.0 * 1.5 * game_framework.frame_time
-        if self.framex > 8.0:
+        if self.framex > 4.0:
             game_world.remove_object(self)
 
     def draw(self):
@@ -38,9 +38,6 @@ class NormalSG2:
             return self.sx - 120.0 - 17.0, self.y - 49.0, self.sx - 61 - 17, self.y + 19.0
 
     def handle_collision(self, group, other):
-        '''
-        if group == 'normalsg2:spore:
+        if group == 'normalsg2:spore':
             if other.state == 0 or other.state == 1 or other.state == 3:
                 other.take_damage(2)
-                '''
-        pass

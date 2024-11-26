@@ -48,9 +48,6 @@ class NormalSG1:
             return self.sx - 60.0 - 17.0, self.y - 49.0, self.sx, self.y + 19.0
 
     def handle_collision(self, group, other):
-        '''
-        if group == 'normalsg1:spore:
+        if group == 'normalsg1:spore':
             if other.state == 0 or other.state == 1 or other.state == 3:
                 other.take_damage(3)
-                '''
-        pass
