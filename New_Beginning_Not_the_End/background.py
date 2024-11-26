@@ -5,8 +5,8 @@ from pico2d import load_image, get_canvas_width, clamp
 class Background:
     def __init__(self):
         self.image = load_image('1stage.png')
-        self.cw = get_canvas_width()
-        self.w = self.image.w
+        self.cw = get_canvas_width() # 가로 3240 pixel == 108m 화면은 1080 pixel 만 출력,
+        self.w = self.image.w        # 세로 1200 pixel == 40m 이지만 800 pixel 만 사용 하고 출력
         self.window_left = 0
 
     def update(self):
