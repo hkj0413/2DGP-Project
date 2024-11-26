@@ -16,7 +16,10 @@ class Spore:
         self.sx = 0
         self.face_dir = random.randint(0, 1) * 2 - 1  # -1 or 1
         self.state = random.randint(0, 1)
-        self.framex = 0
+        if self.state == 0:
+            self.framex = random.randint(0, 1)
+        elif self.state == 1:
+            self.framex = random.randint(0, 3)
         self.framey = self.state * 2 + 1 # 1 or 3
         self.hp = 2
         self.temp = 0
@@ -37,16 +40,23 @@ class Spore:
 
         if self.time_elapsed >= 1.0:
             self.time_elapsed -= 1.0
-            self.stop_walk_logic()
-            self.start_walk_logic()
+            if self.state == 0:
+                self.check_zero_logic()
+            elif self.state == 1:
+                self.check_one_logic()
+
+        if self.state == 0:
+            self.framex = (self.framex + 2.0 * 1.5 * game_framework.frame_time) % 2
+        elif self.state == 1:
+            self.framex = (self.framex + 4.0 * 1.5 * game_framework.frame_time) % 4
 
     def draw(self):
         if -15 <= self.sx <= 1095:
             if self.face_dir == 1:
-                self.image.clip_composite_draw(self.framex * 50, self.framey * 50, 50, 50, 0, 'h', self.sx, self.y, 50,
+                self.image.clip_composite_draw(int(self.framex) * 50, self.framey * 50, 50, 50, 0, 'h', self.sx, self.y, 50,
                                                50)
             elif self.face_dir == -1:
-                self.image.clip_composite_draw(self.framex * 50, self.framey * 50, 50, 50, 0, '', self.sx, self.y, 50,
+                self.image.clip_composite_draw(int(self.framex) * 50, self.framey * 50, 50, 50, 0, '', self.sx, self.y, 50,
                                                50)
             if character.RectMode:
                 draw_rectangle(*self.get_rect())
@@ -67,23 +77,23 @@ class Spore:
         else:
             return BehaviorTree.FAIL
 
-    def walk_spore(self):
+    def walk(self):
         self.x += 1 * self.face_dir * character.RUN_SPEED_PPS * game_framework.frame_time
         if self.x <= self.base_x - 90.0 or self.x >= self.base_x + 90:
             self.face_dir *= -1
         return
 
-    def stop_walk_logic(self):
+    def check_one_logic(self):
         if random.randint(1, 5) == 1:
             self.state = 0
             self.framey = 1
 
-    def stop_walk(self):
+    def check_one(self):
         if self.state == 0:
             return BehaviorTree.FAIL
         return BehaviorTree.SUCCESS
 
-    def start_walk_logic(self):
+    def check_zero_logic(self):
         if random.randint(1, 5) == 1:
             self.state = 1
             self.framey = 3
@@ -95,20 +105,20 @@ class Spore:
                 self.framey = 3
                 self.temp = 0
 
-    def start_walk(self):
+    def check_zero(self):
         if self.state == 1:
             return BehaviorTree.FAIL
         return BehaviorTree.SUCCESS
 
     def build_behavior_tree(self):
         s0 = Condition('state == 0?', self.check_state, 0)
-        idle = Action('idle', self.start_walk)
-        rest = Sequence('rest', s0, idle)
+        c0 = Action('check state == 0?', self.check_zero)
+        rest = Sequence('rest', s0, c0)
 
         s1 = Condition('state == 1?', self.check_state, 1)
-        walk = Action('walk', self.walk_spore)
-        stop = Action('stop', self.stop_walk)
-        move = Sequence('move', s1, walk, stop)
+        walk = Action('walk', self.walk)
+        c1 = Action('check state == 1?', self.check_one)
+        move = Sequence('move', s1, walk, c1)
 
         root = Selector('s', rest, move)
         self.bt = BehaviorTree(root)
