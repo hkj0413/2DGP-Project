@@ -37,20 +37,20 @@ class NormalSG1:
 
     def get_bb(self):
         if self.face == 1:
-            return self.x, self.y - 49.0, self.x + 180 + 17.0, self.y + 19.0
+            return self.x, self.y - 49.0, self.x + 60 + 17.0, self.y + 19.0
         elif self.face == -1:
-            return self.x - 180.0 - 17.0, self.y - 49.0, self.x, self.y + 19.0
+            return self.x - 60.0 - 17.0, self.y - 49.0, self.x, self.y + 19.0
 
     def get_rect(self):
         if self.face == 1:
-            return self.sx, self.y - 49.0, self.sx + 180 + 17.0, self.y + 19.0
+            return self.sx, self.y - 49.0, self.sx + 60 + 17.0, self.y + 19.0
         elif self.face == -1:
-            return self.sx - 180.0 - 17.0, self.y - 49.0, self.sx, self.y + 19.0
+            return self.sx - 60.0 - 17.0, self.y - 49.0, self.sx, self.y + 19.0
 
     def handle_collision(self, group, other):
         '''
-        if group == 'normalsg:spore:
+        if group == 'normalsg1:spore:
             if other.state == 0 or other.state == 1 or other.state == 3:
-                other.take_damage(1)
+                other.take_damage(3)
                 '''
         pass

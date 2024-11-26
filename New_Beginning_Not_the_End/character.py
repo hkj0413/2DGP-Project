@@ -5,6 +5,8 @@ import game_framework
 import server
 import ground
 from normalsg1 import NormalSG1
+from normalsg2 import NormalSG2
+from normalsg3 import NormalSG3
 
 from state_machine import *
 
@@ -1134,7 +1136,11 @@ class Character:
                         self.frame = 0
                         Character.bullet_SG -= 1
                         normalsg1 = NormalSG1(self.attack_dir)
+                        normalsg2 = NormalSG2(self.attack_dir)
+                        normalsg3 = NormalSG3(self.attack_dir)
                         game_world.add_object(normalsg1, 3)
+                        game_world.add_object(normalsg2, 3)
+                        game_world.add_object(normalsg3, 3)
                         Attack = True
                 elif Character.stance == 1 and not Move and Character.bullet_RF > 0:
                     if self.x > 1080:
