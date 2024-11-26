@@ -5,7 +5,8 @@ import game_framework
 from pico2d import load_image, draw_rectangle, get_time
 
 class Coconut:
-    image = None
+    image_base = None
+    image_obstacle = None
 
     def __init__(self, i=0, j=0.0, k=0):
         self.x = i * 30.0 + 15.0
@@ -16,8 +17,10 @@ class Coconut:
         self.gravity = 0.0
         self.delay = 0
         self.start = k
-        if Coconut.image == None:
-            Coconut.image = load_image("./Obstacle/" + 'Coconut' + ".png")
+        if Coconut.image_base == None:
+            Coconut.image_base = load_image("./Obstacle/" + 'Coconut_base' + ".png")
+        if Coconut.image_obstacle == None:
+            Coconut.image_obstacle = load_image("./Obstacle/" + 'Coconut_obstacle' + ".png")
 
     def update(self):
         self.sx = self.x - server.background.window_left
@@ -37,9 +40,10 @@ class Coconut:
                 self.state = 0
 
     def draw(self):
-        if self.state == 0:
-            if -15 <= self.sx <= 1095:
-                self.image.draw(self.sx + 1, self.y - 2)
+        if -15 <= self.sx <= 1095:
+            self.image_base.draw(self.sx + 1, self.base_y + 1)
+            if self.state == 0:
+                self.image_obstacle.draw(self.sx + 1, self.y - 2)
                 if character.RectMode:
                     draw_rectangle(*self.get_rect())
 
