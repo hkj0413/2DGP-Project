@@ -113,6 +113,7 @@ def init():
         (11, 3),
         (13, 3),
         (17, 3),
+        (22, 6),
     ]
 
     for i, j in spore_positions:

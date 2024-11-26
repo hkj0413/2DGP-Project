@@ -3,7 +3,7 @@ import character
 import game_framework
 import random
 
-from pico2d import load_image, draw_rectangle, get_time
+from pico2d import load_image, draw_rectangle, get_time, clamp
 from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
 
 class Spore:
@@ -14,24 +14,39 @@ class Spore:
         self.y = j * 30.0 + 15.0
         self.base_x = i * 30.0 + 15.0
         self.sx = 0
+        self.face_dir = random.randint(0, 1) * 2 - 1  # -1 or 1
+        self.state = random.randint(0, 1)
         self.framex = 0
-        self.framey = 3
-        self.face_dir = random.randint(0, 1) * 2 - 1 # -1 or 1
+        self.framey = self.state * 2 + 1 # 1 or 3
         self.hp = 2
+        self.temp = 0
+        self.last_check_time = get_time()
+        self.time_elapsed = 0
+        self.build_behavior_tree()
         if Spore.image == None:
             Spore.image = load_image("./Mob/" + 'Spore' + ".png")
 
     def update(self):
-        # self.bt.run()
         self.sx = self.x - server.background.window_left
+        self.bt.run()
+        self.x = clamp(self.base_x - 90.0, self.x, self.base_x + 90.0)
+
+        current_time = get_time()
+        self.time_elapsed += current_time - self.last_check_time
+        self.last_check_time = current_time
+
+        if self.time_elapsed >= 1.0:
+            self.time_elapsed -= 1.0
+            self.stop_walk_logic()
+            self.start_walk_logic()
 
     def draw(self):
         if -15 <= self.sx <= 1095:
             if self.face_dir == 1:
-                self.image.clip_composite_draw(self.framex * 50, self.framey * 50, 50, 50, 0, '', self.sx, self.y, 50,
+                self.image.clip_composite_draw(self.framex * 50, self.framey * 50, 50, 50, 0, 'h', self.sx, self.y, 50,
                                                50)
             elif self.face_dir == -1:
-                self.image.clip_composite_draw(self.framex * 50, self.framey * 50, 50, 50, 0, 'h', self.sx, self.y, 50,
+                self.image.clip_composite_draw(self.framex * 50, self.framey * 50, 50, 50, 0, '', self.sx, self.y, 50,
                                                50)
             if character.RectMode:
                 draw_rectangle(*self.get_rect())
@@ -46,18 +61,54 @@ class Spore:
         if group == 'server.character:spore':
             other.take_damage(1)
 
-    def move_1st(self):
-        pass
+    def check_state(self, s):
+        if self.state == s:
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.FAIL
 
-    def move_2nd(self):
-        pass
+    def walk_spore(self):
+        self.x += 1 * self.face_dir * character.RUN_SPEED_PPS * game_framework.frame_time
+        if self.x <= self.base_x - 90.0 or self.x >= self.base_x + 90:
+            self.face_dir *= -1
+        return
 
-    def move_3rd(self):
-        pass
+    def stop_walk_logic(self):
+        if random.randint(1, 5) == 1:
+            self.state = 0
+            self.framey = 1
+
+    def stop_walk(self):
+        if self.state == 0:
+            return BehaviorTree.FAIL
+        return BehaviorTree.SUCCESS
+
+    def start_walk_logic(self):
+        if random.randint(1, 5) == 1:
+            self.state = 1
+            self.framey = 3
+            self.temp = 0
+        else:
+            self.temp += 1
+            if self.temp >= 4:
+                self.state = 1
+                self.framey = 3
+                self.temp = 0
+
+    def start_walk(self):
+        if self.state == 1:
+            return BehaviorTree.FAIL
+        return BehaviorTree.SUCCESS
 
     def build_behavior_tree(self):
-        # a1 = Action('move')
+        s0 = Condition('state == 0?', self.check_state, 0)
+        idle = Action('idle', self.start_walk)
+        rest = Sequence('rest', s0, idle)
 
-        root = None
+        s1 = Condition('state == 1?', self.check_state, 1)
+        walk = Action('walk', self.walk_spore)
+        stop = Action('stop', self.stop_walk)
+        move = Sequence('move', s1, walk, stop)
+
+        root = Selector('s', rest, move)
         self.bt = BehaviorTree(root)
-        pass
