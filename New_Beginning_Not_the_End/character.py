@@ -31,6 +31,7 @@ Reload_SG = False
 Reload_RF = False
 rrf = False
 Reload_HG = False
+Invincibility = False
 
 jump_velocity = 10.0
 fall_velocity = 0.0
@@ -44,7 +45,7 @@ RectMode = False
 class Idle:
     @staticmethod
     def enter(character, e):
-        global Jump, d_pressed, a_pressed, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, RectMode
+        global Jump, d_pressed, a_pressed, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, RectMode, Invincibility
         if start_event(e):
             character.face_dir = 1
         elif right_up(e):
@@ -103,7 +104,6 @@ class Idle:
                     Reload_SG = True
                     Character.speed = 1
                     character.frame = 0
-                    character.reload_time = get_time()
             elif Character.stance == 1 and Character.bullet_RF == 0 and Character.state == 0:
                 if s_pressed:
                     character.state_machine.add_event(('RF_RELOAD_S', 0))
@@ -114,8 +114,7 @@ class Idle:
                     Reload_HG = True
                     Character.speed = 7
                     character.frame = 0
-                    Character.hit_delay = 0.5
-                    character.reload_time = get_time()
+                    Invincibility = True
 
         elif temp_more(e):
             Character.max_hp += 2
@@ -163,7 +162,7 @@ class Idle:
 
     @staticmethod
     def do(character):
-        global Move
+        global Move, Reload_SG ,Reload_HG, Invincibility
         if Attack:
             if Character.stance == 0:
                 character.frame = (character.frame + 15.0 * 0.8 * game_framework.frame_time) % 15
@@ -173,10 +172,32 @@ class Idle:
                 character.frame = (character.frame + 5.0 * 3.0 * game_framework.frame_time) % 5
 
         elif Reload_SG:
-            character.frame = (character.frame + 16.0 * 0.7 * game_framework.frame_time) % 16
+            character.frame = character.frame + 16.0 * 0.7 * game_framework.frame_time
+            if character.frame > 16.0:
+                if Character.state == 0:
+                    Character.speed = 3
+                elif Character.state == 1:
+                    Character.speed = 1
+                Character.bullet_SG = 8
+                character.frame = 0
+                Reload_SG = False
+                if d_pressed or a_pressed:
+                    character.state_machine.add_event(('WALK', 0))
+                else:
+                    character.state_machine.add_event(('IDLE', 0))
 
         elif Reload_HG:
-            character.frame = (character.frame + 10.0 * 1.8 * game_framework.frame_time) % 10
+            character.frame = character.frame + 10.0 * 1.8 * game_framework.frame_time
+            if character.frame > 8.0:
+                Character.speed = 5
+                Character.bullet_HG = Character.max_bullet_HG
+                character.frame = 0
+                Reload_HG = False
+                Invincibility = False
+                if d_pressed or a_pressed:
+                    character.state_machine.add_event(('WALK', 0))
+                else:
+                    character.state_machine.add_event(('IDLE', 0))
 
         elif not Jump and not Fall:
             if Move:
@@ -284,7 +305,7 @@ class Idle:
 class Walk:
     @staticmethod
     def enter(character, e):
-        global a_pressed, d_pressed, Jump, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, RectMode
+        global a_pressed, d_pressed, Jump, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, RectMode, Invincibility
         if right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -356,7 +377,6 @@ class Walk:
                     Reload_SG = True
                     Character.speed = 1
                     character.frame = 0
-                    character.reload_time = get_time()
             elif Character.stance == 1 and Character.bullet_RF == 0 and Character.state == 0:
                 if s_pressed:
                     character.state_machine.add_event(('RF_RELOAD_S', 0))
@@ -367,8 +387,7 @@ class Walk:
                     Reload_HG = True
                     Character.speed = 7
                     character.frame = 0
-                    Character.hit_delay = 0.5
-                    character.reload_time = get_time()
+                    Invincibility = True
 
         elif temp_more(e):
             Character.max_hp += 2
@@ -404,10 +423,11 @@ class Walk:
             if character.name != 'Reload_HG':
                 character.name = 'Reload_HG'
 
-        if Character.stance == 0 and Character.state == 1:
-            character.frame = clamp(0, character.frame, 13)
-        else:
-            character.frame = clamp(0, character.frame, 5)
+        if not Reload_SG and not Reload_HG:
+            if Character.stance == 0 and Character.state == 1:
+                character.frame = clamp(0, character.frame, 13)
+            else:
+                character.frame = clamp(0, character.frame, 5)
 
     @staticmethod
     def exit(character, e):
@@ -415,7 +435,7 @@ class Walk:
 
     @staticmethod
     def do(character):
-        global Fall, Move, Climb
+        global Fall, Move, Climb, Reload_SG, Reload_HG, Invincibility
         if not Move:
             Move = True
 
@@ -428,10 +448,32 @@ class Walk:
                 character.frame = (character.frame + 5.0 * 3.0 * game_framework.frame_time) % 5
 
         elif Reload_SG:
-            character.frame = (character.frame + 16.0 * 0.7 * game_framework.frame_time) % 16
+            character.frame = character.frame + 16.0 * 0.7 * game_framework.frame_time
+            if character.frame > 16.0:
+                if Character.state == 0:
+                    Character.speed = 3
+                elif Character.state == 1:
+                    Character.speed = 1
+                Character.bullet_SG = 8
+                character.frame = 0
+                Reload_SG = False
+                if d_pressed or a_pressed:
+                    character.state_machine.add_event(('WALK', 0))
+                else:
+                    character.state_machine.add_event(('IDLE', 0))
 
         elif Reload_HG:
-            character.frame = (character.frame + 10.0 * 1.8 * game_framework.frame_time) % 10
+            character.frame = character.frame + 10.0 * 1.8 * game_framework.frame_time
+            if character.frame > 8.0:
+                Character.speed = 5
+                Character.bullet_HG = Character.max_bullet_HG
+                character.frame = 0
+                Reload_HG = False
+                Invincibility = False
+                if d_pressed or a_pressed:
+                    character.state_machine.add_event(('WALK', 0))
+                else:
+                    character.state_machine.add_event(('IDLE', 0))
 
         else:
             if Character.stance == 0 and Character.state == 1:
@@ -552,7 +594,7 @@ class Hit:
                     character.state_machine.add_event(('DIE', 0))
                 elif a_pressed or d_pressed:
                     character.state_machine.add_event(('WALK', 0))
-            elif Character.state == 0:
+            elif Character.state == 0 and not Reload_HG:
                 a_pressed = False
                 d_pressed = False
                 if Climb:
@@ -604,8 +646,10 @@ class Hit:
 
     @staticmethod
     def do(character):
+        global Reload_SG, Reload_HG, Invincibility
         if get_time() - character.wait_time > 0.5:
             character.state_machine.add_event(('TIME_OUT', 0))
+
         if Attack:
             if Character.stance == 0:
                 character.frame = (character.frame + 15.0 * 0.8 * game_framework.frame_time) % 15
@@ -613,8 +657,27 @@ class Hit:
                 character.frame = (character.frame + 7.0 * 2.0 * game_framework.frame_time) % 7
             elif Character.stance == 2:
                 character.frame = (character.frame + 5.0 * 3.0 * game_framework.frame_time) % 5
+
         elif Reload_SG:
-            character.frame = (character.frame + 16.0 * 1.0 * game_framework.frame_time) % 16
+            character.frame = character.frame + 16.0 * 1.0 * game_framework.frame_time
+            if character.frame > 16.0:
+                if Character.state == 0:
+                    Character.speed = 3
+                elif Character.state == 1:
+                    Character.speed = 1
+                Character.bullet_SG = 8
+                character.frame = 0
+                Reload_SG = False
+
+        elif Reload_HG:
+            character.frame = character.frame + 10.0 * 1.8 * game_framework.frame_time
+            if character.frame > 8.0:
+                Character.speed = 5
+                Character.bullet_HG = Character.max_bullet_HG
+                character.frame = 0
+                Reload_HG = False
+                Invincibility = False
+
         else:
             if Character.stance == 0 and Character.state == 1:
                 character.frame = (character.frame + 14.0 * 1.5 * game_framework.frame_time) % 14
@@ -675,7 +738,7 @@ class Die:
     @staticmethod
     def enter(character, e):
         global a_pressed, d_pressed, Jump, jump_velocity, Fall, fall_velocity, Attack, attacking, Move, s_pressed, w_pressed
-        global Reload_SG, Reload_RF, rrf, Reload_HG, Climb
+        global Reload_SG, Reload_RF, rrf, Reload_HG, Climb, Invincibility
         if die(e):
             Move = False
             Jump = False
@@ -691,6 +754,7 @@ class Die:
             Reload_RF = False
             rrf = False
             Reload_HG = False
+            Invincibility = False
             jump_velocity = 10.0
             fall_velocity = 0.0
             character.frame = 0
@@ -699,7 +763,6 @@ class Die:
             character.attack_cool = 0
             character.attack_time = 0
             character.hit_cool = 0
-            character.reload_time = 0
             character.wait_time = get_time()
 
     @staticmethod
@@ -868,7 +931,7 @@ class RRF:
             Fall = True
             Reload_RF = False
             Character.bullet_RF = 4
-            Character.hit_delay = 0.1
+            Character.hit_delay = 0.5
             if d_pressed or a_pressed:
                 character.state_machine.add_event(('WALK', 0))
 
@@ -939,7 +1002,7 @@ class RsRF:
             Fall = True
             Reload_RF = False
             Character.bullet_RF = 4
-            Character.hit_delay = 0.1
+            Character.hit_delay = 0.5
             if d_pressed or a_pressed:
                 character.state_machine.add_event(('WALK', 0))
 
@@ -1050,7 +1113,6 @@ class Character:
         self.hit_cool = 0
         self.attack_cool = 0
         self.attack_time = 0
-        self.reload_time = 0
         self.Lshift_cool = 0
         self.state_machine = StateMachine(self)
         self.state_machine.start(Idle)
@@ -1207,31 +1269,6 @@ class Character:
                     self.frame = 0
                     Attack = False
 
-        if Reload_SG:
-            if get_time() - self.reload_time > 1.5:
-                self.reload_time = 0
-                if Character.state == 0:
-                    Character.speed = 3
-                elif Character.state == 1:
-                    Character.speed = 1
-                Character.bullet_SG = 8
-                Reload_SG = False
-                if d_pressed or a_pressed:
-                    self.state_machine.add_event(('WALK', 0))
-                else:
-                    self.state_machine.add_event(('IDLE', 0))
-
-        if Reload_HG:
-            if get_time() - self.reload_time > 0.5:
-                self.reload_time = 0
-                Character.speed = 5
-                Character.bullet_HG = Character.max_bullet_HG
-                Reload_HG = False
-                if d_pressed or a_pressed:
-                    self.state_machine.add_event(('WALK', 0))
-                else:
-                    self.state_machine.add_event(('IDLE', 0))
-
         if not Character.hit_delay == 0:
             if self.hit_cool == 0:
                 self.hit_cool = get_time()
@@ -1317,7 +1354,7 @@ class Character:
             jump_velocity = 10.0
 
     def take_damage(self, damage):
-        if Character.hit_delay == 0:
+        if Character.hit_delay == 0 and not Invincibility:
             Character.damage = damage
             self.state_machine.add_event(('HIT', 0))
 

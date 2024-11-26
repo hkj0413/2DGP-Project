@@ -3,7 +3,7 @@ import character
 import game_framework
 import random
 
-from pico2d import load_image, draw_rectangle, get_time, clamp, load_font
+from pico2d import load_image, draw_rectangle, get_time, clamp
 from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
 
 class Spore:
@@ -23,10 +23,8 @@ class Spore:
         self.prev_state = 0
         self.framey = self.state * 2 + 1 # 1 or 3
         self.hp = 2
-        self.temp = 0
         self.last_check_time = get_time()
         self.time_elapsed = 0
-        self.font = load_font('ENCR10B.TTF', 16)
         self.build_behavior_tree()
         if Spore.image == None:
             Spore.image = load_image("./Mob/" + 'Spore' + ".png")
@@ -39,23 +37,24 @@ class Spore:
         self.time_elapsed += current_time - self.last_check_time
         self.last_check_time = current_time
 
-        if self.state != getattr(self, 'prev_state', self.state):
+        if self.state != self.prev_state:
             self.bt.run()
             self.time_elapsed = 0
             self.prev_state = self.state
 
-        if self.time_elapsed >= 1.0:
-            self.time_elapsed -= 1.0
-            if self.state == 0:
-                self.check_zero_logic()
-            elif self.state == 1:
-                self.check_one_logic()
-            elif self.state == 2:
-                self.check_two_logic()
-            elif self.state == 4:
-                self.check_four_logic()
-            elif self.state == 5:
-                self.check_five_logic()
+        elapsed_seconds = int(self.time_elapsed)
+        self.time_elapsed -= elapsed_seconds
+
+        logic_map = {
+            0: self.check_zero_logic,
+            1: self.check_one_logic,
+            2: self.check_two_logic,
+            4: self.check_four_logic,
+            5: self.check_five_logic,
+        }
+        for _ in range(elapsed_seconds):
+            if self.state in logic_map:
+                logic_map[self.state]()
 
         if self.state == 0:
             self.framex = (self.framex + 2.0 * 1.5 * game_framework.frame_time) % 2
@@ -70,7 +69,6 @@ class Spore:
     def draw(self):
         if -15 <= self.sx <= 1095:
             if not self.state == 5:
-                self.font.draw(self.sx - 5, self.y + 25, f'{self.hp}', (255, 0, 0))
                 if self.face_dir == 1:
                     self.image.clip_composite_draw(int(self.framex) * 50, self.framey * 50, 50, 50, 0, 'h', self.sx,
                                                    self.y, 50, 50)
@@ -113,11 +111,10 @@ class Spore:
             self.face_dir *= -1
 
     def check_zero_logic(self):
-        self.temp += 1
-        if self.temp >= 4 or random.randint(1, 5) == 1:
+        if self.time_elapsed >= 4 or random.randint(1, 5) == 1:  # 4초 이상 경과했거나 랜덤 조건
             self.state = 1
             self.framey = 3
-            self.temp = 0
+            self.time_elapsed = 0  # 시간 리셋
 
     def check_zero(self):
         if not self.state == 0:
@@ -144,10 +141,9 @@ class Spore:
         return BehaviorTree.SUCCESS
 
     def check_four_logic(self):
-        self.temp += 1
-        if self.temp >= 2:
+        if self.time_elapsed >= 2:
             self.state = 5
-            self.temp = 0
+            self.time_elapsed = 0
 
     def check_four(self):
         if not self.state == 4:
@@ -155,10 +151,9 @@ class Spore:
         return BehaviorTree.SUCCESS
 
     def check_five_logic(self):
-        self.temp += 1
-        if self.temp >= 5:
+        if self.time_elapsed >= 5:
             self.state = 0
-            self.temp = 0
+            self.time_elapsed = 0
             self.framey = 1
             self.hp = 2
             self.x = self.base_x
@@ -170,26 +165,16 @@ class Spore:
         return BehaviorTree.SUCCESS
 
     def build_behavior_tree(self):
-        s0 = Condition('state == 0?', self.check_state, 0)
-        c0 = Action('check state == 0?', self.check_zero)
-        rest = Sequence('rest', s0, c0)
+        action_map = {
+            0: self.check_zero,
+            1: self.check_one,
+            2: self.check_two,
+            4: self.check_four,
+            5: self.check_five,
+        }
 
-        s1 = Condition('state == 1?', self.check_state, 1)
-        walk = Action('walk', self.walk)
-        c1 = Action('check state == 1?', self.check_one)
-        move = Sequence('move', s1, walk, c1)
+        def run_state_actions():
+            action = action_map.get(self.state, lambda: BehaviorTree.FAIL)
+            return action()
 
-        s2 = Condition('state == 2?', self.check_state, 2)
-        c2 = Action('check state == 2?', self.check_two)
-        delay = Sequence('delay', s2, c2)
-
-        s4 = Condition('state == 4?', self.check_state, 4)
-        c4 = Action('check state == 4?', self.check_four)
-        die = Sequence('die', s4, c4)
-
-        s5 = Condition('state == 5?', self.check_state, 5)
-        c5 = Action('check state == 5?', self.check_five)
-        respawn = Sequence('respawn', s5, c5)
-
-        root = Selector('s', rest, move, delay, die, respawn)
-        self.bt = BehaviorTree(root)
+        self.bt = BehaviorTree(Action('spore_AI', run_state_actions))
