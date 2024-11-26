@@ -49,15 +49,20 @@ class Spore:
             self.framex = (self.framex + 2.0 * 1.5 * game_framework.frame_time) % 2
         elif self.state == 1:
             self.framex = (self.framex + 4.0 * 1.5 * game_framework.frame_time) % 4
+        elif self.state == 2 or self.state == 3:
+            self.framex = 0
+        elif self.state == 4:
+            self.framex = (self.framex + 4.0 * 2.0 * game_framework.frame_time) % 4
 
     def draw(self):
         if -15 <= self.sx <= 1095:
-            if self.face_dir == 1:
-                self.image.clip_composite_draw(int(self.framex) * 50, self.framey * 50, 50, 50, 0, 'h', self.sx, self.y, 50,
-                                               50)
-            elif self.face_dir == -1:
-                self.image.clip_composite_draw(int(self.framex) * 50, self.framey * 50, 50, 50, 0, '', self.sx, self.y, 50,
-                                               50)
+            if not self.state == 5:
+                if self.face_dir == 1:
+                    self.image.clip_composite_draw(int(self.framex) * 50, self.framey * 50, 50, 50, 0, 'h', self.sx,
+                                                   self.y, 50, 50)
+                elif self.face_dir == -1:
+                    self.image.clip_composite_draw(int(self.framex) * 50, self.framey * 50, 50, 50, 0, '', self.sx,
+                                                   self.y, 50, 50)
             if character.RectMode:
                 draw_rectangle(*self.get_rect())
 

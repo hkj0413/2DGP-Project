@@ -121,6 +121,7 @@ def init():
         game_world.add_objects(spores, 2)
         for spore in spores:
             game_world.add_collision_pairs('server.character:spore', None, spore)
+            game_world.add_collision_pairs('normalsg:spore', None, spore)
 
     # 낙하 장애물 코코넛 k = 박자
     game_world.add_collision_pairs('server.character:coconut', server.character, None)

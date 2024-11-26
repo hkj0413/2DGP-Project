@@ -4,6 +4,7 @@ import game_world
 import game_framework
 import server
 import ground
+from normalsg1 import NormalSG1
 
 from state_machine import *
 
@@ -159,17 +160,8 @@ class Idle:
 
     @staticmethod
     def do(character):
-        global Move, mouse_x
+        global Move
         if Attack:
-            if character.frame == 0:
-                if character.x > 1080:
-                    mouse_x += character.x - 1080 // 2
-                if mouse_x > character.x:
-                    character.attack_dir = 1
-                    character.face_dir = 1
-                elif mouse_x< character.x:
-                    character.attack_dir = -1
-                    character.face_dir = -1
             if Character.stance == 0:
                 character.frame = (character.frame + 15.0 * 0.8 * game_framework.frame_time) % 15
             elif Character.stance == 1:
@@ -420,18 +412,11 @@ class Walk:
 
     @staticmethod
     def do(character):
-        global Fall, Move, mouse_x, Climb
+        global Fall, Move, Climb
         if not Move:
             Move = True
 
         if Attack:
-            if character.frame == 0 and not Character.stance == 1:
-                if character.x > 1080:
-                    mouse_x += character.x - 1080 // 2
-                if mouse_x > character.x:
-                    character.attack_dir = 1
-                elif mouse_x < character.x:
-                    character.attack_dir = -1
             if Character.stance == 0:
                 character.frame = (character.frame + 15.0 * 0.8 * game_framework.frame_time) % 15
             elif Character.stance == 1:
@@ -1105,7 +1090,7 @@ class Character:
         )
 
     def update(self):
-        global Jump, jump_velocity, Fall, fall_velocity, Attack, Move, screen_left, screen_right, Reload_SG, Reload_HG
+        global Jump, jump_velocity, Fall, fall_velocity, Attack, Move, screen_left, screen_right, Reload_SG, Reload_HG, mouse_x
         self.state_machine.update()
         self.x = clamp(17.0, self.x, server.background.w - 17.0)
         self.sx = self.x - server.background.window_left
@@ -1134,18 +1119,48 @@ class Character:
         if attacking and not Attack:
             if Character.attack_delay == 0:
                 if Character.stance == 0 and Character.bullet_SG > 0:
+                    if self.x > 1080:
+                        mouse_x += self.x - 1080 // 2
+                    if mouse_x > self.x:
+                        self.attack_dir = 1
+                        if not Move:
+                            self.face_dir = 1
+                    elif mouse_x < self.x:
+                        self.attack_dir = -1
+                        if not Move:
+                            self.face_dir = -1
                     if self.attack_time == 0:
                         self.attack_time = get_time()
                         self.frame = 0
                         Character.bullet_SG -= 1
+                        normalsg1 = NormalSG1(self.attack_dir)
+                        game_world.add_object(normalsg1, 3)
                         Attack = True
                 elif Character.stance == 1 and not Move and Character.bullet_RF > 0:
+                    if self.x > 1080:
+                        mouse_x += self.x - 1080 // 2
+                    if mouse_x > self.x:
+                        self.attack_dir = 1
+                        self.face_dir = 1
+                    elif mouse_x < self.x:
+                        self.attack_dir = -1
+                        self.face_dir = -1
                     if self.attack_time == 0:
                         self.attack_time = get_time()
                         self.frame = 0
                         Character.bullet_RF -= 1
                         Attack = True
                 elif Character.stance == 2 and Character.bullet_HG > 0:
+                    if self.x > 1080:
+                        mouse_x += self.x - 1080 // 2
+                    if mouse_x > self.x:
+                        self.attack_dir = 1
+                        if not Move:
+                            self.face_dir = 1
+                    elif mouse_x < self.x:
+                        self.attack_dir = -1
+                        if not Move:
+                            self.face_dir = -1
                     if self.attack_time == 0:
                         self.attack_time = get_time()
                         self.frame = 0
