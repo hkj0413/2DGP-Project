@@ -4,6 +4,7 @@ import game_world
 import game_framework
 import server
 import ground
+from normalsg_effect import NormalSGEffcet
 from normalsg1 import NormalSG1
 from normalsg2 import NormalSG2
 from normalsg3 import NormalSG3
@@ -568,6 +569,10 @@ class Hit:
                     character.state_machine.add_event(('DIE', 0))
             character.wait_time = get_time()
             Character.hit_delay = 1
+        elif right_up(e):
+            d_pressed = False
+        elif left_up(e):
+            a_pressed = False
         elif lc_down(e):
             attacking = True
         elif lc_up(e):
@@ -1068,7 +1073,8 @@ class Character:
                     temp_more: Walk, temp_heal: Walk, temp_bullet: Walk, temp_reset_cool: Walk, temp_rectmode: Walk,
                 },
                 Hit: {
-                    right_down: Hit, left_down: Hit, on_down: Hit, under_down: Hit, under_up: Hit, rc_up: Hit, lc_down: Hit, lc_up: Hit,
+                    right_down: Hit, left_down: Hit, right_up: Hit, left_up: Hit, on_down: Hit, under_down: Hit, under_up: Hit,
+                    rc_up: Hit, lc_down: Hit, lc_up: Hit,
                     time_out: Idle, walk: Walk, die: Die
                 },
                 Die: {
@@ -1123,17 +1129,20 @@ class Character:
                         mouse_x += self.x - 1080 // 2
                     if mouse_x > self.x:
                         self.attack_dir = 1
-                        if not Move:
+                        if not Move or Fall or Jump:
                             self.face_dir = 1
                     elif mouse_x < self.x:
                         self.attack_dir = -1
-                        if not Move:
+                        if not Move or Fall or Jump:
                             self.face_dir = -1
 
                     if self.attack_time == 0:
                         self.attack_time = get_time()
                         self.frame = 0
                         Character.bullet_SG -= 1
+
+                        normalsgeffect = NormalSGEffcet(self.attack_dir)
+                        game_world.add_object(normalsgeffect, 3)
 
                         normalsg1 = NormalSG1(self.attack_dir)
                         game_world.add_object(normalsg1, 3)
@@ -1167,11 +1176,11 @@ class Character:
                         mouse_x += self.x - 1080 // 2
                     if mouse_x > self.x:
                         self.attack_dir = 1
-                        if not Move:
+                        if not Move or Fall or Jump:
                             self.face_dir = 1
                     elif mouse_x < self.x:
                         self.attack_dir = -1
-                        if not Move:
+                        if not Move or Fall or Jump:
                             self.face_dir = -1
                     if self.attack_time == 0:
                         self.attack_time = get_time()
@@ -1181,19 +1190,19 @@ class Character:
         if Attack:
             if Character.stance == 0:
                 if get_time() - self.attack_time > 0.5:
-                    Character.attack_delay = 0.5
+                    Character.attack_delay = 0.8
                     self.attack_time = 0
                     self.frame = 0
                     Attack = False
             elif Character.stance == 1:
                 if get_time() - self.attack_time > 0.4:
-                    Character.attack_delay = 1
+                    Character.attack_delay = 1.5
                     self.attack_time = 0
                     self.frame = 0
                     Attack = False
             elif Character.stance == 2:
                 if get_time() - self.attack_time > 0.3:
-                    Character.attack_delay = 0.2
+                    Character.attack_delay = 0.4
                     self.attack_time = 0
                     self.frame = 0
                     Attack = False

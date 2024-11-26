@@ -3,7 +3,7 @@ import character
 import game_framework
 import random
 
-from pico2d import load_image, draw_rectangle, get_time, clamp
+from pico2d import load_image, draw_rectangle, get_time, clamp, load_font
 from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
 
 class Spore:
@@ -26,6 +26,7 @@ class Spore:
         self.temp = 0
         self.last_check_time = get_time()
         self.time_elapsed = 0
+        self.font = load_font('ENCR10B.TTF', 16)
         self.build_behavior_tree()
         if Spore.image == None:
             Spore.image = load_image("./Mob/" + 'Spore' + ".png")
@@ -69,6 +70,7 @@ class Spore:
     def draw(self):
         if -15 <= self.sx <= 1095:
             if not self.state == 5:
+                self.font.draw(self.sx - 5, self.y + 25, f'{self.hp}', (255, 0, 0))
                 if self.face_dir == 1:
                     self.image.clip_composite_draw(int(self.framex) * 50, self.framey * 50, 50, 50, 0, 'h', self.sx,
                                                    self.y, 50, 50)
@@ -89,13 +91,15 @@ class Spore:
             other.take_damage(1)
 
     def take_damage(self, damage):
-        self.hp -= max(0, damage)
-        if self.hp <= 0:
-            self.state = 4
-            self.framey = 2
-        else:
-            self.state = 2
-            self.framey = 0
+        if self.state == 0 or self.state == 1 or self.state == 3:
+            self.hp = max(0, self.hp - damage)
+            if self.hp <= 0:
+                self.state = 4
+                self.framey = 2
+                character.Character.score += 1
+            else:
+                self.state = 2
+                self.framey = 0
 
     def check_state(self, s):
         if self.state == s:
@@ -131,8 +135,8 @@ class Spore:
         return BehaviorTree.SUCCESS
 
     def check_two_logic(self):
-        self.state = 0
-        self.framey = 1
+        self.state = 1
+        self.framey = 3
 
     def check_two(self):
         if not self.state == 2:

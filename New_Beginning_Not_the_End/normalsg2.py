@@ -39,5 +39,4 @@ class NormalSG2:
 
     def handle_collision(self, group, other):
         if group == 'normalsg2:spore':
-            if other.state == 0 or other.state == 1 or other.state == 3:
-                other.take_damage(2)
+            other.take_damage(2)
