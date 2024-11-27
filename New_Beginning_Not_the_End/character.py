@@ -4,13 +4,14 @@ import game_world
 import game_framework
 import server
 import ground
-from normalsg_effect import NormalSGEffcet
+from normalsg_effect import NormalSGEffect
 from normalsg1 import NormalSG1
 from normalsg2 import NormalSG2
 from normalsg3 import NormalSG3
-from normalrf_effect import NormalRFEffcet
+from rf_effect import RFEffect
+from normalrf_effect import NormalRFEffect
 from normalrf import NormalRF
-from normalrf_superior_effect import NormalRFSPEffcet
+from normalrf_superior_effect import NormalRFSPEffect
 from normalrfsp import NormalRFSP
 
 from state_machine import *
@@ -1164,7 +1165,7 @@ class Character:
                         self.frame = 0
                         Character.bullet_SG -= 1
 
-                        normalsgeffect = NormalSGEffcet(self.attack_dir)
+                        normalsgeffect = NormalSGEffect(self.attack_dir)
                         game_world.add_object(normalsgeffect, 3)
 
                         normalsg1 = NormalSG1(self.attack_dir)
@@ -1194,20 +1195,25 @@ class Character:
                         Character.bullet_RF -= 1
 
                         if Character.bullet_RF > 0:
-                            normalrfeffect = NormalRFEffcet(self.attack_dir)
+                            normalrfeffect = NormalRFEffect(self.attack_dir)
                             game_world.add_object(normalrfeffect, 3)
 
                             normalrf = NormalRF(self.attack_dir)
                             game_world.add_object(normalrf, 3)
                             game_world.add_collision_pairs('normalrf:spore', normalrf, None)
+
+                            rfeffect = RFEffect(self.attack_dir)
+                            game_world.add_object(rfeffect, 3)
                         else:
-                            normalrfspeffect = NormalRFSPEffcet(self.attack_dir)
+                            normalrfspeffect = NormalRFSPEffect(self.attack_dir)
                             game_world.add_object(normalrfspeffect, 3)
 
                             normalrfsp = NormalRFSP(self.attack_dir)
                             game_world.add_object(normalrfsp, 3)
                             game_world.add_collision_pairs('normalrfsp:spore', normalrfsp, None)
 
+                            rfeffect = RFEffect(self.attack_dir)
+                            game_world.add_object(rfeffect, 3)
                         Attack = True
                 elif Character.stance == 2 and Character.bullet_HG > 0:
                     if self.x > 1080:

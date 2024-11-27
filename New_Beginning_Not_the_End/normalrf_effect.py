@@ -4,7 +4,7 @@ import game_world
 
 from pico2d import load_image
 
-class NormalRFEffcet:
+class NormalRFEffect:
     image = None
 
     def __init__(self, d):
@@ -14,8 +14,8 @@ class NormalRFEffcet:
         self.timer = 0
         self.temp = 0
         self.face = d
-        if NormalRFEffcet.image == None:
-            NormalRFEffcet.image = load_image("./Effect/RF/" + 'Lc_RF' + " (1)" + ".png")
+        if NormalRFEffect.image == None:
+            NormalRFEffect.image = load_image("./Effect/RF/" + 'Lc_RF' + " (1)" + ".png")
 
     def update(self):
         self.sx = self.x - server.background.window_left

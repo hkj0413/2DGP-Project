@@ -4,7 +4,7 @@ import game_world
 
 from pico2d import load_image
 
-class NormalSGEffcet:
+class NormalSGEffect:
     image = None
 
     def __init__(self, d):
@@ -13,8 +13,8 @@ class NormalSGEffcet:
         self.sx = 0
         self.frame = 0
         self.face = d
-        if NormalSGEffcet.image == None:
-            NormalSGEffcet.image = [load_image("./Effect/SG/" + 'Lc_SG' + " (%d)" % i + ".png") for i in range(1, 9 + 1)]
+        if NormalSGEffect.image == None:
+            NormalSGEffect.image = [load_image("./Effect/SG/" + 'Lc_SG' + " (%d)" % i + ".png") for i in range(1, 9 + 1)]
 
     def update(self):
         self.sx = self.x - server.background.window_left
