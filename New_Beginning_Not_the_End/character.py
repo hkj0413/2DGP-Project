@@ -232,76 +232,64 @@ class Idle:
         if Attack:
             if character.attack_dir == 1:
                 if Character.stance == 0:
-                    character.images['Attack_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_SG'][int(character.frame)].composite_draw(0, '', character.sx,
+                                                                                       character.y, 170, 170)
                 elif Character.stance == 1:
-                    character.images['Attack_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_RF'][int(character.frame)].composite_draw(0, '', character.sx,
+                                                                                       character.y, 170, 170)
                 elif Character.stance == 2:
-                    character.images['Attack_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_HG'][int(character.frame)].composite_draw(0, '', character.sx,
+                                                                                       character.y, 170, 170)
             elif character.attack_dir == -1:
                 if Character.stance == 0:
-                    character.images['Attack_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_SG'][int(character.frame)].composite_draw(0, 'h', character.sx,
+                                                                                       character.y, 170, 170)
                 elif Character.stance == 1:
-                    character.images['Attack_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_RF'][int(character.frame)].composite_draw(0, 'h', character.sx,
+                                                                                       character.y, 170, 170)
                 elif Character.stance == 2:
-                    character.images['Attack_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_HG'][int(character.frame)].composite_draw(0, 'h', character.sx,
+                                                                                       character.y, 170, 170)
         elif Reload_SG:
             if character.face_dir == 1:
-                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                  character.sx, character.y, 170, 170)
+                character.images[character.name][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
             elif character.face_dir == -1:
-                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                  character.sx, character.y, 170, 170)
+                character.images[character.name][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
+
         elif Reload_HG:
             if character.face_dir == 1:
                 if 0 <= int(character.frame) <= 4:
                     roll = 60 - int(character.frame) * 15
                 else:
                     roll = -15
-                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                     character.sx + roll, character.y, 170, 170)
-
+                character.images[character.name][int(character.frame)].composite_draw(0, '', character.sx + roll, character.y, 170, 170)
             elif character.face_dir == -1:
                 if 0 <= int(character.frame) <= 4:
                     roll = 60 - int(character.frame) * 15
                 else:
                     roll = -15
-                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                     character.sx - roll, character.y, 170, 170)
+                character.images[character.name][int(character.frame)].composite_draw(0, 'h', character.sx - roll, character.y, 170, 170)
 
         elif Jump or Fall:
             if character.face_dir == 1:
                 if Character.stance == 0:
-                    character.images['Walk_SG'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                                         character.sx, character.y, 170, 170)
+                    character.images['Walk_SG'][0].composite_draw(0, '', character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
-                    character.images['Walk_RF'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                                    character.sx, character.y, 170, 170)
+                    character.images['Walk_RF'][0].composite_draw(0, '', character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
-                    character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                                    character.sx, character.y, 170, 170)
+                    character.images['Walk_HG'][0].composite_draw(0, '', character.sx, character.y, 170, 170)
             elif character.face_dir == -1:
                 if Character.stance == 0:
-                    character.images['Walk_SG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                                    character.sx, character.y, 170, 170)
+                    character.images['Walk_SG'][0].composite_draw(0, 'h', character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
-                    character.images['Walk_RF'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                                    character.sx, character.y, 170, 170)
+                    character.images['Walk_RF'][0].composite_draw(0, 'h', character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
-                    character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                                    character.sx, character.y, 170, 170)
+                    character.images['Walk_HG'][0].composite_draw(0, 'h', character.sx, character.y, 170, 170)
         else:
             if character.face_dir == 1:
-                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                     character.sx, character.y, 170, 170)
+                character.images[character.name][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
             elif character.face_dir == -1:
-                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                     character.sx, character.y, 170, 170)
+                character.images[character.name][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
 
 class Walk:
     @staticmethod
@@ -534,54 +522,49 @@ class Walk:
         if Attack:
             if character.attack_dir == 1:
                 if Character.stance == 0:
-                    character.images['Attack_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_SG'][int(character.frame)].composite_draw(0, '', character.sx,
+                                                                                       character.y, 170, 170)
                 elif Character.stance == 1:
-                    character.images['Attack_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_RF'][int(character.frame)].composite_draw(0, '', character.sx,
+                                                                                       character.y, 170, 170)
                 elif Character.stance == 2:
-                    character.images['Attack_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_HG'][int(character.frame)].composite_draw(0, '', character.sx,
+                                                                                       character.y, 170, 170)
             elif character.attack_dir == -1:
                 if Character.stance == 0:
-                    character.images['Attack_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_SG'][int(character.frame)].composite_draw(0, 'h', character.sx,
+                                                                                       character.y, 170, 170)
                 elif Character.stance == 1:
-                    character.images['Attack_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_RF'][int(character.frame)].composite_draw(0, 'h', character.sx,
+                                                                                       character.y, 170, 170)
                 elif Character.stance == 2:
-                    character.images['Attack_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_HG'][int(character.frame)].composite_draw(0, 'h', character.sx,
+                                                                                       character.y, 170, 170)
         elif Reload_SG:
             if character.face_dir == 1:
-                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                  character.sx, character.y, 170, 170)
+                character.images[character.name][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
             elif character.face_dir == -1:
-                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                  character.sx, character.y, 170, 170)
+                character.images[character.name][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
+
         elif Reload_HG:
             if character.face_dir == 1:
                 if 0 <= int(character.frame) <= 4:
                     roll = 60 - int(character.frame) * 15
                 else:
                     roll = -15
-                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                     character.sx + roll, character.y, 170, 170)
+                character.images[character.name][int(character.frame)].composite_draw(0, '', character.sx + roll, character.y, 170, 170)
             elif character.face_dir == -1:
                 if 0 <= int(character.frame) <= 4:
                     roll = 60 - int(character.frame) * 15
                 else:
                     roll = -15
-                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                     character.sx - roll, character.y, 170, 170)
+                character.images[character.name][int(character.frame)].composite_draw(0, 'h', character.sx - roll, character.y, 170, 170)
 
         else:
             if character.face_dir == 1:
-                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                     character.sx, character.y, 170, 170)
+                character.images[character.name][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
             elif character.face_dir == -1:
-                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                     character.sx, character.y, 170, 170)
+                character.images[character.name][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
 
 class Hit:
     @staticmethod
@@ -688,52 +671,39 @@ class Hit:
         if Attack:
             if character.attack_dir == 1:
                 if Character.stance == 0:
-                    character.images['Attack_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_SG'][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
-                    character.images['Attack_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_RF'][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
-                    character.images['Attack_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_HG'][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
             elif character.attack_dir == -1:
                 if Character.stance == 0:
-                    character.images['Attack_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_SG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
-                    character.images['Attack_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_RF'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
-                    character.images['Attack_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                      character.sx, character.y, 170, 170)
+                    character.images['Attack_HG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
+
         elif Character.state == 0 and not Reload_SG and not Reload_HG:
             if character.face_dir == 1:
                 if Character.stance == 0:
-                    character.images['Hit_SG'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                                   character.sx, character.y, 170, 170)
+                    character.images['Hit_SG'][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
-                    character.images['Hit_RF'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                                   character.sx, character.y, 170, 170)
+                    character.images['Hit_RF'][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
-                    character.images['Hit_HG'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                                   character.sx, character.y, 170, 170)
+                    character.images['Hit_HG'][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
             elif character.face_dir == -1:
                 if Character.stance == 0:
-                    character.images['Hit_SG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                                   character.sx, character.y, 170, 170)
+                    character.images['Hit_SG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
-                    character.images['Hit_RF'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                                   character.sx, character.y, 170, 170)
+                    character.images['Hit_RF'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
-                    character.images['Hit_HG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                                   character.sx, character.y, 170, 170)
+                    character.images['Hit_HG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
         else:
             if character.face_dir == 1:
-                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                                 character.sx, character.y, 170, 170)
+                character.images[character.name][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
             elif character.face_dir == -1:
-                character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                                 character.sx, character.y, 170, 170)
+                character.images[character.name][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
 
 class Die:
     @staticmethod
@@ -796,25 +766,19 @@ class Die:
     @staticmethod
     def draw(character):
         if character.face_dir == 1:
-            if Character.stance == 0:
-                character.images['Die_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                               character.sx - 48, character.y, 170, 170)
-            elif Character.stance == 1:
-                character.images['Die_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                               character.sx - 11, character.y, 170, 170)
-            elif Character.stance == 2:
-                character.images['Die_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, '',
-                                                               character.sx, character.y, 170, 170)
+            if Character.stance == 0 and int(character.frame) <= 17.0:
+                character.images['Die_SG'][int(character.frame)].composite_draw(0, '', character.sx - 48, character.y, 170, 170)
+            elif Character.stance == 1 and int(character.frame) <= 17.0:
+                character.images['Die_RF'][int(character.frame)].composite_draw(0, '', character.sx - 11, character.y, 170, 170)
+            elif Character.stance == 2 and int(character.frame) <= 20.0:
+                character.images['Die_HG'][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
         elif character.face_dir == -1:
-            if Character.stance == 0:
-                character.images['Die_SG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                               character.sx + 48, character.y, 170, 170)
-            elif Character.stance == 1:
-                character.images['Die_RF'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                               character.sx + 11, character.y, 170, 170)
-            elif Character.stance == 2:
-                character.images['Die_HG'].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
-                                                               character.sx, character.y, 170, 170)
+            if Character.stance == 0 and int(character.frame) <= 17.0:
+                character.images['Die_SG'][int(character.frame)].composite_draw(0, 'h', character.sx + 48, character.y, 170, 170)
+            elif Character.stance == 1 and int(character.frame) <= 17.0:
+                character.images['Die_RF'][int(character.frame)].composite_draw(0, 'h', character.sx + 11, character.y, 170, 170)
+            elif Character.stance == 2 and int(character.frame) <= 20.0:
+                character.images['Die_HG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
 
 class Dash:
     @staticmethod
@@ -887,24 +851,18 @@ class Dash:
     def draw(character):
         if character.face_dir == 1:
             if Character.stance == 0:
-                character.images['Walk_SG'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                               character.sx, character.y, 170, 170)
+                character.images['Walk_SG'][0].composite_draw(0, '', character.sx, character.y, 170, 170)
             elif Character.stance == 1:
-                character.images['Walk_RF'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                               character.sx, character.y, 170, 170)
+                character.images['Walk_RF'][0].composite_draw(0, '', character.sx, character.y, 170, 170)
             elif Character.stance == 2:
-                character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, '',
-                                                               character.sx, character.y, 170, 170)
+                character.images['Walk_HG'][0].composite_draw(0, '', character.sx, character.y, 170, 170)
         elif character.face_dir == -1:
             if Character.stance == 0:
-                character.images['Walk_SG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                               character.sx, character.y, 170, 170)
+                character.images['Walk_SG'][0].composite_draw(0, 'h', character.sx, character.y, 170, 170)
             elif Character.stance == 1:
-                character.images['Walk_RF'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                               character.sx, character.y, 170, 170)
+                character.images['Walk_RF'][0].composite_draw(0, 'h', character.sx, character.y, 170, 170)
             elif Character.stance == 2:
-                character.images['Walk_HG'].clip_composite_draw(0, 0, 340, 340, 0, 'h',
-                                                               character.sx, character.y, 170, 170)
+                character.images['Walk_HG'][0].composite_draw(0, 'h', character.sx, character.y, 170, 170)
 
 class RRF:
     @staticmethod
@@ -971,11 +929,9 @@ class RRF:
     @staticmethod
     def draw(character):
         if character.face_dir == 1:
-            character.images[character.name].clip_composite_draw(character.frame * 340, 0, 340, 340, 0, '',
-                                                                 character.sx, character.y, 170, 170)
+            character.images[character.name][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
         elif character.face_dir == -1:
-            character.images[character.name].clip_composite_draw(character.frame * 340, 0, 340, 340, 0, 'h',
-                                                                 character.sx, character.y, 170, 170)
+            character.images[character.name][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
 
 class RsRF:
     @staticmethod
@@ -1034,11 +990,9 @@ class RsRF:
     @staticmethod
     def draw(character):
         if character.face_dir == 1:
-            character.images[character.name].clip_composite_draw(character.frame * 340, 0, 340, 340, 0, '',
-                                                                 character.sx, character.y, 170, 170)
+            character.images[character.name][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
         elif character.face_dir == -1:
-            character.images[character.name].clip_composite_draw(character.frame * 340, 0, 340, 340, 0, 'h',
-                                                                 character.sx, character.y, 170, 170)
+            character.images[character.name][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
 
 animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reload_SG', 'Rc_SG',
                    'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF',
@@ -1067,43 +1021,43 @@ class Character:
             Character.images = {}
             for name in animation_names:
                 if name == 'Idle_SG':
-                    Character.images[name] = load_image("./HKCAWS/" + name + ".png")
+                    Character.images[name] = [load_image("./HKCAWS/" + name + " (%d)" % i + ".png") for i in range(1, 14 + 1)]
                 elif name == 'Walk_SG':
-                    Character.images[name] = load_image("./HKCAWS/" + name + ".png")
+                    Character.images[name] = [load_image("./HKCAWS/" + name + " (%d)" % i + ".png") for i in range(1, 6 + 1)]
                 elif name == 'Hit_SG':
-                    Character.images[name] = load_image("./HKCAWS/" + name + ".png")
+                    Character.images[name] = [load_image("./HKCAWS/" + name + " (1)" + ".png")]
                 elif name == 'Die_SG':
-                    Character.images[name] = load_image("./HKCAWS/" + name + ".png")
+                    Character.images[name] = [load_image("./HKCAWS/" + name + " (%d)" % i + ".png") for i in range(1, 18 + 1)]
                 elif name == 'Attack_SG':
-                    Character.images[name] = load_image("./HKCAWS/" + name + ".png")
+                    Character.images[name] = [load_image("./HKCAWS/" + name + " (%d)" % i + ".png") for i in range(1, 15 + 1)]
                 elif name == 'Reload_SG':
-                    Character.images[name] = load_image("./HKCAWS/" + name + ".png")
+                    Character.images[name] = [load_image("./HKCAWS/" + name + " (%d)" % i + ".png") for i in range(1, 16 + 1)]
                 elif name == 'Rc_SG':
-                    Character.images[name] = load_image("./HKCAWS/" + name + ".png")
+                    Character.images[name] = [load_image("./HKCAWS/" + name + " (%d)" % i + ".png") for i in range(1, 14 + 1)]
 
                 elif name == 'Idle_RF':
-                    Character.images[name] = load_image("./R93/" + name + ".png")
+                    Character.images[name] = [load_image("./R93/" + name + " (%d)" % i + ".png") for i in range(1, 14 + 1)]
                 elif name == 'Walk_RF':
-                    Character.images[name] = load_image("./R93/" + name + ".png")
+                    Character.images[name] = [load_image("./R93/" + name + " (%d)" % i + ".png") for i in range(1, 6 + 1)]
                 elif name == 'Hit_RF':
-                    Character.images[name] = load_image("./R93/" + name + ".png")
+                    Character.images[name] = [load_image("./R93/" + name + " (1)" + ".png")]
                 elif name == 'Die_RF':
-                    Character.images[name] = load_image("./R93/" + name + ".png")
+                    Character.images[name] = [load_image("./R93/" + name + " (%d)" % i + ".png") for i in range(1, 18 + 1)]
                 elif name == 'Attack_RF':
-                    Character.images[name] = load_image("./R93/" + name + ".png")
+                    Character.images[name] = [load_image("./R93/" + name + " (%d)" % i + ".png") for i in range(1, 7 + 1)]
 
                 elif name == 'Idle_HG':
-                    Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
+                    Character.images[name] = [load_image("./GSH18Mod/" + name + " (%d)" % i + ".png") for i in range(1, 11 + 1)]
                 elif name == 'Walk_HG':
-                    Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
+                    Character.images[name] = [load_image("./GSH18Mod/" + name + " (%d)" % i + ".png") for i in range(1, 6 + 1)]
                 elif name == 'Hit_HG':
-                    Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
+                    Character.images[name] = [load_image("./GSH18Mod/" + name + " (1)" + ".png")]
                 elif name == 'Die_HG':
-                    Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
+                    Character.images[name] = [load_image("./GSH18Mod/" + name + " (%d)" % i + ".png") for i in range(1, 21 + 1)]
                 elif name == 'Attack_HG':
-                    Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
+                    Character.images[name] = [load_image("./GSH18Mod/" + name + " (%d)" % i + ".png") for i in range(1, 5 + 1)]
                 elif name == 'Reload_HG':
-                    Character.images[name] = load_image("./GSH18Mod/" + name + ".png")
+                    Character.images[name] = [load_image("./GSH18Mod/" + name + " (%d)" % i + ".png") for i in range(1, 8 + 1)]
 
     def __init__(self):
         self.x, self.y = 34.0, 140.0

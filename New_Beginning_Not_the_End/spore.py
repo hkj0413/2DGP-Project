@@ -16,13 +16,13 @@ class Spore:
             Spore.images = {}
             for name in animation_names:
                 if name == 'Idle':
-                    Spore.images[name] = [load_image("./Mob/Spore/"+ name + " (%d)" % i + ".png") for i in range(0, 1 + 1)]
+                    Spore.images[name] = [load_image("./Mob/Spore/"+ name + " (%d)" % i + ".png") for i in range(1, 2 + 1)]
                 elif name == 'Walk':
-                    Spore.images[name] = [load_image("./Mob/Spore/" + name + " (%d)" % i + ".png") for i in range(0, 3 + 1)]
+                    Spore.images[name] = [load_image("./Mob/Spore/" + name + " (%d)" % i + ".png") for i in range(1, 4 + 1)]
                 elif name == 'Hit':
-                    Spore.images[name] = [load_image("./Mob/Spore/"+ name + " (0)" + ".png")]
+                    Spore.images[name] = [load_image("./Mob/Spore/"+ name + " (1)" + ".png")]
                 elif name == 'Die':
-                    Spore.images[name] = [load_image("./Mob/Spore/" + name + " (%d)" % i + ".png") for i in range(0, 3 + 1)]
+                    Spore.images[name] = [load_image("./Mob/Spore/" + name + " (%d)" % i + ".png") for i in range(1, 4 + 1)]
 
     def __init__(self, i = 0, j = 0):
         self.x = i * 30.0 + 15.0
