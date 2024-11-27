@@ -8,6 +8,9 @@ from normalsg_effect import NormalSGEffcet
 from normalsg1 import NormalSG1
 from normalsg2 import NormalSG2
 from normalsg3 import NormalSG3
+from normalrf_effect import NormalRFEffcet
+
+from normalrf_superior_effect import NormalRFSPEffcet
 
 from state_machine import *
 
@@ -1188,6 +1191,14 @@ class Character:
                         self.attack_time = get_time()
                         self.frame = 0
                         Character.bullet_RF -= 1
+
+                        if Character.bullet_RF > 0:
+                            normalrfeffect = NormalRFEffcet(self.attack_dir)
+                            game_world.add_object(normalrfeffect, 3)
+                        else:
+                            normalrfspeffect = NormalRFSPEffcet(self.attack_dir)
+                            game_world.add_object(normalrfspeffect, 3)
+
                         Attack = True
                 elif Character.stance == 2 and Character.bullet_HG > 0:
                     if self.x > 1080:

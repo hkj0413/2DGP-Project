@@ -6,7 +6,6 @@ import game_world
 from pico2d import draw_rectangle
 
 class NormalSG1:
-
     def __init__(self, d):
         self.x = server.character.x
         self.y = server.character.y
