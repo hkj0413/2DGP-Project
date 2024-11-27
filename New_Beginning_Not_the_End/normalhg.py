@@ -5,7 +5,7 @@ import game_world
 
 from pico2d import draw_rectangle
 
-class NormalRF:
+class NormalHG:
     def __init__(self, d):
         self.x = server.character.x
         self.y = server.character.y
@@ -23,8 +23,8 @@ class NormalRF:
         if self.timer >= 0.01:
             self.timer = 0
             self.temp += 1
-            self.x += 20 * self.face
-            if self.temp == 24 or self.count == 4:
+            self.x += 10 * self.face
+            if self.temp == 36 or self.count == 1:
                 game_world.remove_object(self)
 
     def draw(self):
@@ -38,15 +38,15 @@ class NormalRF:
 
     def get_bb(self):
         if self.face == 1:
-            return self.x, self.y - 25.0, self.x + 170.0, self.y + 5.0
+            return self.x, self.y - 30.0, self.x + 30.0, self.y + 10.0
         elif self.face == -1:
-            return self.x - 170.0, self.y - 25.0, self.x, self.y + 5.0
+            return self.x - 30.0, self.y - 30.0, self.x, self.y + 10.0
 
     def get_rect(self):
         if self.face == 1:
-            return self.sx, self.y - 25.0, self.sx + 170.0, self.y + 5.0
+            return self.sx, self.y - 30.0, self.sx + 30.0, self.y + 10.0
         elif self.face == -1:
-            return self.sx - 170.0, self.y - 25.0, self.sx, self.y + 5.0
+            return self.sx - 30.0, self.y - 30.0, self.sx, self.y + 10.0
 
     def handle_collision(self, group, other):
         pass

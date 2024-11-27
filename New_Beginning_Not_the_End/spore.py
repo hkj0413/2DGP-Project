@@ -114,6 +114,9 @@ class Spore:
         elif group == 'normalrfsp:spore' and (self.state == 0 or self.state == 1 or self.state == 3):
             self.take_damage(6)
             other.get_count()
+        elif group == 'normalhg:spore' and (self.state == 0 or self.state == 1 or self.state == 3):
+            self.take_damage(1)
+            other.get_count()
 
     def take_damage(self, damage):
         if self.state == 0 or self.state == 1 or self.state == 3:

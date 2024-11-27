@@ -23,7 +23,7 @@ class NormalRFSP:
         if self.timer >= 0.01:
             self.timer = 0
             self.temp += 1
-            self.x += 30
+            self.x += 30 * self.face
             if self.temp == 16 or self.count == 6:
                 game_world.remove_object(self)
 

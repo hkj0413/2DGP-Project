@@ -104,7 +104,7 @@ def init():
         for ground in grounds:
             game_world.add_collision_pairs('server.character:ground', None, ground)
 
-    projectile_group = ['normalsg1', 'normalsg2', 'normalsg3', 'normalrf', 'normalrfsp']
+    projectile_group = ['normalsg1', 'normalsg2', 'normalsg3', 'normalrf', 'normalrfsp', 'normalhg']
 
     # 몹 스포아
     game_world.add_collision_pairs('server.character:spore', server.character, None)

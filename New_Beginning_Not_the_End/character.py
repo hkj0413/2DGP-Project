@@ -4,15 +4,21 @@ import game_world
 import game_framework
 import server
 import ground
+
 from normalsg_effect import NormalSGEffect
 from normalsg1 import NormalSG1
 from normalsg2 import NormalSG2
 from normalsg3 import NormalSG3
+
 from rf_effect import RFEffect
 from normalrf_effect import NormalRFEffect
 from normalrf import NormalRF
 from normalrf_superior_effect import NormalRFSPEffect
 from normalrfsp import NormalRFSP
+
+from hg_effect import HGEffect
+from normalhg import NormalHG
+from normalhg_effect import NormalHGEffect
 
 from state_machine import *
 
@@ -1230,6 +1236,17 @@ class Character:
                         self.attack_time = get_time()
                         self.frame = 0
                         Character.bullet_HG -= 1
+
+                        normalhgeffect = NormalHGEffect(self.attack_dir)
+                        game_world.add_object(normalhgeffect, 3)
+
+                        normalhg= NormalHG(self.attack_dir)
+                        game_world.add_object(normalhg, 3)
+                        game_world.add_collision_pairs('normalhg:spore', normalhg, None)
+
+                        hgeffect = HGEffect(self.attack_dir)
+                        game_world.add_object(hgeffect, 3)
+
                         Attack = True
         if Attack:
             if Character.stance == 0:
