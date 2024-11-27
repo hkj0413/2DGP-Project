@@ -3,7 +3,7 @@ import character
 import game_framework
 import random
 
-from pico2d import load_image, draw_rectangle, get_time, clamp
+from pico2d import load_image, draw_rectangle, clamp
 from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
 
 animation_names = ['Idle', 'Walk', 'Hit', 'Die']
@@ -36,38 +36,36 @@ class Spore:
         elif self.state == 1:
             self.frame = random.randint(0, 3)
         self.name = ''
-        self.prev_state = 0
+        self.prev_state = -1
         self.load_images()
         self.hp = 2
-        self.last_check_time = get_time()
-        self.time_elapsed = 0
+        self.timer = 0
+        self.temp = 0
         self.build_behavior_tree()
 
     def update(self):
         self.sx = self.x - server.background.window_left
         self.x = clamp(self.base_x - 90.0, self.x, self.base_x + 90.0)
 
-        current_time = get_time()
-        self.time_elapsed += current_time - self.last_check_time
-        self.last_check_time = current_time
+        self.timer += game_framework.frame_time
+
+        if self.timer >= 1:
+            self.timer = 0
+            self.temp += 1
+
+            logic_map = {
+                0: self.check_zero_logic,
+                1: self.check_one_logic,
+                2: self.check_two_logic,
+                5: self.check_five_logic,
+            }
+
+            if self.state in logic_map:
+                logic_map[self.state]()
 
         if self.state != self.prev_state:
             self.bt.run()
-            self.time_elapsed = 0
             self.prev_state = self.state
-
-        elapsed_seconds = int(self.time_elapsed)
-        self.time_elapsed -= elapsed_seconds
-
-        logic_map = {
-            0: self.check_zero_logic,
-            1: self.check_one_logic,
-            2: self.check_two_logic,
-            5: self.check_five_logic,
-        }
-        for _ in range(elapsed_seconds):
-            if self.state in logic_map:
-                logic_map[self.state]()
 
         if self.state == 0:
             if self.name != 'Idle':
@@ -131,9 +129,9 @@ class Spore:
             self.face_dir *= -1
 
     def check_zero_logic(self):
-        if self.time_elapsed >= 4 or random.randint(1, 5) == 1:  # 4초 이상 경과 했거나 랜덤 조건
+        if self.temp == 4 or random.randint(1, 5) == 1:
             self.state = 1
-            self.time_elapsed = 0  # 시간 리셋
+            self.temp = 0
 
     def check_zero(self):
         if not self.state == 0:
@@ -163,9 +161,9 @@ class Spore:
         return BehaviorTree.SUCCESS
 
     def check_five_logic(self):
-        if self.time_elapsed >= 5:
+        if self.temp == 5:
             self.state = 0
-            self.time_elapsed = 0
+            self.temp = 0
             self.hp = 2
             self.x = self.base_x
             self.face_dir = random.randint(0, 1) * 2 - 1
