@@ -9,8 +9,9 @@ from normalsg1 import NormalSG1
 from normalsg2 import NormalSG2
 from normalsg3 import NormalSG3
 from normalrf_effect import NormalRFEffcet
-
+from normalrf import NormalRF
 from normalrf_superior_effect import NormalRFSPEffcet
+from normalrfsp import NormalRFSP
 
 from state_machine import *
 
@@ -1195,9 +1196,17 @@ class Character:
                         if Character.bullet_RF > 0:
                             normalrfeffect = NormalRFEffcet(self.attack_dir)
                             game_world.add_object(normalrfeffect, 3)
+
+                            normalrf = NormalRF(self.attack_dir)
+                            game_world.add_object(normalrf, 3)
+                            game_world.add_collision_pairs('normalrf:spore', normalrf, None)
                         else:
                             normalrfspeffect = NormalRFSPEffcet(self.attack_dir)
                             game_world.add_object(normalrfspeffect, 3)
+
+                            normalrfsp = NormalRFSP(self.attack_dir)
+                            game_world.add_object(normalrfsp, 3)
+                            game_world.add_collision_pairs('normalrfsp:spore', normalrfsp, None)
 
                         Attack = True
                 elif Character.stance == 2 and Character.bullet_HG > 0:
