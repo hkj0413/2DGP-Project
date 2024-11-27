@@ -6,8 +6,23 @@ import random
 from pico2d import load_image, draw_rectangle, get_time, clamp
 from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
 
+animation_names = ['Idle', 'Walk', 'Damage', 'Die']
+
 class Spore:
-    image = None
+    images = None
+
+    def load_images(self):
+        if Spore.images == None:
+            Spore.images = {}
+            for name in animation_names:
+                if name == 'Idle':
+                    Spore.images[name] = [load_image("./Mob/Spore/"+ name + " (%d)" % i + ".png") for i in range(0, 1 + 1)]
+                elif name == 'Walk':
+                    Spore.images[name] = [load_image("./Mob/Spore/" + name + " (%d)" % i + ".png") for i in range(0, 3 + 1)]
+                elif name == 'Damage':
+                    Spore.images[name] = [load_image("./Mob/Spore/"+ name + " (0)" + ".png")]
+                elif name == 'Die':
+                    Spore.images[name] = [load_image("./Mob/Spore/" + name + " (%d)" % i + ".png") for i in range(0, 3 + 1)]
 
     def __init__(self, i = 0, j = 0):
         self.x = i * 30.0 + 15.0
@@ -17,17 +32,16 @@ class Spore:
         self.face_dir = random.randint(0, 1) * 2 - 1  # -1 or 1
         self.state = random.randint(0, 1)
         if self.state == 0:
-            self.framex = random.randint(0, 1)
+            self.frame = random.randint(0, 1)
         elif self.state == 1:
-            self.framex = random.randint(0, 3)
+            self.frame = random.randint(0, 3)
+        self.name = ''
         self.prev_state = 0
-        self.framey = self.state * 2 + 1 # 1 or 3
+        self.load_images()
         self.hp = 2
         self.last_check_time = get_time()
         self.time_elapsed = 0
         self.build_behavior_tree()
-        if Spore.image == None:
-            Spore.image = load_image("./Mob/" + 'Spore' + ".png")
 
     def update(self):
         self.sx = self.x - server.background.window_left
@@ -49,7 +63,6 @@ class Spore:
             0: self.check_zero_logic,
             1: self.check_one_logic,
             2: self.check_two_logic,
-            4: self.check_four_logic,
             5: self.check_five_logic,
         }
         for _ in range(elapsed_seconds):
@@ -57,24 +70,33 @@ class Spore:
                 logic_map[self.state]()
 
         if self.state == 0:
-            self.framex = (self.framex + 2.0 * 1.5 * game_framework.frame_time) % 2
+            if self.name != 'Idle':
+                self.name = 'Idle'
+            self.frame = (self.frame + 2.0 * 1.5 * game_framework.frame_time) % 2
         elif self.state == 1:
-            self.framex = (self.framex + 4.0 * 1.5 * game_framework.frame_time) % 4
+            if self.name != 'Walk':
+                self.name = 'Walk'
+            self.frame = (self.frame + 4.0 * 1.5 * game_framework.frame_time) % 4
             self.walk()
         elif self.state == 2 or self.state == 3:
-            self.framex = 0
+            if self.name != 'Damage':
+                self.name = 'Damage'
+            self.frame = 0
         elif self.state == 4:
-            self.framex = self.framex + 4.0 * 1.2 * game_framework.frame_time
+            if self.name != 'Die':
+                self.name = 'Die'
+            self.frame = self.frame + 4.0 * 1.0 * game_framework.frame_time
+            if self.frame > 4.0:
+                self.state = 5
+                self.frame = 0
 
     def draw(self):
         if -15 <= self.sx <= 1095:
             if not self.state == 5:
                 if self.face_dir == 1:
-                    self.image.clip_composite_draw(int(self.framex) * 50, self.framey * 50, 50, 50, 0, 'h', self.sx,
-                                                   self.y, 50, 50)
+                    self.images[self.name][int(self.frame)].composite_draw(0, 'h', self.sx, self.y, 50, 50)
                 elif self.face_dir == -1:
-                    self.image.clip_composite_draw(int(self.framex) * 50, self.framey * 50, 50, 50, 0, '', self.sx,
-                                                   self.y, 50, 50)
+                    self.images[self.name][int(self.frame)].composite_draw(0, '', self.sx, self.y, 50, 50)
                 if character.RectMode:
                     draw_rectangle(*self.get_rect())
 
@@ -93,11 +115,9 @@ class Spore:
             self.hp = max(0, self.hp - damage)
             if self.hp <= 0:
                 self.state = 4
-                self.framey = 2
                 character.Character.score += 1
             else:
                 self.state = 2
-                self.framey = 0
 
     def check_state(self, s):
         if self.state == s:
@@ -111,9 +131,8 @@ class Spore:
             self.face_dir *= -1
 
     def check_zero_logic(self):
-        if self.time_elapsed >= 4 or random.randint(1, 5) == 1:  # 4초 이상 경과했거나 랜덤 조건
+        if self.time_elapsed >= 4 or random.randint(1, 5) == 1:  # 4초 이상 경과 했거나 랜덤 조건
             self.state = 1
-            self.framey = 3
             self.time_elapsed = 0  # 시간 리셋
 
     def check_zero(self):
@@ -124,7 +143,6 @@ class Spore:
     def check_one_logic(self):
         if random.randint(1, 5) == 1:
             self.state = 0
-            self.framey = 1
 
     def check_one(self):
         if not self.state == 1:
@@ -133,17 +151,11 @@ class Spore:
 
     def check_two_logic(self):
         self.state = 1
-        self.framey = 3
 
     def check_two(self):
         if not self.state == 2:
             return BehaviorTree.FAIL
         return BehaviorTree.SUCCESS
-
-    def check_four_logic(self):
-        if self.time_elapsed >= 2:
-            self.state = 5
-            self.time_elapsed = 0
 
     def check_four(self):
         if not self.state == 4:
@@ -154,7 +166,6 @@ class Spore:
         if self.time_elapsed >= 5:
             self.state = 0
             self.time_elapsed = 0
-            self.framey = 1
             self.hp = 2
             self.x = self.base_x
             self.face_dir = random.randint(0, 1) * 2 - 1
