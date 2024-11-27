@@ -6,7 +6,7 @@ import random
 from pico2d import load_image, draw_rectangle, get_time, clamp
 from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
 
-animation_names = ['Idle', 'Walk', 'Damage', 'Die']
+animation_names = ['Idle', 'Walk', 'Hit', 'Die']
 
 class Spore:
     images = None
@@ -19,7 +19,7 @@ class Spore:
                     Spore.images[name] = [load_image("./Mob/Spore/"+ name + " (%d)" % i + ".png") for i in range(0, 1 + 1)]
                 elif name == 'Walk':
                     Spore.images[name] = [load_image("./Mob/Spore/" + name + " (%d)" % i + ".png") for i in range(0, 3 + 1)]
-                elif name == 'Damage':
+                elif name == 'Hit':
                     Spore.images[name] = [load_image("./Mob/Spore/"+ name + " (0)" + ".png")]
                 elif name == 'Die':
                     Spore.images[name] = [load_image("./Mob/Spore/" + name + " (%d)" % i + ".png") for i in range(0, 3 + 1)]
@@ -79,8 +79,8 @@ class Spore:
             self.frame = (self.frame + 4.0 * 1.5 * game_framework.frame_time) % 4
             self.walk()
         elif self.state == 2 or self.state == 3:
-            if self.name != 'Damage':
-                self.name = 'Damage'
+            if self.name != 'Hit':
+                self.name = 'Hit'
             self.frame = 0
         elif self.state == 4:
             if self.name != 'Die':

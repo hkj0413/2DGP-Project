@@ -302,6 +302,7 @@ class Idle:
             elif character.face_dir == -1:
                 character.images[character.name].clip_composite_draw(int(character.frame) * 340, 0, 340, 340, 0, 'h',
                                                                      character.sx, character.y, 170, 170)
+
 class Walk:
     @staticmethod
     def enter(character, e):
