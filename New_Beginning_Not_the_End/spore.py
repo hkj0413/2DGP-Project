@@ -86,6 +86,7 @@ class Spore:
             self.frame = self.frame + 4.0 * 1.0 * game_framework.frame_time
             if self.frame > 4.0:
                 self.state = 5
+                self.temp = 0
                 self.frame = 0
 
     def draw(self):
@@ -141,6 +142,7 @@ class Spore:
     def check_one_logic(self):
         if random.randint(1, 5) == 1:
             self.state = 0
+            self.temp = 0
 
     def check_one(self):
         if not self.state == 1:
@@ -149,6 +151,7 @@ class Spore:
 
     def check_two_logic(self):
         self.state = 1
+        self.temp = 0
 
     def check_two(self):
         if not self.state == 2:
