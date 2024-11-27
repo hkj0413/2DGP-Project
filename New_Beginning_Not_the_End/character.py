@@ -841,6 +841,8 @@ class Dash:
             w_pressed = False
         elif under_up(e):
             s_pressed = False
+        elif lc_down(e):
+            attacking = True
         elif lc_up(e):
             attacking = False
         elif rc_up(e):
@@ -1143,7 +1145,7 @@ class Character:
                     time_out: Idle
                 },
                 Dash: {
-                    left_up: Dash, right_up: Dash, on_up: Dash, under_up: Dash, rc_up: Dash, lc_up: Dash,
+                    left_up: Dash, right_up: Dash, on_up: Dash, under_up: Dash, rc_up: Dash, lc_down: Dash, lc_up: Dash,
                     time_out: Idle, walk: Walk
                 },
                 RRF: {
@@ -1217,7 +1219,6 @@ class Character:
                         normalsg3 = NormalSG3(self.attack_dir)
                         game_world.add_object(normalsg3, 3)
                         game_world.add_collision_pairs('normalsg3:spore', normalsg3, None)
-
                         Attack = True
                 elif Character.stance == 1 and not Move and Character.bullet_RF > 0:
                     if self.x > 1080:
