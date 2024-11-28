@@ -83,9 +83,9 @@ class Idle:
             s_pressed = True
         elif under_up(e):
             s_pressed = False
-        elif change_stance_z(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG:
+        elif change_stance_z(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG and not Rc_HG:
             character.change_z()
-        elif change_stance_x(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG:
+        elif change_stance_x(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG and not Rc_HG:
             character.change_x()
         elif lc_down(e):
             attacking = True
@@ -374,9 +374,9 @@ class Walk:
             s_pressed = False
             if not d_pressed and not a_pressed and not w_pressed and Climb:
                 character.state_machine.add_event(('IDLE', 0))
-        elif change_stance_z(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG:
+        elif change_stance_z(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG and not Rc_HG:
             character.change_z()
-        elif change_stance_x(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG:
+        elif change_stance_x(e) and not Jump and not Fall and not Attack and Character.state == 0 and not Reload_SG and not Reload_HG and not Rc_HG:
             character.change_x()
         elif lc_down(e):
             attacking = True
@@ -1334,7 +1334,7 @@ class Character:
                             rfeffect = RFEffect(self.attack_dir)
                             game_world.add_object(rfeffect, 3)
                         Attack = True
-                elif Character.stance == 2 and Character.bullet_HG > 0 and Character.state == 0:
+                elif Character.stance == 2 and Character.bullet_HG > 0 and Character.state == 0 and not Rc_HG:
                     if self.x > 1080 and not self.mouse:
                         mouse_x += self.x - 1080 // 2
                         self.mouse = True
@@ -1384,7 +1384,7 @@ class Character:
                     Attack = False
 
         if Character.stance == 2 and Character.state == 1:
-            if Character.agile_shooting_cooldown == 0:
+            if Character.agile_shooting_cooldown == 0 and not Attack:
                 Character.speed = 7
                 self.frame = 0
                 Character.agile_shooting_cooldown = 2
