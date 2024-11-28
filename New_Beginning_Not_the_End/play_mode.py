@@ -70,10 +70,12 @@ def init():
     wall_positions = [
         (1, range(0, 30)),
         (1, range(35, 44)),
-        (1, range(50, 109)),
+        (1, range(50, 57)),
+        (1, range(62, 109)),
         (0, range(0, 30)),
         (0, range(35, 44)),
-        (0, range(50, 109)),
+        (0, range(50, 57)),
+        (0, range(62, 109)),
     ]
 
     for j, i_range in wall_positions:
@@ -97,7 +99,8 @@ def init():
         (5, range(19, 26)),
         (2, range(0, 30)),
         (2, range(35, 44)),
-        (2, range(50, 109)),
+        (2, range(50, 57)),
+        (2, range(62, 109)),
     ]
 
     for j, i_range in ground_positions:
@@ -149,6 +152,7 @@ def init():
 
     pig_positions = [
         (17, 14),
+        (53, 3),
     ]
 
     for i, j in pig_positions:
@@ -167,6 +171,9 @@ def init():
         (32, 23, 2),
         (45, 15, 1),
         (48, 17, 2),
+        (58, 14, 2),
+        (59, 21, 1),
+        (60, 14, 1),
     ]
 
     for i, j, k in coconut_positions:

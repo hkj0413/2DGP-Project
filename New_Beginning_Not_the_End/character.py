@@ -1414,7 +1414,7 @@ class Character:
     def handle_event(self, event):
         global mouse_x, mouse_y
         self.state_machine.add_event(('INPUT', event))
-        if event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT or (event.type == SDL_MOUSEMOTION and attacking):
+        if (event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT) or (event.type == SDL_MOUSEMOTION):
             mouse_x, mouse_y = event.x, event.y
 
     def draw(self):
