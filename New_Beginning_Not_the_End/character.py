@@ -20,6 +20,8 @@ from hg_effect import HGEffect
 from normalhg import NormalHG
 from normalhg_effect import NormalHGEffect
 
+from dasheffect import DashEffect
+
 from state_machine import *
 
 PIXEL_PER_METER = (30.0 / 1)  # 30 pixel 1 m
@@ -804,6 +806,8 @@ class Dash:
             character.wait_time = get_time()
             Character.hit_delay = 0.3
             Character.dash_cooldown = 6
+            dasheffect = DashEffect(character.face_dir)
+            game_world.add_object(dasheffect, 3)
             if not Attack:
                 Character.frame = 0
                 Character.attack_delay = 0
