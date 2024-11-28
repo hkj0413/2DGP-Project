@@ -14,6 +14,7 @@ from heal import Heal
 from background import Background
 from spore import Spore
 from slime import Slime
+from pig import Pig
 
 def handle_events():
     events = get_events()
@@ -142,6 +143,21 @@ def init():
             game_world.add_collision_pairs('server.character:slime', None, slime)
             for projectile in projectile_group:
                 game_world.add_collision_pairs(f'{projectile}:slime', None, slime)
+
+    # 몹 돼지
+    game_world.add_collision_pairs('server.character:slime', server.character, None)
+
+    pig_positions = [
+        (17, 14),
+    ]
+
+    for i, j in pig_positions:
+        pigs = [Pig(i, j)]
+        game_world.add_objects(pigs, 2)
+        for pig in pigs:
+            game_world.add_collision_pairs('server.character:pig', None, pig)
+            for projectile in projectile_group:
+                game_world.add_collision_pairs(f'{projectile}:pig', None, pig)
 
     # 낙하 장애물 코코넛 k = 박자
     game_world.add_collision_pairs('server.character:coconut', server.character, None)
