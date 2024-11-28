@@ -8,7 +8,7 @@ class NormalHGEffect:
     image = None
 
     def __init__(self, d):
-        self.x = server.character.x
+        self.x = server.character.x + 18 * d
         self.y = server.character.y
         self.sx = 0
         self.timer = 0
@@ -30,7 +30,7 @@ class NormalHGEffect:
                 game_world.remove_object(self)
 
     def draw(self):
-        if self.temp < 24:
+        if self.temp < 36:
             if self.face == 1:
                 self.image.composite_draw(0, '', self.sx + 20, self.y - 10, 30, 27)
             elif self.face == -1:

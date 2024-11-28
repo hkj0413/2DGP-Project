@@ -77,11 +77,11 @@ class Pig:
         if self.state == 0:
             if self.name != 'Idle':
                 self.name = 'Idle'
-            self.frame = (self.frame + 2.0 * 2.0 * game_framework.frame_time) % 2
+            self.frame = (self.frame + 2.0 * 1.5 * game_framework.frame_time) % 2
         elif self.state == 1:
             if self.name != 'Walk':
                 self.name = 'Walk'
-            self.frame = (self.frame + 3.0 * 1.5 * game_framework.frame_time) % 3
+            self.frame = (self.frame + 3.0 * 2.0 * game_framework.frame_time) % 3
             self.walk()
         elif self.state == 2 or self.state == 3:
             if self.name != 'Hit':
@@ -90,7 +90,7 @@ class Pig:
         elif self.state == 4:
             if self.name != 'Die':
                 self.name = 'Die'
-            self.frame = self.frame + 3.0 * 2.0 * game_framework.frame_time
+            self.frame = self.frame + 3.0 * 1.5 * game_framework.frame_time
             if self.frame > 3.0:
                 self.state = 5
                 self.temp = 0

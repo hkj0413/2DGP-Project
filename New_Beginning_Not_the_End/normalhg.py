@@ -7,7 +7,7 @@ from pico2d import draw_rectangle
 
 class NormalHG:
     def __init__(self, d):
-        self.x = server.character.x
+        self.x = server.character.x + 18 * d
         self.y = server.character.y
         self.sx = 0
         self.timer = 0
