@@ -15,6 +15,7 @@ from normalrf_effect import NormalRFEffect
 from normalrf import NormalRF
 from normalrf_superior_effect import NormalRFSPEffect
 from normalrfsp import NormalRFSP
+from reloadrf import ReloadRF
 
 from hg_effect import HGEffect
 from normalhg import NormalHG
@@ -932,6 +933,9 @@ class RRF:
                 fall_velocity = 0.0
                 rrf = True
                 character.frame = 1
+                reloadrf = ReloadRF(character.face_dir)
+                game_world.add_object(reloadrf, 3)
+                game_world.add_collision_pairs('reloadrf:spore', reloadrf, None)
             character.x -= 8 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
 
         for block in game_world.collision_pairs['server.character:ground'][1] + game_world.collision_pairs['server.character:wall'][1]:
@@ -1001,6 +1005,9 @@ class RsRF:
                 fall_velocity = 0.0
                 rrf = True
                 character.frame = 1
+                reloadrf = ReloadRF(character.face_dir)
+                game_world.add_object(reloadrf, 3)
+                game_world.add_collision_pairs('reloadrf:spore', reloadrf, None)
 
     @staticmethod
     def draw(character):
