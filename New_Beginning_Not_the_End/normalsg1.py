@@ -20,9 +20,8 @@ class NormalSG1:
             game_world.remove_object(self)
 
     def draw(self):
-        if -15 <= self.sx <= 1095:
-            if character.RectMode:
-                draw_rectangle(*self.get_rect())
+        if character.RectMode:
+            draw_rectangle(*self.get_rect())
 
     def get_bb(self):
         if self.face == 1:

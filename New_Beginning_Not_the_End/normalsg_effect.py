@@ -23,9 +23,8 @@ class NormalSGEffect:
             game_world.remove_object(self)
 
     def draw(self):
-        if -15 <= self.sx <= 1095:
-            if self.frame <= 8.0:
-                if self.face == 1:
-                    self.image[int(self.frame)].composite_draw(0, '', self.sx + 60 + int(self.frame) * 10, self.y - 17, 155, 157)
-                elif self.face == -1:
-                    self.image[int(self.frame)].composite_draw(0, 'h', self.sx - 60 - int(self.frame) * 10, self.y - 17, 155, 157)
+        if self.frame <= 8.0:
+            if self.face == 1:
+                self.image[int(self.frame)].composite_draw(0, '', self.sx + 60 + int(self.frame) * 10, self.y - 17, 155, 157)
+            elif self.face == -1:
+                self.image[int(self.frame)].composite_draw(0, 'h', self.sx - 60 - int(self.frame) * 10, self.y - 17, 155, 157)

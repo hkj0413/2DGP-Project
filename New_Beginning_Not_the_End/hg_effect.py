@@ -23,9 +23,8 @@ class HGEffect:
             game_world.remove_object(self)
 
     def draw(self):
-        if -15 <= self.sx <= 1095:
-            if self.frame <= 3.0:
-                if self.face == 1:
-                    self.image[int(self.frame)].composite_draw(0, '', self.sx + 36, self.y - 17, 62, 63)
-                elif self.face == -1:
-                    self.image[int(self.frame)].composite_draw(0, 'h', self.sx - 36, self.y - 17, 62, 63)
+        if self.frame <= 3.0:
+            if self.face == 1:
+                self.image[int(self.frame)].composite_draw(0, '', self.sx + 36, self.y - 17, 62, 63)
+            elif self.face == -1:
+                self.image[int(self.frame)].composite_draw(0, 'h', self.sx - 36, self.y - 17, 62, 63)

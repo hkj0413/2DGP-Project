@@ -30,9 +30,8 @@ class NormalRFSPEffect:
                 game_world.remove_object(self)
 
     def draw(self):
-        if -15 <= self.sx <= 1095:
-            if self.temp < 16:
-                if self.face == 1:
-                    self.image.composite_draw(0, '', self.sx + 70, self.y - 10, 510, 90)
-                elif self.face == -1:
-                    self.image.composite_draw(0, 'h', self.sx - 70, self.y - 10, 510, 90)
+        if self.temp < 16:
+            if self.face == 1:
+                self.image.composite_draw(0, '', self.sx + 70, self.y - 10, 510, 90)
+            elif self.face == -1:
+                self.image.composite_draw(0, 'h', self.sx - 70, self.y - 10, 510, 90)
