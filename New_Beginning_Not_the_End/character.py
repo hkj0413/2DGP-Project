@@ -58,6 +58,8 @@ screen_right = 1080
 
 RectMode = False
 
+mob_group = ['spore', 'slime', 'pig']
+
 class Idle:
     @staticmethod
     def enter(character, e):
@@ -1015,7 +1017,8 @@ class RRF:
                 character.frame = 1
                 reloadrf = ReloadRF(character.face_dir)
                 game_world.add_object(reloadrf, 3)
-                game_world.add_collision_pairs('reloadrf:spore', reloadrf, None)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'reloadrf:{mob}', reloadrf, None)
             character.x -= 8 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
 
         for block in game_world.collision_pairs['server.character:ground'][1] + game_world.collision_pairs['server.character:wall'][1]:
@@ -1087,7 +1090,8 @@ class RsRF:
                 character.frame = 1
                 reloadrf = ReloadRF(character.face_dir)
                 game_world.add_object(reloadrf, 3)
-                game_world.add_collision_pairs('reloadrf:spore', reloadrf, None)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'reloadrf:{mob}', reloadrf, None)
 
     @staticmethod
     def draw(character):
@@ -1270,15 +1274,18 @@ class Character:
 
                         normalsg1 = NormalSG1(self.attack_dir)
                         game_world.add_object(normalsg1, 3)
-                        game_world.add_collision_pairs('normalsg1:spore', normalsg1, None)
+                        for mob in mob_group:
+                            game_world.add_collision_pairs(f'normalsg1:{mob}', normalsg1, None)
 
                         normalsg2 = NormalSG2(self.attack_dir)
                         game_world.add_object(normalsg2, 3)
-                        game_world.add_collision_pairs('normalsg2:spore', normalsg2, None)
+                        for mob in mob_group:
+                            game_world.add_collision_pairs(f'normalsg2:{mob}', normalsg2, None)
 
                         normalsg3 = NormalSG3(self.attack_dir)
                         game_world.add_object(normalsg3, 3)
-                        game_world.add_collision_pairs('normalsg3:spore', normalsg3, None)
+                        for mob in mob_group:
+                            game_world.add_collision_pairs(f'normalsg3:{mob}', normalsg3, None)
                         Attack = True
                 elif Character.stance == 1 and not Move and Character.bullet_RF > 0 and Character.state == 0:
                     if self.x > 1080:
@@ -1300,7 +1307,8 @@ class Character:
 
                             normalrf = NormalRF(self.attack_dir)
                             game_world.add_object(normalrf, 3)
-                            game_world.add_collision_pairs('normalrf:spore', normalrf, None)
+                            for mob in mob_group:
+                                game_world.add_collision_pairs(f'normalrf:{mob}', normalrf, None)
 
                             rfeffect = RFEffect(self.attack_dir)
                             game_world.add_object(rfeffect, 3)
@@ -1310,7 +1318,8 @@ class Character:
 
                             normalrfsp = NormalRFSP(self.attack_dir)
                             game_world.add_object(normalrfsp, 3)
-                            game_world.add_collision_pairs('normalrfsp:spore', normalrfsp, None)
+                            for mob in mob_group:
+                                game_world.add_collision_pairs(f'normalrfsp:{mob}', normalrfsp, None)
 
                             rfeffect = RFEffect(self.attack_dir)
                             game_world.add_object(rfeffect, 3)
@@ -1336,7 +1345,8 @@ class Character:
 
                         normalhg= NormalHG(self.attack_dir)
                         game_world.add_object(normalhg, 3)
-                        game_world.add_collision_pairs('normalhg:spore', normalhg, None)
+                        for mob in mob_group:
+                            game_world.add_collision_pairs(f'normalhg:{mob}', normalhg, None)
 
                         hgeffect = HGEffect(self.attack_dir)
                         game_world.add_object(hgeffect, 3)

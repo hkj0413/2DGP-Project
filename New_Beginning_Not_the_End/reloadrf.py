@@ -59,3 +59,5 @@ class ReloadRF:
     def handle_collision(self, group, other):
         if group == 'reloadrf:spore':
             other.take_stun(2)
+        elif group == 'reloadrf:slime':
+            other.take_stun(2)

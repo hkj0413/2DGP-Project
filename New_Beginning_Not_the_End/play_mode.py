@@ -13,6 +13,7 @@ from coconut import Coconut
 from heal import Heal
 from background import Background
 from spore import Spore
+from slime import Slime
 
 def handle_events():
     events = get_events()
@@ -115,6 +116,7 @@ def init():
         (13, 3),
         (17, 3),
         (22, 6),
+        (16, 14),
     ]
 
     for i, j in spore_positions:
@@ -124,6 +126,22 @@ def init():
             game_world.add_collision_pairs('server.character:spore', None, spore)
             for projectile in projectile_group:
                 game_world.add_collision_pairs(f'{projectile}:spore', None, spore)
+
+    # 몹 슬라임
+    game_world.add_collision_pairs('server.character:slime', server.character, None)
+
+    slime_positions = [
+        (9, 3),
+        (39, 3),
+    ]
+
+    for i, j in slime_positions:
+        slimes = [Slime(i, j)]
+        game_world.add_objects(slimes, 2)
+        for slime in slimes:
+            game_world.add_collision_pairs('server.character:slime', None, slime)
+            for projectile in projectile_group:
+                game_world.add_collision_pairs(f'{projectile}:slime', None, slime)
 
     # 낙하 장애물 코코넛 k = 박자
     game_world.add_collision_pairs('server.character:coconut', server.character, None)

@@ -38,3 +38,5 @@ class NormalSG3:
     def handle_collision(self, group, other):
         if group == 'normalsg3:spore':
             other.take_damage(1)
+        elif group == 'normalsg3:slime':
+            other.take_damage(1)

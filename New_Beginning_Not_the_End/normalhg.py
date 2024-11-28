@@ -24,7 +24,7 @@ class NormalHG:
             self.timer = 0
             self.temp += 1
             self.x += 10 * self.face
-            if self.temp == 36 or self.count == 1:
+            if self.temp == 36 or self.count >= 1:
                 game_world.remove_object(self)
 
     def draw(self):
