@@ -13,7 +13,7 @@ class UI:
 
     def __init__(self):
         if UI.image_hp == None:
-            self.hp_image = load_image('Hp.png')
+            self.hp_image = [load_image("./Icon/" + 'Heart' + " (%d)" % i + ".png") for i in range(1, 3 + 1)]
         if UI.image_bullet == None:
             self.bullet_image = load_image('Bullet.png')
         if UI.image_dash == None:
@@ -34,11 +34,11 @@ class UI:
 
         for i in range(heart_count):
             if Character.hp >= (i + 1) * 2:
-                self.hp_image.clip_composite_draw(0, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
+                self.hp_image[0].draw(hx + i * 30, hy, 30, 30)
             elif Character.hp == (i * 2) + 1:
-                self.hp_image.clip_composite_draw(120, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
+                self.hp_image[1].draw(hx + i * 30, hy, 30, 30)
             else:
-                self.hp_image.clip_composite_draw(240, 0, 120, 360, 0, '', hx + i * 30, hy, 30, 90)
+                self.hp_image[2].draw(hx + i * 30, hy, 30, 30)
 
         bx = 1060
         by = 770
