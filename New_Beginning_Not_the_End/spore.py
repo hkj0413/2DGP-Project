@@ -39,6 +39,7 @@ class Spore:
         self.prev_state = -1
         self.load_images()
         self.hp = 2
+        self.stun = 0
         self.timer = 0
         self.temp = 0
         self.build_behavior_tree()
@@ -52,6 +53,12 @@ class Spore:
         if self.timer >= 1:
             self.timer = 0
             self.temp += 1
+            if not self.stun == 0:
+                self.stun -= 1
+                if self.stun <= 0:
+                    self.state = 1
+                    self.stun = 0
+                    self.temp = 0
 
             logic_map = {
                 0: self.check_zero_logic,
@@ -124,8 +131,14 @@ class Spore:
             if self.hp <= 0:
                 self.state = 4
                 character.Character.score += 1
+                self.stun = 0
             else:
                 self.state = 2
+
+    def take_stun(self, stun):
+        if self.state == 0 or self.state == 1 or self.state == 2:
+            self.stun += stun
+            self.state = 3
 
     def check_state(self, s):
         if self.state == s:
@@ -159,11 +172,19 @@ class Spore:
         return BehaviorTree.SUCCESS
 
     def check_two_logic(self):
-        self.state = 1
+        if self.stun == 0:
+            self.state = 1
+        else:
+            self.state = 3
         self.temp = 0
 
     def check_two(self):
         if not self.state == 2:
+            return BehaviorTree.FAIL
+        return BehaviorTree.SUCCESS
+
+    def check_three(self):
+        if not self.state == 3:
             return BehaviorTree.FAIL
         return BehaviorTree.SUCCESS
 
@@ -190,6 +211,7 @@ class Spore:
             0: self.check_zero,
             1: self.check_one,
             2: self.check_two,
+            3: self.check_three,
             4: self.check_four,
             5: self.check_five,
         }
