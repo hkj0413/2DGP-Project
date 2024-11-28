@@ -114,7 +114,7 @@ class Pig:
 
     def handle_collision(self, group, other):
         if group == 'server.character:pig' and not self.state == 4 and not self.state == 5:
-            other.take_damage(1)
+            other.take_damage(2)
         elif group == 'normalrf:pig' and (self.state == 0 or self.state == 1 or self.state == 3):
             self.take_damage(4)
             other.get_count()

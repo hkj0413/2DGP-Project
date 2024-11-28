@@ -694,10 +694,12 @@ class Hit:
             attacking = False
         elif right_down(e):
             d_pressed = True
+            character.face_dir = 1
             if (Character.stance == 0 and Character.state == 1) or (Character.stance == 2 and Rc_HG):
                 character.state_machine.add_event(('WALK', 0))
         elif left_down(e):
             a_pressed = True
+            character.face_dir = -1
             if (Character.stance == 0 and Character.state == 1) or (Character.stance == 2 and Rc_HG):
                 character.state_machine.add_event(('WALK', 0))
         elif on_down(e):

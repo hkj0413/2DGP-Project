@@ -148,7 +148,7 @@ def init():
                 game_world.add_collision_pairs(f'{projectile}:slime', None, slime)
 
     # 몹 돼지
-    game_world.add_collision_pairs('server.character:slime', server.character, None)
+    game_world.add_collision_pairs('server.character:pig', server.character, None)
 
     pig_positions = [
         (17, 14),
