@@ -102,6 +102,9 @@ def temp_reset_cool(e):
 def temp_rectmode(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_g
 
+def temp_god(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_h
+
 class StateMachine:
     def __init__(self, o):
         self.o = o

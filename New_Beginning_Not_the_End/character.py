@@ -42,6 +42,7 @@ Climb = False
 Attack = False
 attacking = False
 Invincibility = False
+God = False
 Reload_SG = False
 Reload_RF = False
 rrf = False
@@ -63,7 +64,7 @@ mob_group = ['spore', 'slime', 'pig']
 class Idle:
     @staticmethod
     def enter(character, e):
-        global Jump, d_pressed, a_pressed, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, RectMode, Invincibility
+        global Jump, d_pressed, a_pressed, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, RectMode, Invincibility, God
         global Rc_HG
         if start_event(e):
             character.face_dir = 1
@@ -158,6 +159,8 @@ class Idle:
             character.Rc_HG_cool = 0
         elif temp_rectmode(e):
            RectMode = not RectMode
+        elif temp_god(e):
+           God = not God
 
         if rchg:
             if not Rc_HG:
@@ -339,7 +342,7 @@ class Idle:
 class Walk:
     @staticmethod
     def enter(character, e):
-        global a_pressed, d_pressed, Jump, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, RectMode, Invincibility
+        global a_pressed, d_pressed, Jump, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, RectMode, Invincibility, God
         global Rc_HG
         if right_down(e):
             d_pressed = True
@@ -447,6 +450,8 @@ class Walk:
             character.Rc_HG_cool = 0
         elif temp_rectmode(e):
            RectMode = not RectMode
+        elif temp_god(e):
+           God = not God
 
         if rchg:
             if not Rc_HG:
@@ -1172,6 +1177,7 @@ class Character:
         self.attack_dir = 1
         self.frame = 0
         self.sx = 0
+        self.mouse = False
         self.load_images()
         self.name = ''
         self.hit_cool = 0
@@ -1189,7 +1195,7 @@ class Character:
                     reload: Idle, rf_reload: RRF, idle: Idle, under_down: Idle, under_up: Idle, rf_reload_s: RsRF,
                     on_up: Idle, on_down: Idle,
                     temp_damage: Idle, take_hit: Hit, die: Die,
-                    temp_more: Idle, temp_heal: Idle, temp_bullet: Idle, temp_reset_cool: Idle, temp_rectmode: Idle,
+                    temp_more: Idle, temp_heal: Idle, temp_bullet: Idle, temp_reset_cool: Idle, temp_rectmode: Idle, temp_god: Idle,
                 },
                 Walk: {
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
@@ -1197,7 +1203,7 @@ class Character:
                     reload: Walk, rf_reload: RRF, walk: Walk, under_down: Walk, under_up: Walk, rf_reload_s: RsRF,
                     on_up: Walk, on_down: Walk,
                     temp_damage: Walk, take_hit: Hit, die: Die,
-                    temp_more: Walk, temp_heal: Walk, temp_bullet: Walk, temp_reset_cool: Walk, temp_rectmode: Walk,
+                    temp_more: Walk, temp_heal: Walk, temp_bullet: Walk, temp_reset_cool: Walk, temp_rectmode: Walk, temp_god: Walk,
                 },
                 Hit: {
                     right_down: Hit, left_down: Hit, right_up: Hit, left_up: Hit, on_down: Hit, under_down: Hit, under_up: Hit,
@@ -1253,8 +1259,9 @@ class Character:
         if attacking and not Attack:
             if Character.attack_delay == 0:
                 if Character.stance == 0 and Character.bullet_SG > 0 and (Character.state == 0 or Character.state == 1):
-                    if self.x > 1080:
+                    if self.x > 1080 and not self.mouse:
                         mouse_x += self.x - 1080 // 2
+                        self.mouse = True
                     if mouse_x > self.x:
                         self.attack_dir = 1
                         if not Move or Fall or Jump:
@@ -1288,8 +1295,9 @@ class Character:
                             game_world.add_collision_pairs(f'normalsg3:{mob}', normalsg3, None)
                         Attack = True
                 elif Character.stance == 1 and not Move and Character.bullet_RF > 0 and Character.state == 0:
-                    if self.x > 1080:
+                    if self.x > 1080 and not self.mouse:
                         mouse_x += self.x - 1080 // 2
+                        self.mouse = True
                     if mouse_x > self.x:
                         self.attack_dir = 1
                         self.face_dir = 1
@@ -1325,8 +1333,9 @@ class Character:
                             game_world.add_object(rfeffect, 3)
                         Attack = True
                 elif Character.stance == 2 and Character.bullet_HG > 0 and Character.state == 0:
-                    if self.x > 1080:
+                    if self.x > 1080 and not self.mouse:
                         mouse_x += self.x - 1080 // 2
+                        self.mouse = True
                     if mouse_x > self.x:
                         self.attack_dir = 1
                         if not Move or Fall or Jump:
@@ -1416,6 +1425,7 @@ class Character:
         self.state_machine.add_event(('INPUT', event))
         if (event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT) or (event.type == SDL_MOUSEMOTION):
             mouse_x, mouse_y = event.x, event.y
+            self.mouse = False
 
     def draw(self):
         self.state_machine.draw()
@@ -1475,7 +1485,7 @@ class Character:
             jump_velocity = 10.0
 
     def take_damage(self, damage):
-        if Character.hit_delay == 0 and not Invincibility:
+        if Character.hit_delay == 0 and not Invincibility and not God:
             Character.damage = damage
             self.state_machine.add_event(('HIT', 0))
 
