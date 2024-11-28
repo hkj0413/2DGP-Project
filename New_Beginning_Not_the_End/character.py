@@ -41,11 +41,13 @@ Fall = False
 Climb = False
 Attack = False
 attacking = False
+Invincibility = False
 Reload_SG = False
 Reload_RF = False
 rrf = False
 Reload_HG = False
-Invincibility = False
+Rc_HG = False
+rchg = False
 
 jump_velocity = 10.0
 fall_velocity = 0.0
@@ -60,6 +62,7 @@ class Idle:
     @staticmethod
     def enter(character, e):
         global Jump, d_pressed, a_pressed, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, RectMode, Invincibility
+        global Rc_HG
         if start_event(e):
             character.face_dir = 1
         elif right_up(e):
@@ -89,11 +92,19 @@ class Idle:
             if Character.stance == 0:
                 Character.state = 1
                 Character.speed = 1
+            elif Character.stance == 1:
+                pass
+            elif Character.stance == 2:
+                Character.state = 1
         elif rc_up(e):
             if Character.stance == 0:
                 Character.state = 0
                 if not Reload_SG:
                     Character.speed = 3
+            elif Character.stance == 1:
+                pass
+            elif Character.stance == 2:
+                Character.state = 0
         elif jump(e) and not Jump and not Fall:
             if Character.stance == 0 and Character.state == 0:
                 Jump = True
@@ -105,12 +116,12 @@ class Idle:
                     character.frame = 0
             elif Character.stance == 2:
                 Jump = True
-                if not Attack and not Reload_HG:
+                if not Attack and not Reload_HG and not Rc_HG:
                     character.frame = 0
         elif temp_damage(e) and Character.hit_delay == 0:
             Character.damage = 8
             character.state_machine.add_event(('HIT', 0))
-        elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG:
+        elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG and not Rc_HG:
             character.state_machine.add_event(('USE_DASH', 0))
         elif reload(e):
             if Character.stance == 0 and Character.bullet_SG == 0 and Character.state <= 1:
@@ -141,8 +152,14 @@ class Idle:
         elif temp_reset_cool(e):
             Character.dash_cooldown = 0
             character.Lshift_cool = 0
+            Character.agile_shooting_cooldown = 0
+            character.Rc_HG_cool = 0
         elif temp_rectmode(e):
            RectMode = not RectMode
+
+        if rchg:
+            if not Rc_HG:
+                Rc_HG = True
 
         if Character.stance == 0 and not Reload_SG:
             if Character.state == 0:
@@ -159,13 +176,13 @@ class Idle:
             if character.name != 'Idle_RF':
                 character.name = 'Idle_RF'
             character.frame = clamp(0, character.frame, 13)
-        elif Character.stance == 2 and not Reload_HG:
+        elif Character.stance == 2 and (Reload_HG or Rc_HG):
+            if character.name != 'Reload_HG':
+                character.name = 'Reload_HG'
+        elif Character.stance == 2:
             if character.name != 'Idle_HG':
                 character.name = 'Idle_HG'
             character.frame = clamp(0, character.frame, 10)
-        elif Character.stance == 2 and Reload_HG:
-            if character.name != 'Reload_HG':
-                character.name = 'Reload_HG'
 
     @staticmethod
     def exit(character, e):
@@ -176,7 +193,7 @@ class Idle:
 
     @staticmethod
     def do(character):
-        global Move, Reload_SG ,Reload_HG, Invincibility
+        global Move, Reload_SG ,Reload_HG, Invincibility, Rc_HG, rchg
         if Attack:
             if Character.stance == 0:
                 character.frame = (character.frame + 15.0 * 0.8 * game_framework.frame_time) % 15
@@ -201,13 +218,25 @@ class Idle:
                     character.state_machine.add_event(('IDLE', 0))
 
         elif Reload_HG:
-            character.frame = character.frame + 10.0 * 1.8 * game_framework.frame_time
+            character.frame = character.frame + 8.0 * 1.8 * game_framework.frame_time
             if character.frame > 8.0:
                 Character.speed = 5
                 Character.bullet_HG = Character.max_bullet_HG
                 character.frame = 0
                 Reload_HG = False
                 Invincibility = False
+                if d_pressed or a_pressed:
+                    character.state_machine.add_event(('WALK', 0))
+                else:
+                    character.state_machine.add_event(('IDLE', 0))
+
+        elif Rc_HG:
+            character.frame = character.frame + 8.0 * 1.8 * game_framework.frame_time
+            if character.frame > 8.0:
+                Character.speed = 5
+                character.frame = 0
+                Rc_HG = False
+                rchg = False
                 if d_pressed or a_pressed:
                     character.state_machine.add_event(('WALK', 0))
                 else:
@@ -270,7 +299,7 @@ class Idle:
             elif character.face_dir == -1:
                 character.images[character.name][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
 
-        elif Reload_HG:
+        elif Reload_HG or Rc_HG:
             if character.face_dir == 1:
                 if 0 <= int(character.frame) <= 4:
                     roll = 60 - int(character.frame) * 15
@@ -309,6 +338,7 @@ class Walk:
     @staticmethod
     def enter(character, e):
         global a_pressed, d_pressed, Jump, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, RectMode, Invincibility
+        global Rc_HG
         if right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -351,11 +381,19 @@ class Walk:
             if Character.stance == 0:
                 Character.state = 1
                 Character.speed = 1
+            elif Character.stance == 1:
+                pass
+            elif Character.stance == 2:
+                Character.state = 1
         elif rc_up(e):
             if Character.stance == 0:
                 Character.state = 0
                 if not Reload_SG:
                     Character.speed = 3
+            elif Character.stance == 1:
+                pass
+            elif Character.stance == 2:
+                Character.state = 0
         elif jump(e) and not Jump and not Fall:
             if Character.stance == 0 and Character.state == 0:
                 Jump = True
@@ -367,12 +405,12 @@ class Walk:
                     character.frame = 0
             elif Character.stance == 2:
                 Jump = True
-                if not Attack and not Reload_HG:
+                if not Attack and not Reload_HG and not Rc_HG:
                     character.frame = 0
         elif temp_damage(e) and Character.hit_delay == 0:
             Character.damage = 8
             character.state_machine.add_event(('HIT', 0))
-        elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG:
+        elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG and not Rc_HG:
             character.state_machine.add_event(('USE_DASH', 0))
         elif reload(e):
             if Character.stance == 0 and Character.bullet_SG == 0 and Character.state <= 1:
@@ -403,8 +441,14 @@ class Walk:
         elif temp_reset_cool(e):
             Character.dash_cooldown = 0
             character.Lshift_cool = 0
+            Character.agile_shooting_cooldown = 0
+            character.Rc_HG_cool = 0
         elif temp_rectmode(e):
            RectMode = not RectMode
+
+        if rchg:
+            if not Rc_HG:
+                Rc_HG = True
 
         if Character.stance == 0 and not Reload_SG:
             if Character.state == 0:
@@ -419,14 +463,14 @@ class Walk:
         elif Character.stance == 1:
             if character.name != 'Walk_RF':
                 character.name = 'Walk_RF'
-        elif Character.stance == 2 and not Reload_HG:
-            if character.name != 'Walk_HG':
-                character.name = 'Walk_HG'
-        elif Character.stance == 2 and Reload_HG:
+        elif Character.stance == 2 and (Reload_HG or Rc_HG):
             if character.name != 'Reload_HG':
                 character.name = 'Reload_HG'
+        elif Character.stance == 2:
+            if character.name != 'Walk_HG':
+                character.name = 'Walk_HG'
 
-        if not Reload_SG and not Reload_HG:
+        if not Reload_SG and not Reload_HG and not Rc_HG:
             if Character.stance == 0 and Character.state == 1:
                 character.frame = clamp(0, character.frame, 13)
             else:
@@ -438,7 +482,7 @@ class Walk:
 
     @staticmethod
     def do(character):
-        global Fall, Move, Climb, Reload_SG, Reload_HG, Invincibility
+        global Fall, Move, Climb, Reload_SG, Reload_HG, Invincibility, Rc_HG, rchg
         if not Move:
             Move = True
 
@@ -466,13 +510,25 @@ class Walk:
                     character.state_machine.add_event(('IDLE', 0))
 
         elif Reload_HG:
-            character.frame = character.frame + 10.0 * 1.8 * game_framework.frame_time
+            character.frame = character.frame + 8.0 * 1.8 * game_framework.frame_time
             if character.frame > 8.0:
                 Character.speed = 5
                 Character.bullet_HG = Character.max_bullet_HG
                 character.frame = 0
                 Reload_HG = False
                 Invincibility = False
+                if d_pressed or a_pressed:
+                    character.state_machine.add_event(('WALK', 0))
+                else:
+                    character.state_machine.add_event(('IDLE', 0))
+
+        elif Rc_HG:
+            character.frame = character.frame + 8.0 * 1.8 * game_framework.frame_time
+            if character.frame > 8.0:
+                Character.speed = 5
+                character.frame = 0
+                Rc_HG = False
+                rchg = False
                 if d_pressed or a_pressed:
                     character.state_machine.add_event(('WALK', 0))
                 else:
@@ -508,7 +564,7 @@ class Walk:
                 if Character.state == 0 and not Attack:
                     character.x += Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
             elif Character.stance == 2:
-                if not Character.state == 1:
+                if not Character.state == 2:
                     character.x += Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
 
             for block in game_world.collision_pairs['server.character:ground'][1] + game_world.collision_pairs['server.character:wall'][1]:
@@ -560,7 +616,7 @@ class Walk:
             elif character.face_dir == -1:
                 character.images[character.name][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
 
-        elif Reload_HG:
+        elif Reload_HG or Rc_HG:
             if character.face_dir == 1:
                 if 0 <= int(character.frame) <= 4:
                     roll = 60 - int(character.frame) * 15
@@ -583,16 +639,27 @@ class Walk:
 class Hit:
     @staticmethod
     def enter(character, e):
-        global a_pressed, d_pressed, Jump, jump_velocity, Fall, attacking, s_pressed, w_pressed
+        global a_pressed, d_pressed, Jump, jump_velocity, Fall, attacking, s_pressed, w_pressed, Rc_HG
         if take_hit(e):
             if Character.stance == 0 and (Character.state == 1 or Reload_SG):
                 Character.hp = max(0, Character.hp - max(0, (Character.damage - Character.shield_def)))
                 if Character.hp == 0:
                     Character.speed = 3
+                    Character.score -= 100
                     character.state_machine.add_event(('DIE', 0))
                 elif a_pressed or d_pressed:
                     character.state_machine.add_event(('WALK', 0))
-            elif Character.state == 0 and not Reload_HG:
+            elif Character.stance == 2 and Character.state == 1 and Rc_HG:
+                Character.hp = max(0, Character.hp - Character.damage)
+                Character.state = 0
+                if Character.hp == 0:
+                    Character.speed = 5
+                    Character.score -= 100
+                    character.state_machine.add_event(('DIE', 0))
+                elif a_pressed or d_pressed:
+                    character.state_machine.add_event(('WALK', 0))
+            elif (Character.state == 0 and not Character.stance == 2) or (
+                    (Character.state == 0 or Character.state == 1) and Character.stance == 2 and not Rc_HG):
                 a_pressed = False
                 d_pressed = False
                 if Climb:
@@ -601,6 +668,7 @@ class Hit:
                 Jump = False
                 jump_velocity = 10.0
                 Fall = True
+                Character.state = 0
                 if not Attack:
                     character.frame = 0
                 Character.hp = max(0, Character.hp - Character.damage)
@@ -619,11 +687,11 @@ class Hit:
             attacking = False
         elif right_down(e):
             d_pressed = True
-            if Character.stance == 0 and Character.state == 1:
+            if (Character.stance == 0 and Character.state == 1) or (Character.stance == 2 and Rc_HG):
                 character.state_machine.add_event(('WALK', 0))
         elif left_down(e):
             a_pressed = True
-            if Character.stance == 0 and Character.state == 1:
+            if (Character.stance == 0 and Character.state == 1) or (Character.stance == 2 and Rc_HG):
                 character.state_machine.add_event(('WALK', 0))
         elif on_down(e):
             w_pressed = True
@@ -637,6 +705,8 @@ class Hit:
             if Character.stance == 0 and Character.state == 1:
                 Character.state = 0
                 Character.speed = 3
+            if Character.stance == 2 and Character.state == 1:
+                Character.state = 0
 
     @staticmethod
     def exit(character, e):
@@ -644,7 +714,7 @@ class Hit:
 
     @staticmethod
     def do(character):
-        global Reload_SG, Reload_HG, Invincibility
+        global Reload_SG, Reload_HG, Invincibility, Rc_HG, rchg
         if get_time() - character.wait_time > 0.5:
             character.state_machine.add_event(('TIME_OUT', 0))
 
@@ -668,13 +738,21 @@ class Hit:
                 Reload_SG = False
 
         elif Reload_HG:
-            character.frame = character.frame + 10.0 * 1.8 * game_framework.frame_time
+            character.frame = character.frame + 8.0 * 1.8 * game_framework.frame_time
             if character.frame > 8.0:
                 Character.speed = 5
                 Character.bullet_HG = Character.max_bullet_HG
                 character.frame = 0
                 Reload_HG = False
                 Invincibility = False
+
+        elif Rc_HG:
+            character.frame = character.frame + 8.0 * 1.8 * game_framework.frame_time
+            if character.frame > 8.0:
+                Character.speed = 5
+                character.frame = 0
+                Rc_HG = False
+                rchg = False
 
         else:
             if Character.stance == 0 and Character.state == 1:
@@ -698,21 +776,21 @@ class Hit:
                 elif Character.stance == 2:
                     character.images['Attack_HG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
 
-        elif Character.state == 0 and not Reload_SG and not Reload_HG:
+        elif Character.state == 0 and not Reload_SG and not Reload_HG and not Rc_HG:
             if character.face_dir == 1:
                 if Character.stance == 0:
-                    character.images['Hit_SG'][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
+                    character.images['Hit_SG'][0].composite_draw(0, '', character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
-                    character.images['Hit_RF'][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
+                    character.images['Hit_RF'][0].composite_draw(0, '', character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
-                    character.images['Hit_HG'][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
+                    character.images['Hit_HG'][0].composite_draw(0, '', character.sx, character.y, 170, 170)
             elif character.face_dir == -1:
                 if Character.stance == 0:
-                    character.images['Hit_SG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
+                    character.images['Hit_SG'][0].composite_draw(0, 'h', character.sx, character.y, 170, 170)
                 elif Character.stance == 1:
-                    character.images['Hit_RF'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
+                    character.images['Hit_RF'][0].composite_draw(0, 'h', character.sx, character.y, 170, 170)
                 elif Character.stance == 2:
-                    character.images['Hit_HG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
+                    character.images['Hit_HG'][0].composite_draw(0, 'h', character.sx, character.y, 170, 170)
         else:
             if character.face_dir == 1:
                 character.images[character.name][int(character.frame)].composite_draw(0, '', character.sx, character.y, 170, 170)
@@ -723,7 +801,7 @@ class Die:
     @staticmethod
     def enter(character, e):
         global a_pressed, d_pressed, Jump, jump_velocity, Fall, fall_velocity, Attack, attacking, Move, s_pressed, w_pressed
-        global Reload_SG, Reload_RF, rrf, Reload_HG, Climb, Invincibility
+        global Reload_SG, Reload_RF, rrf, Reload_HG, Climb, Invincibility, Rc_HG, rchg
         if die(e):
             Move = False
             Jump = False
@@ -731,6 +809,7 @@ class Die:
             Climb = False
             Attack = False
             attacking = False
+            Invincibility = False
             a_pressed = False
             d_pressed = False
             w_pressed = False
@@ -739,7 +818,8 @@ class Die:
             Reload_RF = False
             rrf = False
             Reload_HG = False
-            Invincibility = False
+            Rc_HG = False
+            rchg = False
             jump_velocity = 10.0
             fall_velocity = 0.0
             character.frame = 0
@@ -1037,6 +1117,7 @@ class Character:
     hit_delay = 0 # 피격 면역
     attack_delay = 0 # 공격 속도
     dash_cooldown = 0 # 대쉬 쿨타임 6초
+    agile_shooting_cooldown = 0 # 민첩한 사격 쿨타임 2초
 
     def load_images(self):
         if Character.images == None:
@@ -1093,6 +1174,7 @@ class Character:
         self.attack_cool = 0
         self.attack_time = 0
         self.Lshift_cool = 0
+        self.Rc_HG_cool = 0
         self.state_machine = StateMachine(self)
         self.state_machine.start(Idle)
         self.state_machine.set_transitions(
@@ -1138,6 +1220,7 @@ class Character:
 
     def update(self):
         global Jump, jump_velocity, Fall, fall_velocity, Attack, Move, screen_left, screen_right, Reload_SG, Reload_HG, mouse_x
+        global rchg
         self.state_machine.update()
         self.x = clamp(17.0, self.x, server.background.w - 17.0)
         self.sx = self.x - server.background.window_left
@@ -1165,7 +1248,7 @@ class Character:
 
         if attacking and not Attack:
             if Character.attack_delay == 0:
-                if Character.stance == 0 and Character.bullet_SG > 0:
+                if Character.stance == 0 and Character.bullet_SG > 0 and (Character.state == 0 or Character.state == 1):
                     if self.x > 1080:
                         mouse_x += self.x - 1080 // 2
                     if mouse_x > self.x:
@@ -1197,7 +1280,7 @@ class Character:
                         game_world.add_object(normalsg3, 3)
                         game_world.add_collision_pairs('normalsg3:spore', normalsg3, None)
                         Attack = True
-                elif Character.stance == 1 and not Move and Character.bullet_RF > 0:
+                elif Character.stance == 1 and not Move and Character.bullet_RF > 0 and Character.state == 0:
                     if self.x > 1080:
                         mouse_x += self.x - 1080 // 2
                     if mouse_x > self.x:
@@ -1232,7 +1315,7 @@ class Character:
                             rfeffect = RFEffect(self.attack_dir)
                             game_world.add_object(rfeffect, 3)
                         Attack = True
-                elif Character.stance == 2 and Character.bullet_HG > 0:
+                elif Character.stance == 2 and Character.bullet_HG > 0 and Character.state == 0:
                     if self.x > 1080:
                         mouse_x += self.x - 1080 // 2
                     if mouse_x > self.x:
@@ -1279,6 +1362,17 @@ class Character:
                     self.frame = 0
                     Attack = False
 
+        if Character.stance == 2 and Character.state == 1:
+            if Character.agile_shooting_cooldown == 0:
+                Character.speed = 7
+                self.frame = 0
+                Character.agile_shooting_cooldown = 2
+                rchg = True
+                if d_pressed or a_pressed:
+                    self.state_machine.add_event(('WALK', 0))
+                else:
+                    self.state_machine.add_event(('IDLE', 0))
+
         if not Character.hit_delay == 0:
             if self.hit_cool == 0:
                 self.hit_cool = get_time()
@@ -1299,6 +1393,13 @@ class Character:
             if get_time() - self.Lshift_cool > Character.dash_cooldown:
                 Character.dash_cooldown = 0
                 self.Lshift_cool = 0
+
+        if not Character.agile_shooting_cooldown == 0:
+            if self.Rc_HG_cool == 0:
+                self.Rc_HG_cool = get_time()
+            if get_time() - self.Rc_HG_cool > Character.agile_shooting_cooldown:
+                Character.agile_shooting_cooldown = 0
+                self.Rc_HG_cool = 0
 
     def handle_event(self, event):
         global mouse_x, mouse_y
