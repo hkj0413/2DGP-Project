@@ -11,6 +11,7 @@ class UI:
     image_rc_sg = None
     image_rc_rf = None
     image_rc_hg = None
+    image_e_hg = None
 
     def __init__(self):
         if UI.image_hp == None:
@@ -25,6 +26,8 @@ class UI:
             self.image_rc_rf = load_image("./Icon/" + 'RF_target_down' + ".png")
         if UI.image_rc_hg == None:
             self.image_rc_hg = load_image("./Icon/" + 'HG_agile_shooting' + ".png")
+        if UI.image_e_hg == None:
+            self.image_e_hg = load_image("./Icon/" + 'HG_bullet_rain' + ".png")
         #self.font = load_font('ENCR10B.TTF', 20)
 
     def update(self):
@@ -63,7 +66,7 @@ class UI:
                 for i in range(Character.shield_def):
                     self.bullet_image[6].draw(bx - i * 27, by - 40, 25, 30)
         elif Character.stance == 1:
-            if Character.target_down_cooldwon == 0:
+            if Character.target_down_cooldown == 0:
                 self.image_rc_rf.draw(124 + 64 * 3, 40, 48 ,48)
 
             for i in range(4):
@@ -79,6 +82,9 @@ class UI:
         elif Character.stance == 2:
             if Character.agile_shooting_cooldown == 0:
                 self.image_rc_hg.draw(124 + 64 * 3, 40, 48 ,48)
+
+            if Character.bullet_rain_cooldown == 0:
+                self.image_e_hg.draw(124 + 64 * 9, 40, 48 ,48)
 
             for i in range(Character.max_bullet_HG):
                 if i < Character.bullet_HG:

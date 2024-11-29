@@ -98,7 +98,7 @@ class Idle:
                 Character.state = 1
                 Character.speed = 1
             elif Character.stance == 1:
-                if Character.target_down_cooldwon == 0:
+                if Character.target_down_cooldown == 0:
                     Character.state = 1
                     character.state_machine.add_event(('RF_RC', 0))
             elif Character.stance == 2:
@@ -145,6 +145,15 @@ class Idle:
                     Character.speed = 7
                     character.frame = 0
                     Invincibility = True
+        elif e_down(e):
+            if Character.stance == 0:
+                pass
+            elif Character.stance == 1:
+                pass
+            elif Character.stance == 2:
+                if Character.bullet_rain_cooldown == 0:
+                    Character.state = 2
+                    character.state_machine.add_event(('HG_E', 0))
 
         elif temp_more(e):
             Character.max_hp += 2
@@ -157,10 +166,12 @@ class Idle:
         elif temp_reset_cool(e):
             Character.dash_cooldown = 0
             character.Lshift_cool = 0
-            Character.target_down_cooldwon = 0
+            Character.target_down_cooldown = 0
             character.Rc_RF_cool = 0
             Character.agile_shooting_cooldown = 0
             character.Rc_HG_cool = 0
+            Character.bullet_rain_cooldown = 0
+            character.E_HG_cool = 0
         elif temp_rectmode(e):
            RectMode = not RectMode
         elif temp_god(e):
@@ -391,7 +402,7 @@ class Walk:
                 Character.state = 1
                 Character.speed = 1
             elif Character.stance == 1:
-                if Character.target_down_cooldwon == 0:
+                if Character.target_down_cooldown == 0:
                     Character.state = 1
                     character.state_machine.add_event(('RF_RC', 0))
             elif Character.stance == 2:
@@ -438,6 +449,15 @@ class Walk:
                     Character.speed = 7
                     character.frame = 0
                     Invincibility = True
+        elif e_down(e):
+            if Character.stance == 0:
+                pass
+            elif Character.stance == 1:
+                pass
+            elif Character.stance == 2:
+                if Character.bullet_rain_cooldown == 0:
+                    Character.state = 2
+                    character.state_machine.add_event(('HG_E', 0))
 
         elif temp_more(e):
             Character.max_hp += 2
@@ -450,10 +470,12 @@ class Walk:
         elif temp_reset_cool(e):
             Character.dash_cooldown = 0
             character.Lshift_cool = 0
-            Character.target_down_cooldwon = 0
+            Character.target_down_cooldown = 0
             character.Rc_RF_cool = 0
             Character.agile_shooting_cooldown = 0
             character.Rc_HG_cool = 0
+            Character.bullet_rain_cooldown = 0
+            character.E_HG_cool = 0
         elif temp_rectmode(e):
            RectMode = not RectMode
         elif temp_god(e):
@@ -1153,7 +1175,7 @@ class RcRF:
             attacking = False
         elif dash(e) and Character.dash_cooldown == 0:
             Character.state = 0
-            Character.target_down_cooldwon = 30
+            Character.target_down_cooldown = 30
             Character.target_down_size = 0
             character.state_machine.add_event(('USE_DASH', 0))
         elif take_hit(e):
@@ -1161,7 +1183,7 @@ class RcRF:
             Character.hit_delay = 1.5
             if Character.hp == 0:
                 Character.score -= 100
-                Character.target_down_cooldwon = 30
+                Character.target_down_cooldown = 30
                 Character.target_down_size = 0
                 character.state_machine.add_event(('DIE', 0))
 
@@ -1179,7 +1201,7 @@ class RcRF:
         if Attack:
             character.frame = (character.frame + 7.0 * 2.0 * game_framework.frame_time) % 7
             if Character.target_down_bullet == 0:
-                Character.target_down_cooldwon = 30
+                Character.target_down_cooldown = 30
                 Character.target_down_size = 0
                 Character.state = 0
                 if d_pressed or a_pressed:
@@ -1230,9 +1252,98 @@ class RcRF:
                 character.images['Idle_RF'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
                                                                                    170, 170)
 
+class EHG:
+    @staticmethod
+    def enter(character, e):
+        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump
+        if hg_e(e):
+            Move = False
+            Character.hit_delay = 0.5
+            character.wait_time = get_time()
+            character.frame = 0
+        elif right_down(e):
+            d_pressed = True
+            character.face_dir = 1
+            character.attack_dir = 1
+        elif right_up(e):
+            d_pressed = False
+        elif left_down(e):
+            a_pressed = True
+            character.face_dir = -1
+            character.attack_dir = -1
+        elif left_up(e):
+            a_pressed = False
+        elif on_down(e):
+            w_pressed = True
+        elif on_up(e):
+            w_pressed = False
+            if Climb and not s_pressed:
+                Move = False
+        elif under_down(e):
+            s_pressed = True
+        elif under_up(e):
+            s_pressed = False
+            if Climb and not w_pressed:
+                Move = False
+        elif lc_down(e):
+            attacking = True
+        elif lc_up(e):
+            attacking = False
+        elif jump(e) and not Jump and not Fall:
+            Jump = True
+        elif dash(e) and Character.dash_cooldown == 0:
+            Character.state = 0
+            Character.bullet_rain_cooldown = 8
+            character.state_machine.add_event(('USE_DASH', 0))
+        elif take_hit(e):
+            Character.hp = max(0, Character.hp - Character.damage)
+            Character.hit_delay = 1.5
+            if Character.hp == 0:
+                Character.score -= 100
+                Character.bullet_rain_cooldown = 8
+                character.state_machine.add_event(('DIE', 0))
+
+    @staticmethod
+    def exit(character, e):
+        pass
+
+    @staticmethod
+    def do(character):
+        global Move
+        character.frame = (character.frame + 7.0 * 3.0 * game_framework.frame_time) % 7
+
+        if Climb:
+            if w_pressed and not s_pressed:
+                if not Move:
+                    Move = True
+                character.y += Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                for block in game_world.collision_pairs['server.character:ground'][1]:
+                    if screen_left - 15 <= block.x <= screen_right + 15:
+                        if game_world.collide(character, block):
+                            character.y -= Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                            return
+            elif s_pressed and not w_pressed:
+                if not Move:
+                    Move = True
+                character.y -= Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                for block in game_world.collision_pairs['server.character:ground'][1]:
+                    if screen_left - 15 <= block.x <= screen_right + 15:
+                        if game_world.collide(character, block):
+                            character.y += Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                            return
+
+    @staticmethod
+    def draw(character):
+        if character.face_dir == 1:
+            character.images['E_HG'][int(character.frame)].composite_draw(0, '', character.sx, character.y,
+                                                                          170, 170)
+        elif character.face_dir == -1:
+            character.images['E_HG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
+                                                                          170, 170)
+
 animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reload_SG', 'Rc_SG',
                    'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF',
-                   'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG',]
+                   'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG', 'E_HG',]
 
 class Character:
     images = None
@@ -1254,8 +1365,9 @@ class Character:
     hit_delay = 0 # 피격 면역
     attack_delay = 0 # 공격 속도
     dash_cooldown = 0 # 대쉬 쿨타임 6초
-    target_down_cooldwon = 0  # 타겟 다운 쿨타임 30초
+    target_down_cooldown = 0  # 타겟 다운 쿨타임 30초
     agile_shooting_cooldown = 0 # 민첩한 사격 쿨타임 2초
+    bullet_rain_cooldown = 0 # 불렛 레인 쿨타임 8초
 
     def load_images(self):
         if Character.images == None:
@@ -1299,6 +1411,8 @@ class Character:
                     Character.images[name] = [load_image("./GSH18Mod/" + name + " (%d)" % i + ".png") for i in range(1, 5 + 1)]
                 elif name == 'Reload_HG':
                     Character.images[name] = [load_image("./GSH18Mod/" + name + " (%d)" % i + ".png") for i in range(1, 8 + 1)]
+                elif name == 'E_HG':
+                    Character.images[name] = [load_image("./GSH18Mod/" + name + " (%d)" % i + ".png") for i in range(1, 7 + 1)]
 
     def __init__(self):
         self.x, self.y = 34.0, 140.0
@@ -1315,6 +1429,7 @@ class Character:
         self.Lshift_cool = 0
         self.Rc_RF_cool = 0
         self.Rc_HG_cool = 0
+        self.E_HG_cool = 0
         self.state_machine = StateMachine(self)
         self.state_machine.start(Idle)
         self.state_machine.set_transitions(
@@ -1323,16 +1438,16 @@ class Character:
                     right_down: Walk, left_down: Walk, left_up: Idle, right_up: Idle, change_stance_z: Idle, change_stance_x: Idle,
                     walk: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash, lc_down: Idle, lc_up: Idle,
                     reload: Idle, rf_reload: RRF, idle: Idle, under_down: Idle, under_up: Idle, rf_reload_s: RsRF, rf_rc: RcRF,
-                    on_up: Idle, on_down: Idle,
-                    temp_damage: Idle, take_hit: Hit, die: Die,
+                    on_up: Idle, on_down: Idle, q_down: Idle, e_down: Idle, c_down: Idle,
+                    temp_damage: Idle, take_hit: Hit, die: Die, hg_e: EHG,
                     temp_more: Idle, temp_heal: Idle, temp_bullet: Idle, temp_reset_cool: Idle, temp_rectmode: Idle, temp_god: Idle,
                 },
                 Walk: {
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
                     idle: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash, lc_down: Walk, lc_up: Walk,
                     reload: Walk, rf_reload: RRF, walk: Walk, under_down: Walk, under_up: Walk, rf_reload_s: RsRF, rf_rc: RcRF,
-                    on_up: Walk, on_down: Walk,
-                    temp_damage: Walk, take_hit: Hit, die: Die,
+                    on_up: Walk, on_down: Walk, q_down: Walk, e_down: Walk, c_down: Walk,
+                    temp_damage: Walk, take_hit: Hit, die: Die, hg_e: EHG,
                     temp_more: Walk, temp_heal: Walk, temp_bullet: Walk, temp_reset_cool: Walk, temp_rectmode: Walk, temp_god: Walk,
                 },
                 Hit: {
@@ -1358,6 +1473,12 @@ class Character:
                 RcRF: {
                     right_down: RcRF, left_down: RcRF, left_up: RcRF, right_up: RcRF, on_up: RcRF, under_up: RcRF, lc_down: RcRF, lc_up: RcRF,
                     under_down: RcRF, on_down: RcRF,  dash: RcRF, use_dash: Dash, idle: Idle, walk: Walk, take_hit: RcRF, die: Die,
+                },
+                EHG: {
+                    right_down: EHG, left_down: EHG, left_up: EHG, right_up: EHG, on_up: EHG, under_up: EHG,
+                    lc_down: EHG, lc_up: EHG, jump: EHG,
+                    under_down: EHG, on_down: EHG, dash: EHG, use_dash: Dash, idle: Idle, walk: Walk, take_hit: EHG,
+                    die: Die,
                 },
             }
         )
@@ -1494,35 +1615,47 @@ class Character:
                             game_world.add_object(rfeffect, 3)
 
                             Attack = True
-                elif Character.stance == 2 and Character.bullet_HG > 0 and Character.state == 0 and not Rc_HG:
-                    if self.x > 1080 and not self.mouse:
-                        mouse_x += self.x - 1080 // 2
-                        self.mouse = True
-                    if mouse_x > self.x:
-                        self.attack_dir = 1
-                        if not Move or Fall or Jump:
+                elif Character.stance == 2 and not Rc_HG:
+                    if Character.state == 0 and Character.bullet_HG > 0:
+                        if self.x > 1080 and not self.mouse:
+                            mouse_x += self.x - 1080 // 2
+                            self.mouse = True
+                        if mouse_x > self.x:
+                            self.attack_dir = 1
+                            if not Move or Fall or Jump:
+                                self.face_dir = 1
+                        elif mouse_x < self.x:
+                            self.attack_dir = -1
+                            if not Move or Fall or Jump:
+                                self.face_dir = -1
+                        if self.attack_time == 0:
+                            self.attack_time = get_time()
+                            self.frame = 0
+                            Character.bullet_HG -= 1
+
+                            normalhgeffect = NormalHGEffect(self.attack_dir)
+                            game_world.add_object(normalhgeffect, 3)
+
+                            normalhg = NormalHG(self.attack_dir)
+                            game_world.add_object(normalhg, 3)
+                            for mob in mob_group:
+                                game_world.add_collision_pairs(f'normalhg:{mob}', normalhg, None)
+
+                            hgeffect = HGEffect(self.attack_dir)
+                            game_world.add_object(hgeffect, 3)
+
+                            Attack = True
+                    elif Character.state == 2 and Character.bullet_HG > 0:
+                        if self.x > 1080 and not self.mouse:
+                            mouse_x += self.x - 1080 // 2
+                            self.mouse = True
+                        if mouse_x > self.x:
                             self.face_dir = 1
-                    elif mouse_x < self.x:
-                        self.attack_dir = -1
-                        if not Move or Fall or Jump:
+                            self.attack_dir = 1
+                        elif mouse_x < self.x:
                             self.face_dir = -1
-                    if self.attack_time == 0:
-                        self.attack_time = get_time()
-                        self.frame = 0
-                        Character.bullet_HG -= 1
+                            self.attack_dir = -1
 
-                        normalhgeffect = NormalHGEffect(self.attack_dir)
-                        game_world.add_object(normalhgeffect, 3)
-
-                        normalhg= NormalHG(self.attack_dir)
-                        game_world.add_object(normalhg, 3)
-                        for mob in mob_group:
-                            game_world.add_collision_pairs(f'normalhg:{mob}', normalhg, None)
-
-                        hgeffect = HGEffect(self.attack_dir)
-                        game_world.add_object(hgeffect, 3)
-
-                        Attack = True
         if Attack:
             if Character.stance == 0:
                 if get_time() - self.attack_time > 0.5:
@@ -1578,11 +1711,11 @@ class Character:
                 Character.dash_cooldown = 0
                 self.Lshift_cool = 0
 
-        if not Character.target_down_cooldwon == 0:
+        if not Character.target_down_cooldown == 0:
             if self.Rc_RF_cool == 0:
                 self.Rc_RF_cool = get_time()
-            if get_time() - self.Rc_RF_cool > Character.target_down_cooldwon:
-                Character.target_down_cooldwon = 0
+            if get_time() - self.Rc_RF_cool > Character.target_down_cooldown:
+                Character.target_down_cooldown = 0
                 self.Rc_RF_cool = 0
 
         if not Character.agile_shooting_cooldown == 0:
@@ -1591,6 +1724,13 @@ class Character:
             if get_time() - self.Rc_HG_cool > Character.agile_shooting_cooldown:
                 Character.agile_shooting_cooldown = 0
                 self.Rc_HG_cool = 0
+        
+        if not Character.bullet_rain_cooldown == 0:
+            if self.E_HG_cool == 0:
+                self.E_HG_cool = get_time()
+            if get_time() - self.E_HG_cool > Character.bullet_rain_cooldown:
+                Character.bullet_rain_cooldown = 0
+                self.E_HG_cool = 0
 
     def handle_event(self, event):
         global mouse_x, mouse_y

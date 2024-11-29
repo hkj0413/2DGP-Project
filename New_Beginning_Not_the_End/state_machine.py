@@ -28,10 +28,10 @@ def on_up(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_w
 
 def change_stance_z(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_z
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_z
 
 def change_stance_x(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_x
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_x
 
 def jump(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_SPACE
@@ -41,6 +41,21 @@ def dash(e):
 
 def reload(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_r
+
+def q_down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_q
+
+def q_up(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_q
+
+def e_down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_e
+
+def e_up(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_e
+
+def c_down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_c
 
 def idle(e):
     return e[0] == 'IDLE'
@@ -68,6 +83,9 @@ def rf_reload_s(e):
 
 def rf_rc(e):
     return e[0] == 'RF_RC'
+
+def hg_e(e):
+    return e[0] == 'HG_E'
 
 def time_out(e):
     return e[0] == 'TIME_OUT'
