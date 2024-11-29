@@ -450,6 +450,8 @@ class Walk:
         elif temp_reset_cool(e):
             Character.dash_cooldown = 0
             character.Lshift_cool = 0
+            Character.target_down_cooldwon = 0
+            character.Rc_RF_cool = 0
             Character.agile_shooting_cooldown = 0
             character.Rc_HG_cool = 0
         elif temp_rectmode(e):
@@ -1151,7 +1153,7 @@ class RcRF:
             attacking = False
         elif dash(e) and Character.dash_cooldown == 0:
             Character.state = 0
-            Character.target_down_cooldwon = 20
+            Character.target_down_cooldwon = 30
             Character.target_down_size = 0
             character.state_machine.add_event(('USE_DASH', 0))
         elif take_hit(e):
@@ -1159,7 +1161,7 @@ class RcRF:
             Character.hit_delay = 1
             if Character.hp == 0:
                 Character.score -= 100
-                Character.target_down_cooldwon = 20
+                Character.target_down_cooldwon = 30
                 Character.target_down_size = 0
                 character.state_machine.add_event(('DIE', 0))
 
@@ -1177,7 +1179,7 @@ class RcRF:
         if Attack:
             character.frame = (character.frame + 7.0 * 2.0 * game_framework.frame_time) % 7
             if Character.target_down_bullet == 0:
-                Character.target_down_cooldwon = 20
+                Character.target_down_cooldwon = 30
                 Character.target_down_size = 0
                 Character.state = 0
                 if d_pressed or a_pressed:
@@ -1252,7 +1254,7 @@ class Character:
     hit_delay = 0 # 피격 면역
     attack_delay = 0 # 공격 속도
     dash_cooldown = 0 # 대쉬 쿨타임 6초
-    target_down_cooldwon = 0  # 타겟 다운 쿨타임 20초
+    target_down_cooldwon = 0  # 타겟 다운 쿨타임 30초
     agile_shooting_cooldown = 0 # 민첩한 사격 쿨타임 2초
 
     def load_images(self):
