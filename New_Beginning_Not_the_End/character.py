@@ -96,7 +96,9 @@ class Idle:
                 Character.state = 1
                 Character.speed = 1
             elif Character.stance == 1:
-                pass
+                if Character.target_down_cooldwon == 0:
+                    Character.state = 1
+                    character.state_machine.add_event(('RF_RC', 0))
             elif Character.stance == 2:
                 Character.state = 1
         elif rc_up(e):
@@ -104,8 +106,6 @@ class Idle:
                 Character.state = 0
                 if not Reload_SG:
                     Character.speed = 3
-            elif Character.stance == 1:
-                pass
             elif Character.stance == 2:
                 Character.state = 0
         elif jump(e) and not Jump and not Fall:
@@ -155,6 +155,8 @@ class Idle:
         elif temp_reset_cool(e):
             Character.dash_cooldown = 0
             character.Lshift_cool = 0
+            Character.target_down_cooldwon = 0
+            character.Rc_RF_cool = 0
             Character.agile_shooting_cooldown = 0
             character.Rc_HG_cool = 0
         elif temp_rectmode(e):
@@ -387,7 +389,9 @@ class Walk:
                 Character.state = 1
                 Character.speed = 1
             elif Character.stance == 1:
-                pass
+                if Character.target_down_cooldwon == 0:
+                    Character.state = 1
+                    character.state_machine.add_event(('RF_RC', 0))
             elif Character.stance == 2:
                 Character.state = 1
         elif rc_up(e):
@@ -395,8 +399,6 @@ class Walk:
                 Character.state = 0
                 if not Reload_SG:
                     Character.speed = 3
-            elif Character.stance == 1:
-                pass
             elif Character.stance == 2:
                 Character.state = 0
         elif jump(e) and not Jump and not Fall:
@@ -832,7 +834,7 @@ class Die:
             jump_velocity = 10.0
             fall_velocity = 0.0
             character.frame = 0
-            Character.state = 0
+            Character.state = -1
             Character.attack_delay = 0
             character.attack_cool = 0
             character.attack_time = 0
@@ -844,6 +846,7 @@ class Die:
         if time_out(e):
             character.x, character.y = 34, 140.0
             server.background.window_left = 0
+            Character.state = 0
             Character.hit_delay = 1
             if Character.stance == 0:
                 Character.speed = 3
@@ -919,10 +922,11 @@ class Dash:
             if Character.stance == 0 and Character.state == 1:
                 Character.state = 0
                 Character.speed = 3
+            if Character.stance == 2 and Character.state == 1:
+                Character.state = 0
 
     @staticmethod
     def exit(character, e):
-        global Reload_RF
         if time_out(e):
             if d_pressed or a_pressed:
                 character.state_machine.add_event(('WALK', 0))
@@ -1107,6 +1111,121 @@ class RsRF:
         elif character.face_dir == -1:
             character.images[character.name][int(character.frame)].composite_draw(0, 'h', character.sx, character.y, 170, 170)
 
+class RcRF:
+    @staticmethod
+    def enter(character, e):
+        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move
+        if rf_rc(e):
+            Move = False
+            Character.hit_delay = 0.5
+            character.wait_time = get_time()
+            Character.target_down_bullet = Character.target_down_max
+            character.frame = clamp(0, character.frame, 13)
+        elif right_down(e):
+            d_pressed = True
+            character.face_dir = 1
+        elif right_up(e):
+            d_pressed = False
+        elif left_down(e):
+            a_pressed = True
+            character.face_dir = -1
+        elif left_up(e):
+            a_pressed = False
+        elif on_down(e):
+            w_pressed = True
+        elif on_up(e):
+            w_pressed = False
+            if Climb and not s_pressed:
+                Move = False
+        elif under_down(e):
+            s_pressed = True
+        elif under_up(e):
+            s_pressed = False
+            if Climb and not w_pressed:
+                Move = False
+        elif lc_down(e):
+            attacking = True
+        elif lc_up(e):
+            attacking = False
+        elif dash(e) and Character.dash_cooldown == 0:
+            Character.state = 0
+            Character.target_down_cooldwon = 20
+            Character.target_down_size = 0
+            character.state_machine.add_event(('USE_DASH', 0))
+        elif take_hit(e):
+            Character.hp = max(0, Character.hp - Character.damage)
+            Character.hit_delay = 1
+            if Character.hp == 0:
+                Character.score -= 100
+                Character.target_down_cooldwon = 20
+                Character.target_down_size = 0
+                character.state_machine.add_event(('DIE', 0))
+
+    @staticmethod
+    def exit(character, e):
+        pass
+
+    @staticmethod
+    def do(character):
+        global Move
+        if get_time() - character.wait_time > 0.025 and Character.target_down_size <= 40:
+            Character.target_down_size += 5
+            character.wait_time = get_time()
+
+        if Attack:
+            character.frame = (character.frame + 7.0 * 2.0 * game_framework.frame_time) % 7
+            if Character.target_down_bullet == 0:
+                Character.target_down_cooldwon = 20
+                Character.target_down_size = 0
+                Character.state = 0
+                if d_pressed or a_pressed:
+                    character.state_machine.add_event(('WALK', 0))
+                else:
+                    character.state_machine.add_event(('IDLE', 0))
+        else:
+            character.frame = (character.frame + 14.0 * 1.5 * game_framework.frame_time) % 14
+
+        if Fall or Jump:
+            if Move:
+                Move = False
+
+        if Climb:
+            if w_pressed and not s_pressed:
+                if not Move:
+                    Move = True
+                character.y += Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                for block in game_world.collision_pairs['server.character:ground'][1]:
+                    if screen_left - 15 <= block.x <= screen_right + 15:
+                        if game_world.collide(character, block):
+                            character.y -= Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                            return
+            elif s_pressed and not w_pressed:
+                if not Move:
+                    Move = True
+                character.y -= Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                for block in game_world.collision_pairs['server.character:ground'][1]:
+                    if screen_left - 15 <= block.x <= screen_right + 15:
+                        if game_world.collide(character, block):
+                            character.y += Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                            return
+
+    @staticmethod
+    def draw(character):
+        if Attack:
+            if character.face_dir == 1:
+                character.images['Attack_RF'][int(character.frame)].composite_draw(0, '', character.sx, character.y,
+                                                                                   170, 170)
+            elif character.face_dir == -1:
+                character.images['Attack_RF'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
+                                                                                   170, 170)
+        else:
+            if character.face_dir == 1:
+                character.images['Idle_RF'][int(character.frame)].composite_draw(0, '', character.sx, character.y,
+                                                                                   170, 170)
+            elif character.face_dir == -1:
+                character.images['Idle_RF'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
+                                                                                   170, 170)
+
 animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reload_SG', 'Rc_SG',
                    'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF',
                    'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG',]
@@ -1122,12 +1241,16 @@ class Character:
     damage = 0
     bullet_SG = 8
     bullet_RF = 4
+    target_down_max = 2
+    target_down_bullet = target_down_max
+    target_down_size = 0
     max_bullet_HG = 20
     bullet_HG = max_bullet_HG
     shield_def = 1 # 방어 태세 방어도
     hit_delay = 0 # 피격 면역
     attack_delay = 0 # 공격 속도
     dash_cooldown = 0 # 대쉬 쿨타임 6초
+    target_down_cooldwon = 0  # 타겟 다운 쿨타임 20초
     agile_shooting_cooldown = 0 # 민첩한 사격 쿨타임 2초
 
     def load_images(self):
@@ -1186,6 +1309,7 @@ class Character:
         self.attack_cool = 0
         self.attack_time = 0
         self.Lshift_cool = 0
+        self.Rc_RF_cool = 0
         self.Rc_HG_cool = 0
         self.state_machine = StateMachine(self)
         self.state_machine.start(Idle)
@@ -1194,7 +1318,7 @@ class Character:
                 Idle: {
                     right_down: Walk, left_down: Walk, left_up: Idle, right_up: Idle, change_stance_z: Idle, change_stance_x: Idle,
                     walk: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash, lc_down: Idle, lc_up: Idle,
-                    reload: Idle, rf_reload: RRF, idle: Idle, under_down: Idle, under_up: Idle, rf_reload_s: RsRF,
+                    reload: Idle, rf_reload: RRF, idle: Idle, under_down: Idle, under_up: Idle, rf_reload_s: RsRF, rf_rc: RcRF,
                     on_up: Idle, on_down: Idle,
                     temp_damage: Idle, take_hit: Hit, die: Die,
                     temp_more: Idle, temp_heal: Idle, temp_bullet: Idle, temp_reset_cool: Idle, temp_rectmode: Idle, temp_god: Idle,
@@ -1202,7 +1326,7 @@ class Character:
                 Walk: {
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
                     idle: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash, lc_down: Walk, lc_up: Walk,
-                    reload: Walk, rf_reload: RRF, walk: Walk, under_down: Walk, under_up: Walk, rf_reload_s: RsRF,
+                    reload: Walk, rf_reload: RRF, walk: Walk, under_down: Walk, under_up: Walk, rf_reload_s: RsRF, rf_rc: RcRF,
                     on_up: Walk, on_down: Walk,
                     temp_damage: Walk, take_hit: Hit, die: Die,
                     temp_more: Walk, temp_heal: Walk, temp_bullet: Walk, temp_reset_cool: Walk, temp_rectmode: Walk, temp_god: Walk,
@@ -1226,6 +1350,10 @@ class Character:
                 RsRF: {
                     left_up: RsRF, right_up: RsRF, on_up: RsRF, under_up: RsRF, lc_up: RsRF,
                     time_out: Idle, walk: Walk
+                },
+                RcRF: {
+                    right_down: RcRF, left_down: RcRF, left_up: RcRF, right_up: RcRF, on_up: RcRF, under_up: RcRF, lc_down: RcRF, lc_up: RcRF,
+                    under_down: RcRF, on_down: RcRF,  dash: RcRF, use_dash: Dash, idle: Idle, walk: Walk, take_hit: RcRF, die: Die,
                 },
             }
         )
@@ -1296,33 +1424,60 @@ class Character:
                         for mob in mob_group:
                             game_world.add_collision_pairs(f'normalsg3:{mob}', normalsg3, None)
                         Attack = True
-                elif Character.stance == 1 and not Move and Character.bullet_RF > 0 and Character.state == 0:
-                    if self.x > 1080 and not self.mouse:
-                        mouse_x += self.x - 1080 // 2
-                        self.mouse = True
-                    if mouse_x > self.x:
-                        self.attack_dir = 1
-                        self.face_dir = 1
-                    elif mouse_x < self.x:
-                        self.attack_dir = -1
-                        self.face_dir = -1
-                    if self.attack_time == 0:
-                        self.attack_time = get_time()
-                        self.frame = 0
-                        Character.bullet_RF -= 1
+                elif Character.stance == 1 and not Move:
+                    if Character.state == 0 and Character.bullet_RF > 0:
+                        if self.x > 1080 and not self.mouse:
+                            mouse_x += self.x - 1080 // 2
+                            self.mouse = True
+                        if mouse_x > self.x:
+                            self.attack_dir = 1
+                            self.face_dir = 1
+                        elif mouse_x < self.x:
+                            self.attack_dir = -1
+                            self.face_dir = -1
+                        if self.attack_time == 0:
+                            self.attack_time = get_time()
+                            self.frame = 0
+                            Character.bullet_RF -= 1
 
-                        if Character.bullet_RF > 0:
-                            normalrfeffect = NormalRFEffect(self.attack_dir)
-                            game_world.add_object(normalrfeffect, 3)
+                            if Character.bullet_RF > 0:
+                                normalrfeffect = NormalRFEffect(self.attack_dir)
+                                game_world.add_object(normalrfeffect, 3)
 
-                            normalrf = NormalRF(self.attack_dir)
-                            game_world.add_object(normalrf, 3)
-                            for mob in mob_group:
-                                game_world.add_collision_pairs(f'normalrf:{mob}', normalrf, None)
+                                normalrf = NormalRF(self.attack_dir)
+                                game_world.add_object(normalrf, 3)
+                                for mob in mob_group:
+                                    game_world.add_collision_pairs(f'normalrf:{mob}', normalrf, None)
 
-                            rfeffect = RFEffect(self.attack_dir)
-                            game_world.add_object(rfeffect, 3)
-                        else:
+                                rfeffect = RFEffect(self.attack_dir)
+                                game_world.add_object(rfeffect, 3)
+                            else:
+                                normalrfspeffect = NormalRFSPEffect(self.attack_dir)
+                                game_world.add_object(normalrfspeffect, 3)
+
+                                normalrfsp = NormalRFSP(self.attack_dir)
+                                game_world.add_object(normalrfsp, 3)
+                                for mob in mob_group:
+                                    game_world.add_collision_pairs(f'normalrfsp:{mob}', normalrfsp, None)
+
+                                rfeffect = RFEffect(self.attack_dir)
+                                game_world.add_object(rfeffect, 3)
+                            Attack = True
+                    elif Character.state == 1 and Character.target_down_bullet > 0:
+                        if self.x > 1080 and not self.mouse:
+                            mouse_x += self.x - 1080 // 2
+                            self.mouse = True
+                        if mouse_x > self.x:
+                            self.attack_dir = 1
+                            self.face_dir = 1
+                        elif mouse_x < self.x:
+                            self.attack_dir = -1
+                            self.face_dir = -1
+                        if self.attack_time == 0:
+                            self.attack_time = get_time()
+                            self.frame = 0
+                            Character.target_down_bullet -= 1
+
                             normalrfspeffect = NormalRFSPEffect(self.attack_dir)
                             game_world.add_object(normalrfspeffect, 3)
 
@@ -1333,7 +1488,8 @@ class Character:
 
                             rfeffect = RFEffect(self.attack_dir)
                             game_world.add_object(rfeffect, 3)
-                        Attack = True
+
+                            Attack = True
                 elif Character.stance == 2 and Character.bullet_HG > 0 and Character.state == 0 and not Rc_HG:
                     if self.x > 1080 and not self.mouse:
                         mouse_x += self.x - 1080 // 2
@@ -1415,6 +1571,13 @@ class Character:
                 Character.dash_cooldown = 0
                 self.Lshift_cool = 0
 
+        if not Character.target_down_cooldwon == 0:
+            if self.Rc_RF_cool == 0:
+                self.Rc_RF_cool = get_time()
+            if get_time() - self.Rc_RF_cool > Character.target_down_cooldwon:
+                Character.target_down_cooldwon = 0
+                self.Rc_RF_cool = 0
+
         if not Character.agile_shooting_cooldown == 0:
             if self.Rc_HG_cool == 0:
                 self.Rc_HG_cool = get_time()
@@ -1487,7 +1650,7 @@ class Character:
             jump_velocity = 10.0
 
     def take_damage(self, damage):
-        if Character.hit_delay == 0 and not Invincibility and not God:
+        if Character.hit_delay == 0 and not Character.state == -1 and not Invincibility and not God:
             Character.damage = damage
             self.state_machine.add_event(('HIT', 0))
 

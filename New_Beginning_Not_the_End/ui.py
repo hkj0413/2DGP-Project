@@ -67,9 +67,11 @@ class UI:
                     self.bullet_image[2].draw(bx - i * 27, by)
                 else:
                     self.bullet_image[3].draw(bx - i * 27, by)
-            #if state == 1:
-                #for i in range(snipe_bullet):
-                    #self.Bullet_image.clip_composite_draw(216, 0, 54, 50, 0, '', bx - i * 39 + 11, by - 55, 69, 60)
+            if Character.state == 1:
+                for i in range(Character.target_down_bullet):
+                    self.bullet_image[7].draw(bx - i * 39 , by - 40, 33, 30)
+                self.bullet_image[7].draw(character.mouse_x, 800 - character.mouse_y, 120 - Character.target_down_size,
+                                          120 - Character.target_down_size)
         elif Character.stance == 2:
             if Character.agile_shooting_cooldown == 0:
                 self.image_rc_hg.draw(124 + 64 * 3, 40, 48 ,48)

@@ -66,6 +66,9 @@ def rf_reload(e):
 def rf_reload_s(e):
     return e[0] == 'RF_RELOAD_S'
 
+def rf_rc(e):
+    return e[0] == 'RF_RC'
+
 def time_out(e):
     return e[0] == 'TIME_OUT'
 
