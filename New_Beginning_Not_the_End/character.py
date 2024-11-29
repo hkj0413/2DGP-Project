@@ -689,7 +689,7 @@ class Hit:
                     Character.score -= 100
                     character.state_machine.add_event(('DIE', 0))
             character.wait_time = get_time()
-            Character.hit_delay = 1
+            Character.hit_delay = 1.5
         elif right_up(e):
             d_pressed = False
         elif left_up(e):
@@ -1158,7 +1158,7 @@ class RcRF:
             character.state_machine.add_event(('USE_DASH', 0))
         elif take_hit(e):
             Character.hp = max(0, Character.hp - Character.damage)
-            Character.hit_delay = 1
+            Character.hit_delay = 1.5
             if Character.hp == 0:
                 Character.score -= 100
                 Character.target_down_cooldwon = 30
@@ -1532,7 +1532,10 @@ class Character:
                     Attack = False
             elif Character.stance == 1:
                 if get_time() - self.attack_time > 0.4:
-                    Character.attack_delay = 1.5
+                    if Character.stance == 1:
+                        Character.attack_delay = 0.75
+                    else:
+                        Character.attack_delay = 1.5
                     self.attack_time = 0
                     self.frame = 0
                     Attack = False
