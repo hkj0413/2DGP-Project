@@ -9,6 +9,7 @@ class UI:
     image_bullet = None
     image_dash = None
     image_rc_sg = None
+    image_rc_rf = None
     image_rc_hg = None
 
     def __init__(self):
@@ -20,6 +21,8 @@ class UI:
             self.image_dash = load_image("./Icon/" + 'All_dash' + ".png")
         if UI.image_rc_sg == None:
             self.image_rc_sg = load_image("./Icon/" + 'SG_defensive_stance' + ".png")
+        if UI.image_rc_rf == None:
+            self.image_rc_rf = load_image("./Icon/" + 'RF_target_down' + ".png")
         if UI.image_rc_hg == None:
             self.image_rc_hg = load_image("./Icon/" + 'HG_agile_shooting' + ".png")
         #self.font = load_font('ENCR10B.TTF', 20)
@@ -60,7 +63,8 @@ class UI:
                 for i in range(Character.shield_def):
                     self.bullet_image[6].draw(bx - i * 27, by - 40, 25, 30)
         elif Character.stance == 1:
-
+            if Character.target_down_cooldwon == 0:
+                self.image_rc_rf.draw(124 + 64 * 3, 40, 48 ,48)
 
             for i in range(4):
                 if i < Character.bullet_RF:

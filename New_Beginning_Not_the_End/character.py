@@ -16,6 +16,8 @@ from normalrf import NormalRF
 from normalrf_superior_effect import NormalRFSPEffect
 from normalrfsp import NormalRFSP
 from reloadrf import ReloadRF
+from rcskillrf import RcskillRF
+from rcskillrf_effect import RcskillRFEffect
 
 from hg_effect import HGEffect
 from normalhg import NormalHG
@@ -1478,13 +1480,13 @@ class Character:
                             self.frame = 0
                             Character.target_down_bullet -= 1
 
-                            normalrfspeffect = NormalRFSPEffect(self.attack_dir)
-                            game_world.add_object(normalrfspeffect, 3)
+                            rcskillrfeffect = RcskillRFEffect()
+                            game_world.add_object(rcskillrfeffect, 3)
 
-                            normalrfsp = NormalRFSP(self.attack_dir)
-                            game_world.add_object(normalrfsp, 3)
+                            rcskillrf = RcskillRF()
+                            game_world.add_object(rcskillrf, 3)
                             for mob in mob_group:
-                                game_world.add_collision_pairs(f'normalrfsp:{mob}', normalrfsp, None)
+                                game_world.add_collision_pairs(f'rcskillrf:{mob}', rcskillrf, None)
 
                             rfeffect = RFEffect(self.attack_dir)
                             game_world.add_object(rfeffect, 3)
