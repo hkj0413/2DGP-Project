@@ -32,6 +32,6 @@ class NormalHGEffect:
     def draw(self):
         if self.temp < 36:
             if self.face == 1:
-                self.image.composite_draw(0, '', self.sx + 20, self.y - 10, 30, 27)
+                self.image.composite_draw(0, '', self.sx + 15, self.y - 10, 30, 27)
             elif self.face == -1:
-                self.image.composite_draw(0, 'h', self.sx - 20, self.y - 10, 30, 27)
+                self.image.composite_draw(0, 'h', self.sx - 15, self.y - 10, 30, 27)

@@ -22,6 +22,7 @@ from rcskillrf_effect import RcskillRFEffect
 from hg_effect import HGEffect
 from normalhg import NormalHG
 from normalhg_effect import NormalHGEffect
+from eskillhg import EskillHG
 
 from dasheffect import DashEffect
 
@@ -37,6 +38,8 @@ a_pressed = False
 d_pressed = False
 w_pressed = False
 s_pressed = False
+q_pressed = False
+e_pressed = False
 Move = False
 Jump = False
 Fall = False
@@ -151,7 +154,7 @@ class Idle:
             elif Character.stance == 1:
                 pass
             elif Character.stance == 2:
-                if Character.bullet_rain_cooldown == 0:
+                if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0:
                     Character.state = 2
                     character.state_machine.add_event(('HG_E', 0))
 
@@ -455,7 +458,7 @@ class Walk:
             elif Character.stance == 1:
                 pass
             elif Character.stance == 2:
-                if Character.bullet_rain_cooldown == 0:
+                if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0:
                     Character.state = 2
                     character.state_machine.add_event(('HG_E', 0))
 
@@ -838,7 +841,7 @@ class Die:
     @staticmethod
     def enter(character, e):
         global a_pressed, d_pressed, Jump, jump_velocity, Fall, fall_velocity, Attack, attacking, Move, s_pressed, w_pressed
-        global Reload_SG, Reload_RF, rrf, Reload_HG, Climb, Invincibility, Rc_HG, rchg
+        global Reload_SG, Reload_RF, rrf, Reload_HG, Climb, Invincibility, Rc_HG, rchg, q_pressed, e_pressed
         if die(e):
             Move = False
             Jump = False
@@ -851,6 +854,8 @@ class Die:
             d_pressed = False
             w_pressed = False
             s_pressed = False
+            q_pressed = False
+            e_pressed = False
             Reload_SG = False
             Reload_RF = False
             rrf = False
@@ -1311,6 +1316,25 @@ class EHG:
     def do(character):
         global Move
         character.frame = (character.frame + 7.0 * 3.0 * game_framework.frame_time) % 7
+
+        if get_time() - character.wait_time > 0.2 and Character.bullet_HG > 0:
+            eskillhg = EskillHG(character.face_dir)
+            game_world.add_object(eskillhg, 3)
+            for mob in mob_group:
+                game_world.add_collision_pairs(f'eskillhg:{mob}', eskillhg, None)
+
+            hgeffect = HGEffect(character.face_dir)
+            game_world.add_object(hgeffect, 3)
+
+            character.wait_time = get_time()
+            Character.bullet_HG -= 1
+            if Character.bullet_HG == 0:
+                Character.state = 0
+                Character.bullet_rain_cooldown = 8
+                if d_pressed or a_pressed:
+                    character.state_machine.add_event(('WALK', 0))
+                else:
+                    character.state_machine.add_event(('IDLE', 0))
 
         if Climb:
             if w_pressed and not s_pressed:
