@@ -22,6 +22,8 @@ from rcskillrf_effect import RcskillRFEffect
 from hg_effect import HGEffect
 from normalhg import NormalHG
 from normalhg_effect import NormalHGEffect
+from rcskillhg import RcskillHG
+from rcskillhg_effect import RcskillHGEffect
 from eskillhg import EskillHG
 
 from dasheffect import DashEffect
@@ -1390,7 +1392,7 @@ class Character:
     attack_delay = 0 # 공격 속도
     dash_cooldown = 0 # 대쉬 쿨타임 6초
     target_down_cooldown = 0  # 타겟 다운 쿨타임 30초
-    agile_shooting_cooldown = 0 # 민첩한 사격 쿨타임 2초
+    agile_shooting_cooldown = 0 # 민첩한 사격 쿨타임 1초
     bullet_rain_cooldown = 0 # 불렛 레인 쿨타임 8초
 
     def load_images(self):
@@ -1704,11 +1706,19 @@ class Character:
                     Attack = False
 
         if Character.stance == 2 and Character.state == 1:
-            if Character.agile_shooting_cooldown == 0 and not Attack:
+            if Character.agile_shooting_cooldown == 0 and not Attack and Character.bullet_HG > 0:
                 Character.speed = 7
                 self.frame = 0
-                Character.agile_shooting_cooldown = 2
+                Character.agile_shooting_cooldown = 1
+                Character.bullet_HG -= 1
                 rchg = True
+                rcskillhgeffect = RcskillHGEffect(self.face_dir)
+                game_world.add_object(rcskillhgeffect, 3)
+
+                rcskillhg = RcskillHG()
+                game_world.add_object(rcskillhg, 3)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'rcskillhg:{mob}', rcskillhg, None)
                 if d_pressed or a_pressed:
                     self.state_machine.add_event(('WALK', 0))
                 else:

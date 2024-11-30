@@ -110,8 +110,8 @@ def init():
             game_world.add_collision_pairs('server.character:ground', None, ground)
 
     projectile_group = [
-        'normalsg1', 'normalsg2', 'normalsg3', 'normalrf', 'normalrfsp', 'normalhg', 'reloadrf', 'rcskillrf', 'eskillhg'
-
+        'normalsg1', 'normalsg2', 'normalsg3', 'normalrf', 'normalrfsp', 'normalhg', 'reloadrf', 'rcskillrf', 'eskillhg',
+        'rcskillhg',
                         ]
 
     # 몹 스포아
