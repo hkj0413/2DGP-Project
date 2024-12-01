@@ -105,6 +105,7 @@ class Idle:
             elif Character.stance == 1:
                 if Character.target_down_cooldown == 0:
                     Character.state = 1
+                    Character.hit_delay = 1
                     character.state_machine.add_event(('RF_RC', 0))
             elif Character.stance == 2:
                 Character.state = 1
@@ -132,6 +133,7 @@ class Idle:
             Character.damage = 8
             character.state_machine.add_event(('HIT', 0))
         elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG and not Rc_HG:
+            Character.hit_delay = 1
             character.state_machine.add_event(('USE_DASH', 0))
         elif reload(e):
             if Character.stance == 0 and Character.bullet_SG == 0 and Character.state <= 1:
@@ -141,8 +143,10 @@ class Idle:
                     character.frame = 0
             elif Character.stance == 1 and Character.bullet_RF == 0 and Character.state == 0:
                 if s_pressed:
+                    Character.hit_delay = 1
                     character.state_machine.add_event(('RF_RELOAD_S', 0))
                 elif not s_pressed:
+                    Character.hit_delay = 1
                     character.state_machine.add_event(('RF_RELOAD', 0))
             elif Character.stance == 2 and Character.bullet_HG == 0 and Character.state == 0:
                 if not Reload_HG:
@@ -158,6 +162,7 @@ class Idle:
             elif Character.stance == 2:
                 if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0:
                     Character.state = 2
+                    Character.hit_delay = 1
                     character.state_machine.add_event(('HG_E', 0))
 
         elif temp_more(e):
@@ -409,6 +414,7 @@ class Walk:
             elif Character.stance == 1:
                 if Character.target_down_cooldown == 0:
                     Character.state = 1
+                    Character.hit_delay = 1
                     character.state_machine.add_event(('RF_RC', 0))
             elif Character.stance == 2:
                 Character.state = 1
@@ -436,6 +442,7 @@ class Walk:
             Character.damage = 8
             character.state_machine.add_event(('HIT', 0))
         elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG and not Rc_HG:
+            Character.hit_delay = 1
             character.state_machine.add_event(('USE_DASH', 0))
         elif reload(e):
             if Character.stance == 0 and Character.bullet_SG == 0 and Character.state <= 1:
@@ -445,8 +452,10 @@ class Walk:
                     character.frame = 0
             elif Character.stance == 1 and Character.bullet_RF == 0 and Character.state == 0:
                 if s_pressed:
+                    Character.hit_delay = 1
                     character.state_machine.add_event(('RF_RELOAD_S', 0))
                 elif not s_pressed:
+                    Character.hit_delay = 1
                     character.state_machine.add_event(('RF_RELOAD', 0))
             elif Character.stance == 2 and Character.bullet_HG == 0 and Character.state == 0:
                 if not Reload_HG:
@@ -462,6 +471,7 @@ class Walk:
             elif Character.stance == 2:
                 if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0:
                     Character.state = 2
+                    Character.hit_delay = 1
                     character.state_machine.add_event(('HG_E', 0))
 
         elif temp_more(e):
@@ -1150,7 +1160,6 @@ class RcRF:
         global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move
         if rf_rc(e):
             Move = False
-            Character.hit_delay = 0.5
             character.wait_time = get_time()
             Character.target_down_bullet = Character.target_down_max
             character.frame = clamp(0, character.frame, 13)
@@ -1184,6 +1193,7 @@ class RcRF:
             Character.state = 0
             Character.target_down_cooldown = 30
             Character.target_down_size = 0
+            Character.hit_delay = 1
             character.state_machine.add_event(('USE_DASH', 0))
         elif take_hit(e):
             Character.hp = max(0, Character.hp - Character.damage)
@@ -1265,7 +1275,6 @@ class EHG:
         global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump
         if hg_e(e):
             Move = False
-            Character.hit_delay = 0.5
             character.wait_time = get_time()
             character.frame = 0
         elif right_down(e):
@@ -1301,6 +1310,7 @@ class EHG:
         elif dash(e) and Character.dash_cooldown == 0:
             Character.state = 0
             Character.bullet_rain_cooldown = 8
+            Character.hit_delay = 1
             character.state_machine.add_event(('USE_DASH', 0))
         elif take_hit(e):
             Character.hp = max(0, Character.hp - Character.damage)
@@ -1540,8 +1550,13 @@ class Character:
         if attacking and not Attack:
             if Character.attack_delay == 0:
                 if Character.stance == 0 and Character.bullet_SG > 0 and (Character.state == 0 or Character.state == 1):
-                    if self.x > 1080 and not self.mouse:
-                        mouse_x += self.x - 1080 // 2
+                    if self.x > 2700 and not self.mouse:
+                        scroll_offset = 2700 - 1080 // 2
+                        mouse_x = mouse_x + scroll_offset
+                        self.mouse = True
+                    elif self.x > 540 and not self.mouse:
+                        scroll_offset = self.x - 1080 // 2
+                        mouse_x = mouse_x + scroll_offset
                         self.mouse = True
                     if mouse_x > self.x:
                         self.attack_dir = 1
@@ -1577,8 +1592,13 @@ class Character:
                         Attack = True
                 elif Character.stance == 1 and not Move:
                     if Character.state == 0 and Character.bullet_RF > 0:
-                        if self.x > 1080 and not self.mouse:
-                            mouse_x += self.x - 1080 // 2
+                        if self.x > 2700 and not self.mouse:
+                            scroll_offset = 2700 - 1080 // 2
+                            mouse_x = mouse_x + scroll_offset
+                            self.mouse = True
+                        elif self.x > 540 and not self.mouse:
+                            scroll_offset = self.x - 1080 // 2
+                            mouse_x = mouse_x + scroll_offset
                             self.mouse = True
                         if mouse_x > self.x:
                             self.attack_dir = 1
@@ -1615,8 +1635,13 @@ class Character:
                                 game_world.add_object(rfeffect, 3)
                             Attack = True
                     elif Character.state == 1 and Character.target_down_bullet > 0:
-                        if self.x > 1080 and not self.mouse:
-                            mouse_x += self.x - 1080 // 2
+                        if self.x > 2700 and not self.mouse:
+                            scroll_offset = 2700 - 1080 // 2
+                            mouse_x = mouse_x + scroll_offset
+                            self.mouse = True
+                        elif self.x > 540 and not self.mouse:
+                            scroll_offset = self.x - 1080 // 2
+                            mouse_x = mouse_x + scroll_offset
                             self.mouse = True
                         if mouse_x > self.x:
                             self.attack_dir = 1
@@ -1643,8 +1668,13 @@ class Character:
                             Attack = True
                 elif Character.stance == 2 and not Rc_HG:
                     if Character.state == 0 and Character.bullet_HG > 0:
-                        if self.x > 1080 and not self.mouse:
-                            mouse_x += self.x - 1080 // 2
+                        if self.x > 2700 and not self.mouse:
+                            scroll_offset = 2700 - 1080 // 2
+                            mouse_x = mouse_x + scroll_offset
+                            self.mouse = True
+                        elif self.x > 540 and not self.mouse:
+                            scroll_offset = self.x - 1080 // 2
+                            mouse_x = mouse_x + scroll_offset
                             self.mouse = True
                         if mouse_x > self.x:
                             self.attack_dir = 1
@@ -1672,8 +1702,13 @@ class Character:
 
                             Attack = True
                     elif Character.state == 2 and Character.bullet_HG > 0:
-                        if self.x > 1080 and not self.mouse:
-                            mouse_x += self.x - 1080 // 2
+                        if self.x > 2700 and not self.mouse:
+                            scroll_offset = 2700 - 1080 // 2
+                            mouse_x = mouse_x + scroll_offset
+                            self.mouse = True
+                        elif self.x > 540 and not self.mouse:
+                            scroll_offset = self.x - 1080 // 2
+                            mouse_x = mouse_x + scroll_offset
                             self.mouse = True
                         if mouse_x > self.x:
                             self.face_dir = 1
@@ -1711,6 +1746,7 @@ class Character:
                 self.frame = 0
                 Character.agile_shooting_cooldown = 1
                 Character.bullet_HG -= 1
+                Character.hit_delay = 0.5
                 rchg = True
                 rcskillhgeffect = RcskillHGEffect(self.face_dir)
                 game_world.add_object(rcskillhgeffect, 3)
