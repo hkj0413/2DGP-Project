@@ -44,6 +44,7 @@ def init():
 
     ladder_positions = [
         (range(3, 18), 39),
+        (range(9, 16), 82),
     ]
 
     for i_range, j in ladder_positions:
@@ -59,6 +60,7 @@ def init():
     wall_positions = [
         (range(18, 23), 49),
         (range(3, 12), 29),
+        (range(8, 26), 83),
     ]
 
     for i_range, j in wall_positions:
@@ -68,14 +70,17 @@ def init():
             game_world.add_collision_pairs('server.character:wall', None, wall)
 
     wall_positions = [
+        (2, range(65, 68)),
         (1, range(0, 30)),
         (1, range(35, 44)),
         (1, range(50, 57)),
-        (1, range(62, 109)),
+        (1, range(62, 85)),
+        (1, range(94, 109)),
         (0, range(0, 30)),
         (0, range(35, 44)),
         (0, range(50, 57)),
-        (0, range(62, 109)),
+        (0, range(62, 85)),
+        (0, range(94, 109)),
     ]
 
     for j, i_range in wall_positions:
@@ -88,19 +93,30 @@ def init():
     game_world.add_collision_pairs('server.character:ground', server.character, None)
 
     ground_positions = [
+        (21, range(72, 80)),
         (18, range(38, 41)),
+        (18, range(69, 70)),
         (16, range(46, 48)),
+        (16, range(82, 83)),
+        (15, range(66, 67)),
         (14, range(41, 45)),
         (13, range(13, 21)),
         (12, range(26, 30)),
+        (12, range(69, 70)),
+        (12, range(76, 79)),
         (11, range(2, 4)),
         (9, range(6, 8)),
+        (8, range(82, 83)),
         (7, range(11, 16)),
+        (6, range(71, 80)),
         (5, range(19, 26)),
+        (3, range(65, 68)),
         (2, range(0, 30)),
         (2, range(35, 44)),
         (2, range(50, 57)),
-        (2, range(62, 109)),
+        (2, range(62, 65)),
+        (2, range(68, 85)),
+        (2, range(94, 109)),
     ]
 
     for j, i_range in ground_positions:
@@ -122,8 +138,12 @@ def init():
         (11, 3),
         (13, 3),
         (17, 3),
+        (25, 3),
         (22, 6),
         (16, 14),
+        (74, 7),
+        (76, 7),
+        (80, 3),
     ]
 
     for i, j in spore_positions:
@@ -139,7 +159,9 @@ def init():
 
     slime_positions = [
         (9, 3),
+        (16, 3),
         (39, 3),
+        (75, 7),
     ]
 
     for i, j in slime_positions:
@@ -155,7 +177,9 @@ def init():
 
     pig_positions = [
         (17, 14),
+        (40, 3),
         (53, 3),
+        (73, 3),
     ]
 
     for i, j in pig_positions:
@@ -175,8 +199,11 @@ def init():
         (45, 15, 1),
         (48, 17, 2),
         (58, 14, 2),
-        (59, 21, 1),
+        (59, 24, 1),
         (60, 14, 1),
+        (66, 24, 1),
+        (69, 24, 2),
+        (80, 24, 1),
     ]
 
     for i, j, k in coconut_positions:
@@ -188,9 +215,17 @@ def init():
     # 회복 아이템 k = 힐량
     game_world.add_collision_pairs('server.character:heal', server.character, None)
 
-    heal = Heal(39, 19, 4)
-    game_world.add_object(heal, 2)
-    game_world.add_collision_pairs('server.character:heal', None, heal)
+    heal_positions = [
+        (39, 19, 4),
+        (76, 22, 4),
+        (79, 22, 4),
+    ]
+
+    for i, j, k in heal_positions:
+        heals = [Heal(i, j, k)]
+        game_world.add_objects(heals, 2)
+        for heal in heals:
+            game_world.add_collision_pairs('server.character:heal', None, heal)
 
 def finish():
     game_world.clear()
