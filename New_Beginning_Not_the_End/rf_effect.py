@@ -19,11 +19,11 @@ class RFEffect:
     def update(self):
         self.sx = self.x - server.background.window_left
         self.frame = self.frame + 12.0 * 1.5 * game_framework.frame_time
-        if self.frame > 11.0:
+        if self.frame > 12.0:
             game_world.remove_object(self)
 
     def draw(self):
-        if self.frame <= 11.0:
+        if self.frame < 12.0:
             if self.face == 1:
                 self.image[int(self.frame)].composite_draw(0, '', self.sx + 75, self.y - 10, 67, 63)
             elif self.face == -1:

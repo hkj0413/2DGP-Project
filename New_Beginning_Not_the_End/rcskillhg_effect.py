@@ -23,9 +23,6 @@ class RcskillHGEffect:
 
         self.frame = self.frame + 8.0 * 2.5 * game_framework.frame_time
 
-        if self.frame > 4.0:
-            game_world.remove_object(self)
-
     def draw(self):
         if self.frame < 8.0:
             if self.face == 1:

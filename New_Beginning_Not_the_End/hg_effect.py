@@ -19,11 +19,11 @@ class HGEffect:
     def update(self):
         self.sx = self.x - server.background.window_left
         self.frame = self.frame + 4.0 * 4.0 * game_framework.frame_time
-        if self.frame > 3.0:
+        if self.frame > 4.0:
             game_world.remove_object(self)
 
     def draw(self):
-        if self.frame <= 3.0:
+        if self.frame < 4.0:
             if self.face == 1:
                 self.image[int(self.frame)].composite_draw(0, '', self.sx + 36, self.y - 17, 62, 63)
             elif self.face == -1:

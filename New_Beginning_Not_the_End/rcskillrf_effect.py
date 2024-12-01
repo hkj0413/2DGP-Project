@@ -19,9 +19,9 @@ class RcskillRFEffect:
     def update(self):
         self.sx = self.x - server.background.window_left
         self.frame = self.frame + 8.0 * 1.5 * game_framework.frame_time
-        if self.frame > 7.0:
+        if self.frame > 8.0:
             game_world.remove_object(self)
 
     def draw(self):
-        if self.frame <= 7.0:
+        if self.frame < 8.0:
             self.image[int(self.frame)].draw(self.sx + 10, self.y, 239, 141)
