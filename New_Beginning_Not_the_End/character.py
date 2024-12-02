@@ -1868,6 +1868,8 @@ class Character:
             if Fall:
                 Fall = False
                 fall_velocity = 0.0
+        elif group == 'server.character:diamond':
+            Character.score += 500
 
     def handle_collision_fall(self, group, other):
         global Fall, fall_velocity

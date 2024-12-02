@@ -14,6 +14,7 @@ from coconut import Coconut
 from heal import Heal
 from more_hp import MoreHP
 from enhance import Enhance
+from diamond import Diamond
 
 from background import Background
 from spore import Spore
@@ -143,7 +144,7 @@ def init():
     # 포탈
     game_world.add_collision_pairs('server.character:portal', server.character, None)
 
-    portal = Portal(104, 4)
+    portal = Portal(105, 4)
     game_world.add_object(portal, 0)
     game_world.add_collision_pairs('server.character:portal', None, portal)
 
@@ -280,6 +281,13 @@ def init():
     enhance = Enhance(90, 23)
     game_world.add_object(enhance, 2)
     game_world.add_collision_pairs('server.character:enhance', None, enhance)
+
+    # 다이아 몬드 아이템
+    game_world.add_collision_pairs('server.character:diamond', server.character, None)
+
+    diamond = Diamond(100, 3)
+    game_world.add_object(diamond, 2)
+    game_world.add_collision_pairs('server.character:diamond', None, diamond)
 
 def finish():
     game_world.clear()
