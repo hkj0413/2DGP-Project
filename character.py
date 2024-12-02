@@ -1,4 +1,4 @@
-from pico2d import get_time, load_image, draw_rectangle, clamp
+from pico2d import get_time, load_image, draw_rectangle, clamp, load_wav
 
 import game_world
 import game_framework
@@ -40,8 +40,6 @@ a_pressed = False
 d_pressed = False
 w_pressed = False
 s_pressed = False
-q_pressed = False
-e_pressed = False
 Move = False
 Jump = False
 Fall = False
@@ -831,7 +829,7 @@ class Die:
     @staticmethod
     def enter(character, e):
         global a_pressed, d_pressed, Jump, jump_velocity, Fall, fall_velocity, Attack, attacking, Move, s_pressed, w_pressed
-        global Reload_SG, Reload_RF, rrf, Reload_HG, Climb, Invincibility, Rc_HG, rchg, q_pressed, e_pressed
+        global Reload_SG, Reload_RF, rrf, Reload_HG, Climb, Invincibility, Rc_HG, rchg
         if die(e):
             Move = False
             Jump = False
@@ -844,8 +842,6 @@ class Die:
             d_pressed = False
             w_pressed = False
             s_pressed = False
-            q_pressed = False
-            e_pressed = False
             Reload_SG = False
             Reload_RF = False
             rrf = False
@@ -1392,6 +1388,9 @@ animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reloa
 
 class Character:
     images = None
+    sg_stance_sound = None
+    rf_stance_sound = None
+    hg_stance_sound = None
     stance = 0
     state = 0
     speed = 3
@@ -1533,6 +1532,14 @@ class Character:
                 },
             }
         )
+
+        if Character.sg_stance_sound == None:
+            Character.sg_stance_sound = load_wav("./Sound/change_SG.mp3")
+            Character.rf_stance_sound = load_wav("./Sound/change_RF.mp3")
+            Character.hg_stance_sound = load_wav("./Sound/change_HG.mp3")
+            Character.sg_stance_sound.set_volume(64)
+            Character.rf_stance_sound.set_volume(64)
+            Character.hg_stance_sound.set_volume(64)
 
     def update(self):
         global Jump, jump_velocity, Fall, fall_velocity, Attack, Move, screen_left, screen_right, Reload_SG, Reload_HG, mouse_x
@@ -1836,23 +1843,29 @@ class Character:
         if Character.stance == 0:
             Character.stance = 1
             Character.speed = 4
+            Character.rf_stance_sound.play()
         elif Character.stance == 1:
             Character.stance = 2
             Character.speed = 5
+            Character.hg_stance_sound.play()
         elif Character.stance == 2:
             Character.stance = 0
             Character.speed = 3
+            Character.sg_stance_sound.play()
 
     def change_x(self):
         if Character.stance == 0:
             Character.stance = 2
             Character.speed = 5
+            Character.hg_stance_sound.play()
         elif Character.stance == 1:
             Character.stance = 0
             Character.speed = 3
+            Character.sg_stance_sound.play()
         elif Character.stance == 2:
             Character.stance = 1
             Character.speed = 4
+            Character.rf_stance_sound.play()
 
     def get_bb(self):
         return self.x - 17.0, self.y - 49.0, self.x + 17.0, self.y + 19.0
