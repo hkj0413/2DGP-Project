@@ -1,10 +1,11 @@
 import server
 import game_framework
 
-from pico2d import load_image
+from pico2d import load_image, load_wav
 
 class RcskillHGEffect:
     image = None
+    Rc_HG_sound = None
 
     def __init__(self, d):
         self.x = server.character.x
@@ -14,11 +15,17 @@ class RcskillHGEffect:
         self.face = d
         if RcskillHGEffect.image == None:
             RcskillHGEffect.image = [load_image("./Effect/HG/" + 'Rc_HG' + " (%d)" % i + ".png") for i in range(1, 8 + 1)]
+        if RcskillHGEffect.Rc_HG_sound == None:
+            RcskillHGEffect.Rc_HG_sound = load_wav("./Sound/Rc_HG.mp3")
+            RcskillHGEffect.Rc_HG_sound.set_volume(48)
 
     def update(self):
         self.x = server.character.x
         self.y = server.character.y
         self.sx = self.x - server.background.window_left
+
+        if self.frame == 0:
+            RcskillHGEffect.Rc_HG_sound.play()
 
         self.frame = self.frame + 8.0 * 2.5 * game_framework.frame_time
 
