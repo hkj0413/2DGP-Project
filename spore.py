@@ -3,13 +3,14 @@ import character
 import game_framework
 import random
 
-from pico2d import load_image, draw_rectangle, clamp
+from pico2d import load_image, draw_rectangle, clamp, load_wav
 from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
 
 animation_names = ['Idle', 'Walk', 'Hit', 'Die']
 
 class Spore:
     images = None
+    Spore_sound = None
 
     def load_images(self):
         if Spore.images == None:
@@ -43,6 +44,9 @@ class Spore:
         self.timer = 0
         self.temp = 0
         self.build_behavior_tree()
+        if Spore.Spore_sound == None:
+            Spore.Spore_sound = load_wav("./Sound/Hitsound.mp3")
+            Spore.Spore_sound.set_volume(16)
 
     def update(self):
         self.sx = self.x - server.background.window_left
@@ -128,6 +132,7 @@ class Spore:
     def take_damage(self, damage):
         if self.state == 0 or self.state == 1 or self.state == 3:
             self.hp = max(0, self.hp - damage)
+            Spore.Spore_sound.play()
             if self.hp <= 0:
                 self.state = 4
                 self.frame = 0
