@@ -24,7 +24,7 @@ class Pig:
                 elif name == 'Die':
                     Pig.images[name] = [load_image("./Mob/Pig/" + name + " (%d)" % i + ".png") for i in range(1, 3 + 1)]
 
-    def __init__(self, i = 0, j = 0):
+    def __init__(self, i=0.0, j=0):
         self.x = i * 30.0 + 15.0
         self.y = j * 30.0 + 15.0
         self.base_x = i * 30.0 + 15.0

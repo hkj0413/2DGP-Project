@@ -6,7 +6,7 @@ from pico2d import load_image, draw_rectangle, get_time
 class Heal:
     image = None
 
-    def __init__(self, i=0, j=0.0, k=0):
+    def __init__(self, i=0.0, j=0.0, k=0):
         self.x = i * 30.0 + 15.0
         self.y = j * 30.0 + 15.0
         self.sx = 0

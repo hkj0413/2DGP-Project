@@ -7,11 +7,13 @@ import server
 from ground import Ground
 from wall import Wall
 from ladder import Ladder
+from portal import Portal
 from character import Character
 from ui import UI
 from coconut import Coconut
 from heal import Heal
 from more_hp import MoreHP
+from enhance import Enhance
 
 from background import Background
 from spore import Spore
@@ -137,6 +139,13 @@ def init():
         game_world.add_objects(grounds, 0)
         for ground in grounds:
             game_world.add_collision_pairs('server.character:ground', None, ground)
+
+    # 포탈
+    game_world.add_collision_pairs('server.character:portal', server.character, None)
+
+    portal = Portal(104, 4)
+    game_world.add_object(portal, 0)
+    game_world.add_collision_pairs('server.character:portal', None, portal)
 
     projectile_group = [
         'normalsg1', 'normalsg2', 'normalsg3', 'normalrf', 'normalrfsp', 'normalhg', 'reloadrf', 'rcskillrf', 'eskillhg',
@@ -264,6 +273,13 @@ def init():
     morehp = MoreHP(73, 22)
     game_world.add_object(morehp, 2)
     game_world.add_collision_pairs('server.character:morehp', None, morehp)
+
+    # 캐릭터 강화 아이템
+    game_world.add_collision_pairs('server.character:enhance', server.character, None)
+
+    enhance = Enhance(90, 23)
+    game_world.add_object(enhance, 2)
+    game_world.add_collision_pairs('server.character:enhance', None, enhance)
 
 def finish():
     game_world.clear()

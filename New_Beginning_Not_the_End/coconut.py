@@ -8,7 +8,7 @@ class Coconut:
     image_base = None
     image_obstacle = None
 
-    def __init__(self, i=0, j=0.0, k=0):
+    def __init__(self, i=0.0, j=0.0, k=0):
         self.x = i * 30.0 + 15.0
         self.y = j * 30.0 + 15.0
         self.base_y = j * 30.0 + 15.0

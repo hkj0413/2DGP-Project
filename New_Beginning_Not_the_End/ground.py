@@ -6,13 +6,13 @@ from pico2d import load_image, draw_rectangle
 class Ground:
     image = None
 
-    def __init__(self, i=0, j=0.0, k=0):
+    def __init__(self, i=0.0, j=0.0, k=0):
         self.x = i * 30.0 + 15.0
         self.y = j * 30.0 + 15.0
         self.frame = k - 1
         self.sx = 0
         if Ground.image == None:
-            Ground.image = [load_image("./Block/" + 'Block' + " (%d)" % i + ".png") for i in range(1, 15 + 1)]
+            Ground.image = [load_image("./Block/" + 'Block' + " (%d)" % i + ".png") for i in range(1, 14 + 1)]
 
     def update(self):
         self.sx = self.x - server.background.window_left
