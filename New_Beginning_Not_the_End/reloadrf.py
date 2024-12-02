@@ -37,7 +37,7 @@ class ReloadRF:
                 self.image.composite_draw(0, 'h', self.sx + 80, self.y - 10, 33, 52)
             elif self.face == -1:
                 self.image.composite_draw(0, '', self.sx - 80, self.y - 10, 33, 52)
-            if character.RectMode:
+            if character.God:
                 draw_rectangle(*self.get_rect())
 
     def get_count(self):

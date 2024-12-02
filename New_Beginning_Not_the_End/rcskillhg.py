@@ -22,7 +22,7 @@ class RcskillHG:
             game_world.remove_object(self)
 
     def draw(self):
-        if character.RectMode:
+        if character.God:
             draw_rectangle(*self.get_rect())
 
     def get_bb(self):

@@ -26,7 +26,7 @@ class Heal:
         if self.state == 0:
             if -30 <= self.sx <= 1080 + 30:
                 self.image.draw(self.sx, self.y + 15, 75, 75)
-                if character.RectMode:
+                if character.God:
                     draw_rectangle(*self.get_rect())
 
     def get_bb(self):

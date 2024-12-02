@@ -103,7 +103,7 @@ class Pig:
                     self.images[self.name][int(self.frame)].composite_draw(0, 'h', self.sx - 3, self.y + 10, 70, 60)
                 elif self.face_dir == -1:
                     self.images[self.name][int(self.frame)].composite_draw(0, '', self.sx + 3, self.y + 10, 70, 60)
-                if character.RectMode:
+                if character.God:
                     draw_rectangle(*self.get_rect())
 
     def get_bb(self):

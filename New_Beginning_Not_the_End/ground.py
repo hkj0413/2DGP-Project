@@ -20,7 +20,7 @@ class Ground:
     def draw(self):
         if -15 <= self.sx <= 1095:
             self.image[self.frame].draw(self.sx, self.y, 30, 30)
-            if character.RectMode:
+            if character.God:
                 draw_rectangle(*self.get_rect())
 
     def get_bb(self):

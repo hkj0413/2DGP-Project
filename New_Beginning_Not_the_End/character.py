@@ -64,14 +64,12 @@ mouse_x, mouse_y = 0, 0
 screen_left = 0
 screen_right = 1080
 
-RectMode = False
-
 mob_group = ['spore', 'slime', 'pig']
 
 class Idle:
     @staticmethod
     def enter(character, e):
-        global Jump, d_pressed, a_pressed, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, RectMode, Invincibility, God
+        global Jump, d_pressed, a_pressed, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, Invincibility, God
         global Rc_HG
         if start_event(e):
             character.face_dir = 1
@@ -129,9 +127,6 @@ class Idle:
                 Jump = True
                 if not Attack and not Reload_HG and not Rc_HG:
                     character.frame = 0
-        elif temp_damage(e) and Character.hit_delay == 0:
-            Character.damage = 8
-            character.state_machine.add_event(('HIT', 0))
         elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG and not Rc_HG:
             Character.hit_delay = 1
             character.state_machine.add_event(('USE_DASH', 0))
@@ -165,27 +160,12 @@ class Idle:
                     Character.hit_delay = 1
                     character.state_machine.add_event(('HG_E', 0))
 
-        elif temp_more(e):
-            Character.max_hp += 2
-        elif temp_heal(e):
-            Character.hp = min(Character.hp + 1, Character.max_hp)
+        elif temp_god(e):
+           God = not God
         elif temp_bullet(e):
             Character.bullet_SG = 0
             Character.bullet_RF = 0
             Character.bullet_HG = 0
-        elif temp_reset_cool(e):
-            Character.dash_cooldown = 0
-            character.Lshift_cool = 0
-            Character.target_down_cooldown = 0
-            character.Rc_RF_cool = 0
-            Character.agile_shooting_cooldown = 0
-            character.Rc_HG_cool = 0
-            Character.bullet_rain_cooldown = 0
-            character.E_HG_cool = 0
-        elif temp_rectmode(e):
-           RectMode = not RectMode
-        elif temp_god(e):
-           God = not God
 
         if rchg:
             if not Rc_HG:
@@ -367,7 +347,7 @@ class Idle:
 class Walk:
     @staticmethod
     def enter(character, e):
-        global a_pressed, d_pressed, Jump, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, RectMode, Invincibility, God
+        global a_pressed, d_pressed, Jump, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, Invincibility, God
         global Rc_HG
         if right_down(e):
             d_pressed = True
@@ -438,9 +418,6 @@ class Walk:
                 Jump = True
                 if not Attack and not Reload_HG and not Rc_HG:
                     character.frame = 0
-        elif temp_damage(e) and Character.hit_delay == 0:
-            Character.damage = 8
-            character.state_machine.add_event(('HIT', 0))
         elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG and not Rc_HG:
             Character.hit_delay = 1
             character.state_machine.add_event(('USE_DASH', 0))
@@ -474,27 +451,12 @@ class Walk:
                     Character.hit_delay = 1
                     character.state_machine.add_event(('HG_E', 0))
 
-        elif temp_more(e):
-            Character.max_hp += 2
-        elif temp_heal(e):
-            Character.hp = min(Character.hp + 1, Character.max_hp)
+        elif temp_god(e):
+           God = not God
         elif temp_bullet(e):
             Character.bullet_SG = 0
             Character.bullet_RF = 0
             Character.bullet_HG = 0
-        elif temp_reset_cool(e):
-            Character.dash_cooldown = 0
-            character.Lshift_cool = 0
-            Character.target_down_cooldown = 0
-            character.Rc_RF_cool = 0
-            Character.agile_shooting_cooldown = 0
-            character.Rc_HG_cool = 0
-            Character.bullet_rain_cooldown = 0
-            character.E_HG_cool = 0
-        elif temp_rectmode(e):
-           RectMode = not RectMode
-        elif temp_god(e):
-           God = not God
 
         if rchg:
             if not Rc_HG:
@@ -941,7 +903,10 @@ class Dash:
             Climb = False
             character.wait_time = get_time()
             Character.hit_delay = 0.3
-            Character.dash_cooldown = 6
+            if God:
+                Character.dash_cooldown = 1
+            else:
+                Character.dash_cooldown = 6
             dasheffect = DashEffect(character.face_dir)
             game_world.add_object(dasheffect, 3)
             if not Attack:
@@ -1191,7 +1156,10 @@ class RcRF:
             attacking = False
         elif dash(e) and Character.dash_cooldown == 0:
             Character.state = 0
-            Character.target_down_cooldown = 30
+            if God:
+                Character.target_down_cooldown = 1
+            else:
+                Character.target_down_cooldown = 30
             Character.target_down_size = 0
             Character.hit_delay = 1
             character.state_machine.add_event(('USE_DASH', 0))
@@ -1218,7 +1186,10 @@ class RcRF:
         if Attack:
             character.frame = (character.frame + 7.0 * 2.0 * game_framework.frame_time) % 7
             if Character.target_down_bullet == 0:
-                Character.target_down_cooldown = 30
+                if God:
+                    Character.target_down_cooldown = 1
+                else:
+                    Character.target_down_cooldown = 30
                 Character.target_down_size = 0
                 Character.state = 0
                 if d_pressed or a_pressed:
@@ -1309,7 +1280,10 @@ class EHG:
             Jump = True
         elif dash(e) and Character.dash_cooldown == 0:
             Character.state = 0
-            Character.bullet_rain_cooldown = 8
+            if God:
+                Character.bullet_rain_cooldown = 1
+            else:
+                Character.bullet_rain_cooldown = 8
             Character.hit_delay = 1
             character.state_machine.add_event(('USE_DASH', 0))
         elif take_hit(e):
@@ -1342,7 +1316,10 @@ class EHG:
             Character.bullet_HG -= 1
             if Character.bullet_HG == 0:
                 Character.state = 0
-                Character.bullet_rain_cooldown = 8
+                if God:
+                    Character.bullet_rain_cooldown = 1
+                else:
+                    Character.bullet_rain_cooldown = 8
                 if d_pressed or a_pressed:
                     character.state_machine.add_event(('WALK', 0))
                 else:
@@ -1387,22 +1364,23 @@ class Character:
     state = 0
     speed = 3
     hp = 20
-    max_hp = 20
+    max_hp = 20 # 최대 hp 30
     score = 0
     damage = 0
+    upgrade = 0
     bullet_SG = 8
     bullet_RF = 4
-    target_down_max = 2
+    target_down_max = 2 # 타겟 다운 총알 2 / 3 (+2)
     target_down_bullet = target_down_max
-    target_down_size = 0
-    max_bullet_HG = 20
+    target_down_size = 0 # 타겟 다운 범위 3 / 4 (+4)
+    max_bullet_HG = 20 # 핸드건 총알 개수 20 / 24 (+3) / 30 (+5)
     bullet_HG = max_bullet_HG
-    shield_def = 1 # 방어 태세 방어도
+    shield_def = 1 # 방어 태세 방어도 1 / 2(+1) / 4(+3) / 8(+5)
     hit_delay = 0 # 피격 면역
     attack_delay = 0 # 공격 속도
     dash_cooldown = 0 # 대쉬 쿨타임 6초
     target_down_cooldown = 0  # 타겟 다운 쿨타임 30초
-    agile_shooting_cooldown = 0 # 민첩한 사격 쿨타임 1초
+    agile_shooting_cooldown = 0 # 민첩한 사격 쿨타임 2초 / 1초(+2)
     bullet_rain_cooldown = 0 # 불렛 레인 쿨타임 8초
 
     def load_images(self):
@@ -1475,16 +1453,16 @@ class Character:
                     walk: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash, lc_down: Idle, lc_up: Idle,
                     reload: Idle, rf_reload: RRF, idle: Idle, under_down: Idle, under_up: Idle, rf_reload_s: RsRF, rf_rc: RcRF,
                     on_up: Idle, on_down: Idle, q_down: Idle, e_down: Idle, c_down: Idle,
-                    temp_damage: Idle, take_hit: Hit, die: Die, hg_e: EHG,
-                    temp_more: Idle, temp_heal: Idle, temp_bullet: Idle, temp_reset_cool: Idle, temp_rectmode: Idle, temp_god: Idle,
+                    take_hit: Hit, die: Die, hg_e: EHG,
+                    temp_bullet: Idle, temp_god: Idle,
                 },
                 Walk: {
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
                     idle: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash, lc_down: Walk, lc_up: Walk,
                     reload: Walk, rf_reload: RRF, walk: Walk, under_down: Walk, under_up: Walk, rf_reload_s: RsRF, rf_rc: RcRF,
                     on_up: Walk, on_down: Walk, q_down: Walk, e_down: Walk, c_down: Walk,
-                    temp_damage: Walk, take_hit: Hit, die: Die, hg_e: EHG,
-                    temp_more: Walk, temp_heal: Walk, temp_bullet: Walk, temp_reset_cool: Walk, temp_rectmode: Walk, temp_god: Walk,
+                    take_hit: Hit, die: Die, hg_e: EHG,
+                    temp_bullet: Walk, temp_god: Walk,
                 },
                 Hit: {
                     right_down: Hit, left_down: Hit, right_up: Hit, left_up: Hit, on_down: Hit, under_down: Hit, under_up: Hit,
@@ -1744,7 +1722,10 @@ class Character:
             if Character.agile_shooting_cooldown == 0 and not Attack and Character.bullet_HG > 0:
                 Character.speed = 7
                 self.frame = 0
-                Character.agile_shooting_cooldown = 1
+                if God or Character.upgrade >= 2:
+                    Character.agile_shooting_cooldown = 1
+                else:
+                    Character.agile_shooting_cooldown = 2
                 Character.bullet_HG -= 1
                 Character.hit_delay = 0.5
                 rchg = True
@@ -1811,7 +1792,7 @@ class Character:
 
     def draw(self):
         self.state_machine.draw()
-        if RectMode:
+        if God:
             draw_rectangle(*self.get_rect())
 
     def change_z(self):
@@ -1876,3 +1857,15 @@ class Character:
 
     def take_more_hp(self):
         Character.max_hp += 2
+
+    def enhance(self, static):
+        Character.upgrade += static
+        Character.upgrade = clamp(0, Character.upgrade, 5)
+        if Character.upgrade == 1:
+            pass
+
+    def temp_upgrade(self):
+        self.enhance(1)
+
+    def temp_downgrade(self):
+        self.enhance(-1)

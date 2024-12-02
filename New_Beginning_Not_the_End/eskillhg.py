@@ -37,7 +37,7 @@ class EskillHG:
                 self.image.composite_draw(0, '', self.sx + 15, self.y - 10, 30, 27)
             elif self.face == -1:
                 self.image.composite_draw(0, 'h', self.sx - 15, self.y - 10, 30, 27)
-            if character.RectMode:
+            if character.God:
                 draw_rectangle(*self.get_rect())
 
     def get_bb(self):

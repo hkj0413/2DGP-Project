@@ -44,7 +44,7 @@ class Coconut:
             self.image_base.draw(self.sx + 1, self.base_y + 1)
             if self.state == 0:
                 self.image_obstacle.draw(self.sx + 1, self.y - 2)
-                if character.RectMode:
+                if character.God:
                     draw_rectangle(*self.get_rect())
 
     def get_bb(self):

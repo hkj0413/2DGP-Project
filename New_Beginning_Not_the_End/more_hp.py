@@ -20,7 +20,7 @@ class MoreHP:
     def draw(self):
         if -30 <= self.sx <= 1080 + 30:
             self.image.draw(self.sx, self.y + 10, 50, 50)
-            if character.RectMode:
+            if character.God:
                 draw_rectangle(*self.get_rect())
 
     def get_bb(self):
