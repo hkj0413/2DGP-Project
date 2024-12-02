@@ -16,7 +16,7 @@ class NormalSG3:
     def update(self):
         self.sx = self.x - server.background.window_left
         self.frame = self.frame + 9.0 * 1.5 * game_framework.frame_time
-        if self.frame > 3.0:
+        if self.frame > 2.0:
             game_world.remove_object(self)
 
     def draw(self):
