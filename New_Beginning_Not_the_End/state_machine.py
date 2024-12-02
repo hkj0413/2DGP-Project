@@ -117,6 +117,9 @@ def temp_up(e):
 def temp_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_k
 
+def temp_medal(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_l
+
 class StateMachine:
     def __init__(self, o):
         self.o = o

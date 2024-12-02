@@ -170,6 +170,10 @@ class Idle:
             Character.enhance(e, 1)
         elif temp_down(e) and God:
             Character.enhance(e, -1)
+        elif temp_medal(e) and God:
+            if Character.medal < 3:
+                Character.medal += 1
+            Character.score += 1000
 
         if rchg:
             if not Rc_HG:
@@ -462,9 +466,13 @@ class Walk:
             Character.bullet_RF = 0
             Character.bullet_HG = 0
         elif temp_up(e) and God:
-            Character.temp_upgrade()
+            Character.enhance(e, 1)
         elif temp_down(e) and God:
-            Character.temp_downgrade()
+            Character.enhance(e, -1)
+        elif temp_medal(e) and God:
+            if Character.medal < 3:
+                Character.medal += 1
+            Character.score += 1000
 
         if rchg:
             if not Rc_HG:
@@ -1483,7 +1491,7 @@ class Character:
                     reload: Idle, rf_reload: RRF, idle: Idle, under_down: Idle, under_up: Idle, rf_reload_s: RsRF, rf_rc: RcRF,
                     on_up: Idle, on_down: Idle, q_down: Idle, e_down: Idle, c_down: Idle,
                     take_hit: Hit, die: Die, hg_e: EHG,
-                    temp_bullet: Idle, temp_god: Idle, temp_up: Idle, temp_down: Idle,
+                    temp_bullet: Idle, temp_god: Idle, temp_up: Idle, temp_down: Idle, temp_medal: Idle,
                 },
                 Walk: {
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
@@ -1491,7 +1499,7 @@ class Character:
                     reload: Walk, rf_reload: RRF, walk: Walk, under_down: Walk, under_up: Walk, rf_reload_s: RsRF, rf_rc: RcRF,
                     on_up: Walk, on_down: Walk, q_down: Walk, e_down: Walk, c_down: Walk,
                     take_hit: Hit, die: Die, hg_e: EHG,
-                    temp_bullet: Walk, temp_god: Walk, temp_up: Walk, temp_down: Walk,
+                    temp_bullet: Walk, temp_god: Walk, temp_up: Walk, temp_down: Walk, temp_medal: Walk,
                 },
                 Hit: {
                     right_down: Hit, left_down: Hit, right_up: Hit, left_up: Hit, on_down: Hit, under_down: Hit, under_up: Hit,
