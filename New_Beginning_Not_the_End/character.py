@@ -1873,3 +1873,6 @@ class Character:
 
     def take_heal(self, heal):
         Character.hp = min(Character.hp + heal, Character.max_hp)
+
+    def take_more_hp(self):
+        Character.max_hp += 2

@@ -11,6 +11,8 @@ from character import Character
 from ui import UI
 from coconut import Coconut
 from heal import Heal
+from more_hp import MoreHP
+
 from background import Background
 from spore import Spore
 from slime import Slime
@@ -201,9 +203,9 @@ def init():
         (58, 14, 2),
         (59, 24, 1),
         (60, 14, 1),
-        (66, 24, 1),
+        (66, 24, 3),
         (69, 24, 2),
-        (80, 24, 1),
+        (80, 24, 5),
     ]
 
     for i, j, k in coconut_positions:
@@ -226,6 +228,13 @@ def init():
         game_world.add_objects(heals, 2)
         for heal in heals:
             game_world.add_collision_pairs('server.character:heal', None, heal)
+
+    # 최대 체력 증가 아이템
+    game_world.add_collision_pairs('server.character:morehp', server.character, None)
+
+    morehp = MoreHP(73, 22)
+    game_world.add_object(morehp, 2)
+    game_world.add_collision_pairs('server.character:morehp', None, morehp)
 
 def finish():
     game_world.clear()

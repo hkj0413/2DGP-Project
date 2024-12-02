@@ -24,7 +24,7 @@ class Heal:
 
     def draw(self):
         if self.state == 0:
-            if -15 <= self.sx <= 1095:
+            if -30 <= self.sx <= 1080 + 30:
                 self.image.draw(self.sx, self.y + 15, 75, 75)
                 if character.RectMode:
                     draw_rectangle(*self.get_rect())
