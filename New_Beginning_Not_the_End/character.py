@@ -1896,6 +1896,7 @@ class Character:
             Character.damage_RF = 4
             Character.damage_HG = 1
             Character.shield_def = 1
+            Character.target_down_max = 2
             Character.max_bullet_HG = 20
 
         # 1강
@@ -1908,6 +1909,7 @@ class Character:
         elif Character.upgrade == 2:
             Character.damage_SG = 2
             Character.damage_RF = 6
+            Character.stun_RF = 2
             # 민첩한 사격 쿨타임 감소
 
         # 3강
@@ -1922,6 +1924,7 @@ class Character:
             Character.max_bullet_HG = 30
             Character.damage_SG = 3
             Character.damage_RF = 10
+            # 민첩한 사격 범위 증가
             # 불렛 레인 쿨타임 감소
 
         # 5강
