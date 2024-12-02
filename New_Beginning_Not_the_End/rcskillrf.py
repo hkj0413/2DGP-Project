@@ -10,6 +10,7 @@ class RcskillRF:
         self.x = character.mouse_x
         self.y = 800 - character.mouse_y
         self.sx = 0
+        self.damage = server.character.damage_RF * 2
         self.frame = 0
 
     def update(self):
@@ -23,13 +24,19 @@ class RcskillRF:
             draw_rectangle(*self.get_rect())
 
     def get_bb(self):
-        return self.x - 45.0, self.y - 45.0, self.x + 45.0, self.y + 45.0
+        if server.character.upgrade >= 3:
+            return self.x - 75.0, self.y - 75.0, self.x + 75.0, self.y + 75.0
+        else:
+            return self.x - 45.0, self.y - 45.0, self.x + 45.0, self.y + 45.0
 
     def get_rect(self):
-        return self.sx - 45.0, self.y - 45.0, self.sx + 45.0, self.y + 45.0
+        if server.character.upgrade >= 3:
+            return self.sx - 75.0, self.y - 75.0, self.sx + 75.0, self.y + 75.0
+        else:
+            return self.sx - 45.0, self.y - 45.0, self.sx + 45.0, self.y + 45.0
 
     def handle_collision(self, group, other):
         mob_group = ['spore', 'slime', 'pig']
         for mob in mob_group:
             if group == f'rcskillrf:{mob}':
-                other.take_damage(8)
+                other.take_damage(self.damage)

@@ -162,10 +162,14 @@ class Idle:
 
         elif temp_god(e):
            God = not God
-        elif temp_bullet(e):
+        elif temp_bullet(e) and God:
             Character.bullet_SG = 0
             Character.bullet_RF = 0
             Character.bullet_HG = 0
+        elif temp_up(e) and God:
+            Character.enhance(e, 1)
+        elif temp_down(e) and God:
+            Character.enhance(e, -1)
 
         if rchg:
             if not Rc_HG:
@@ -453,10 +457,14 @@ class Walk:
 
         elif temp_god(e):
            God = not God
-        elif temp_bullet(e):
+        elif temp_bullet(e) and God:
             Character.bullet_SG = 0
             Character.bullet_RF = 0
             Character.bullet_HG = 0
+        elif temp_up(e) and God:
+            Character.temp_upgrade()
+        elif temp_down(e) and God:
+            Character.temp_downgrade()
 
         if rchg:
             if not Rc_HG:
@@ -1282,10 +1290,24 @@ class EHG:
             Character.state = 0
             if God:
                 Character.bullet_rain_cooldown = 1
+            elif Character.upgrade >= 4:
+                Character.bullet_rain_cooldown = 3
             else:
-                Character.bullet_rain_cooldown = 8
+                Character.bullet_rain_cooldown = 6
             Character.hit_delay = 1
             character.state_machine.add_event(('USE_DASH', 0))
+        elif e_down(e):
+            Character.state = 0
+            if God:
+                Character.bullet_rain_cooldown = 1
+            elif Character.upgrade >= 4:
+                Character.bullet_rain_cooldown = 3
+            else:
+                Character.bullet_rain_cooldown = 6
+            if d_pressed or a_pressed:
+                character.state_machine.add_event(('WALK', 0))
+            else:
+                character.state_machine.add_event(('IDLE', 0))
         elif take_hit(e):
             Character.hp = max(0, Character.hp - Character.damage)
             Character.hit_delay = 1.5
@@ -1318,8 +1340,10 @@ class EHG:
                 Character.state = 0
                 if God:
                     Character.bullet_rain_cooldown = 1
+                elif Character.upgrade >= 4:
+                    Character.bullet_rain_cooldown = 3
                 else:
-                    Character.bullet_rain_cooldown = 8
+                    Character.bullet_rain_cooldown = 6
                 if d_pressed or a_pressed:
                     character.state_machine.add_event(('WALK', 0))
                 else:
@@ -1370,18 +1394,22 @@ class Character:
     upgrade = 0
     bullet_SG = 8
     bullet_RF = 4
-    target_down_max = 2 # 타겟 다운 총알 2 / 3 (+2)
+    target_down_max = 2 # 타겟 다운 총알 2 / 3 (+1)
     target_down_bullet = target_down_max
-    target_down_size = 0 # 타겟 다운 범위 3 / 4 (+4)
-    max_bullet_HG = 20 # 핸드건 총알 개수 20 / 24 (+3) / 30 (+5)
+    target_down_size = 0 # 타겟 다운 범위 3 / 4 (+3)
+    max_bullet_HG = 20 # 핸드건 총알 개수 20 / 24 (+1) / 30 (+3)
     bullet_HG = max_bullet_HG
-    shield_def = 1 # 방어 태세 방어도 1 / 2(+1) / 4(+3) / 8(+5)
+    damage_SG = 1
+    damage_RF = 4
+    stun_RF = 2
+    damage_HG = 1
+    shield_def = 1 # 방어 태세 방어도 1 / 2 (+1) / 4 (+3) / 8 (+5)
     hit_delay = 0 # 피격 면역
     attack_delay = 0 # 공격 속도
     dash_cooldown = 0 # 대쉬 쿨타임 6초
     target_down_cooldown = 0  # 타겟 다운 쿨타임 30초
-    agile_shooting_cooldown = 0 # 민첩한 사격 쿨타임 2초 / 1초(+2)
-    bullet_rain_cooldown = 0 # 불렛 레인 쿨타임 8초
+    agile_shooting_cooldown = 0 # 민첩한 사격 쿨타임 2초 / 1초 (+2)
+    bullet_rain_cooldown = 0 # 불렛 레인 쿨타임 6초 / 3초 (+4)
 
     def load_images(self):
         if Character.images == None:
@@ -1454,7 +1482,7 @@ class Character:
                     reload: Idle, rf_reload: RRF, idle: Idle, under_down: Idle, under_up: Idle, rf_reload_s: RsRF, rf_rc: RcRF,
                     on_up: Idle, on_down: Idle, q_down: Idle, e_down: Idle, c_down: Idle,
                     take_hit: Hit, die: Die, hg_e: EHG,
-                    temp_bullet: Idle, temp_god: Idle,
+                    temp_bullet: Idle, temp_god: Idle, temp_up: Idle, temp_down: Idle,
                 },
                 Walk: {
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
@@ -1462,7 +1490,7 @@ class Character:
                     reload: Walk, rf_reload: RRF, walk: Walk, under_down: Walk, under_up: Walk, rf_reload_s: RsRF, rf_rc: RcRF,
                     on_up: Walk, on_down: Walk, q_down: Walk, e_down: Walk, c_down: Walk,
                     take_hit: Hit, die: Die, hg_e: EHG,
-                    temp_bullet: Walk, temp_god: Walk,
+                    temp_bullet: Walk, temp_god: Walk, temp_up: Walk, temp_down: Walk,
                 },
                 Hit: {
                     right_down: Hit, left_down: Hit, right_up: Hit, left_up: Hit, on_down: Hit, under_down: Hit, under_up: Hit,
@@ -1490,7 +1518,7 @@ class Character:
                 },
                 EHG: {
                     right_down: EHG, left_down: EHG, left_up: EHG, right_up: EHG, on_up: EHG, under_up: EHG,
-                    lc_down: EHG, lc_up: EHG, jump: EHG,
+                    lc_down: EHG, lc_up: EHG, jump: EHG, e_down: EHG,
                     under_down: EHG, on_down: EHG, dash: EHG, use_dash: Dash, idle: Idle, walk: Walk, take_hit: EHG,
                     die: Die,
                 },
@@ -1861,11 +1889,43 @@ class Character:
     def enhance(self, static):
         Character.upgrade += static
         Character.upgrade = clamp(0, Character.upgrade, 5)
-        if Character.upgrade == 1:
-            pass
 
-    def temp_upgrade(self):
-        self.enhance(1)
+        # 0강
+        if Character.upgrade == 0:
+            Character.damage_SG = 1
+            Character.damage_RF = 4
+            Character.damage_HG = 1
+            Character.shield_def = 1
+            Character.max_bullet_HG = 20
 
-    def temp_downgrade(self):
-        self.enhance(-1)
+        # 1강
+        elif Character.upgrade == 1:
+            Character.shield_def = 2
+            Character.target_down_max = 3
+            Character.max_bullet_HG = 24
+
+        # 2강
+        elif Character.upgrade == 2:
+            Character.damage_SG = 2
+            Character.damage_RF = 6
+            # 민첩한 사격 쿨타임 감소
+
+        # 3강
+        elif Character.upgrade == 3:
+            Character.stun_RF = 4
+            Character.damage_HG = 2
+            Character.shield_def = 4
+            # 타겟 다운 범위 증가
+
+        # 4강
+        elif Character.upgrade == 4:
+            Character.max_bullet_HG = 30
+            Character.damage_SG = 3
+            Character.damage_RF = 10
+            # 불렛 레인 쿨타임 감소
+
+        # 5강
+        elif Character.upgrade == 5:
+            Character.damage_RF = 16
+            Character.damage_HG = 4
+            Character.shield_def = 8

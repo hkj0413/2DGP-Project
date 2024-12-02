@@ -5,7 +5,6 @@ import game_world
 
 from pico2d import load_image, draw_rectangle
 
-
 class ReloadRF:
     image = None
 
@@ -13,6 +12,7 @@ class ReloadRF:
         self.x = server.character.x
         self.y = server.character.y
         self.sx = 0
+        self.stun = server.character.stun_RF
         self.timer = 0
         self.temp = 0
         self.face = d
@@ -60,4 +60,4 @@ class ReloadRF:
         mob_group = ['spore', 'slime', 'pig']
         for mob in mob_group:
             if group == f'reloadrf:{mob}':
-                other.take_stun(2)
+                other.take_stun(self.stun)

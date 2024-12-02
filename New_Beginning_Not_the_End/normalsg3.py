@@ -10,6 +10,7 @@ class NormalSG3:
         self.x = server.character.x
         self.y = server.character.y
         self.sx = 0
+        self.damage = server.character.damage_SG
         self.frame = 0
         self.face = d
 
@@ -39,4 +40,4 @@ class NormalSG3:
         mob_group = ['spore', 'slime', 'pig']
         for mob in mob_group:
             if group == f'normalsg3:{mob}':
-                other.take_damage(1)
+                other.take_damage(self.damage)

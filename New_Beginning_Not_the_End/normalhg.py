@@ -10,6 +10,7 @@ class NormalHG:
         self.x = server.character.x + 18 * d
         self.y = server.character.y
         self.sx = 0
+        self.damage = server.character.damage_HG
         self.timer = 0
         self.temp = 0
         self.count = 0
@@ -49,3 +50,6 @@ class NormalHG:
 
     def handle_collision(self, group, other):
         pass
+
+    def give_damage(self):
+        return self.damage

@@ -1,6 +1,5 @@
 import server
 import game_framework
-import game_world
 
 from pico2d import load_image
 

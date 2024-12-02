@@ -116,13 +116,13 @@ class Slime:
         if group == 'server.character:slime' and not self.state == 4 and not self.state == 5:
             other.take_damage(1)
         elif group == 'normalrf:slime' and (self.state == 0 or self.state == 1 or self.state == 3):
-            self.take_damage(4)
+            self.take_damage(other.give_damage())
             other.get_count()
         elif group == 'normalrfsp:slime' and (self.state == 0 or self.state == 1 or self.state == 3):
-            self.take_damage(6)
+            self.take_damage(other.give_damage())
             other.get_count()
         elif group == 'normalhg:slime' and (self.state == 0 or self.state == 1 or self.state == 3):
-            self.take_damage(1)
+            self.take_damage(other.give_damage())
             other.get_count()
 
     def take_damage(self, damage):
