@@ -7,6 +7,8 @@ import character
 class UI:
     image_hp = None
     image_bullet = None
+    image_enhance = None
+    image_medal = None
     image_dash = None
     image_rc_sg = None
     image_rc_rf = None
@@ -18,6 +20,10 @@ class UI:
             self.hp_image = [load_image("./Icon/" + 'Heart' + " (%d)" % i + ".png") for i in range(1, 3 + 1)]
         if UI.image_bullet == None:
             self.bullet_image = [load_image("./Icon/" + 'Bullet' + " (%d)" % i + ".png") for i in range(1, 8 + 1)]
+        if UI.image_enhance == None:
+            self.image_enhance = load_image("./Item/" + 'Enhance' + ".png")
+        if UI.image_medal == None:
+            self.image_medal = load_image("./Item/" + 'Medal' + ".png")
         if UI.image_dash == None:
             self.image_dash = load_image("./Icon/" + 'All_dash' + ".png")
         if UI.image_rc_sg == None:
@@ -45,6 +51,20 @@ class UI:
                 self.hp_image[1].draw(hx + i * 30, hy, 30, 30)
             else:
                 self.hp_image[2].draw(hx + i * 30, hy, 30, 30)
+
+        ex = 780
+        ey = 780
+
+        for i in range(5):
+            if i < Character.upgrade:
+                self.image_enhance.draw(ex - i * 35, ey, 33, 33)
+
+        mx = 490
+        my = 770
+
+        for i in range(3):
+            if i < Character.medal:
+                self.image_medal.draw(mx + i * 50, my, 40, 60)
 
         bx = 1060
         by = 770

@@ -1392,6 +1392,7 @@ class Character:
     score = 0
     damage = 0
     upgrade = 0
+    medal = 0
     bullet_SG = 8
     bullet_RF = 4
     target_down_max = 2 # 타겟 다운 총알 2 / 3 (+1)
