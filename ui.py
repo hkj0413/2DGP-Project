@@ -34,7 +34,6 @@ class UI:
             self.image_rc_hg = load_image("./Icon/" + 'HG_dexterous_shot' + ".png")
         if UI.image_e_hg == None:
             self.image_e_hg = load_image("./Icon/" + 'HG_bullet_rain' + ".png")
-        #self.font = load_font('ENCR10B.TTF', 20)
 
     def update(self):
         pass
@@ -68,8 +67,6 @@ class UI:
 
         bx = 1060
         by = 770
-
-        #self.font.draw(560, 780.0, f'Score : {Character.score}', (0, 0, 0))
 
         if Character.dash_cooldown == 0:
             self.image_dash.draw(124, 40, 48 ,48)

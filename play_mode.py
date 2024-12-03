@@ -2,6 +2,7 @@ from pico2d import *
 
 import game_framework
 import game_world
+import guide_mode
 import server
 
 from ground import Ground
@@ -32,6 +33,8 @@ def handle_events():
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_p:
+            game_framework.push_mode(guide_mode)
         else:
             server.character.handle_event(event)
 
