@@ -1141,6 +1141,7 @@ class RcRF:
             character.wait_time = get_time()
             Character.target_down_bullet = Character.target_down_max
             character.frame = clamp(0, character.frame, 13)
+            Character.Rc_RF_sound.play()
         elif right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -1393,6 +1394,7 @@ class Character:
     rf_stance_sound = None
     hg_stance_sound = None
     Rc_SG_sound = None
+    Rc_RF_sound = None
     stance = 0
     state = 0
     speed = 3
@@ -1540,10 +1542,12 @@ class Character:
             Character.rf_stance_sound = load_wav("./Sound/change_RF.mp3")
             Character.hg_stance_sound = load_wav("./Sound/change_HG.mp3")
             Character.Rc_SG_sound = load_wav("./Sound/Rc_SG.mp3")
+            Character.Rc_RF_sound = load_wav("./Sound/Rc_RF.mp3")
             Character.sg_stance_sound.set_volume(64)
             Character.rf_stance_sound.set_volume(64)
             Character.hg_stance_sound.set_volume(64)
             Character.Rc_SG_sound.set_volume(48)
+            Character.Rc_RF_sound.set_volume(64)
 
     def update(self):
         global Jump, jump_velocity, Fall, fall_velocity, Attack, Move, screen_left, screen_right, Reload_SG, Reload_HG, mouse_x
