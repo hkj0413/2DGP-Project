@@ -2,10 +2,11 @@ import server
 import character
 import game_world
 
-from pico2d import load_image, draw_rectangle
+from pico2d import load_image, draw_rectangle, load_wav
 
 class Enhance:
     image = None
+    Getitem_sound = None
 
     def __init__(self, i=0.0, j=0.0):
         self.x = i * 30.0 + 15.0
@@ -13,6 +14,9 @@ class Enhance:
         self.sx = 0
         if Enhance.image == None:
             Enhance.image = load_image("./Item/" + 'Enhance' + ".png")
+        if Enhance.Getitem_sound == None:
+            Enhance.Getitem_sound = load_wav("./Sound/Getitem.mp3")
+            Enhance.Getitem_sound.set_volume(32)
 
     def update(self):
         self.sx = self.x - server.background.window_left
@@ -32,4 +36,5 @@ class Enhance:
     def handle_collision(self, group, other):
         if group == 'server.character:enhance':
             other.enhance(1)
+            MoreHP.Getitem_sound.play()
             game_world.remove_object(self)
