@@ -4,10 +4,11 @@ import game_framework
 import game_world
 import random
 
-from pico2d import load_image ,draw_rectangle
+from pico2d import load_image ,draw_rectangle, load_wav
 
 class EskillHG:
     image = None
+    Lc_HG_sound = None
 
     def __init__(self, d):
         self.x = server.character.x + 18 * d
@@ -16,12 +17,20 @@ class EskillHG:
         self.damage = server.character.damage_HG
         self.timer = 0
         self.temp = 0
+        self.one = 0
         self.face = d
         if EskillHG.image == None:
             EskillHG.image = load_image("./Effect/HG/" + 'Lc_HG' + " (1)" + ".png")
+        if EskillHG.Lc_HG_sound == None:
+            EskillHG.Lc_HG_sound = load_wav("./Sound/Lc_HG.mp3")
+            EskillHG.Lc_HG_sound.set_volume(48)
 
     def update(self):
         self.sx = self.x - server.background.window_left
+
+        if self.one == 0:
+            EskillHG.Lc_HG_sound.play()
+            self.one += 1
 
         self.timer += game_framework.frame_time
 
