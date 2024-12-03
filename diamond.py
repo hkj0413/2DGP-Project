@@ -2,10 +2,11 @@ import server
 import character
 import game_world
 
-from pico2d import load_image, draw_rectangle
+from pico2d import load_image, draw_rectangle, load_wav
 
 class Diamond:
     image = None
+    Getitem_sound = None
 
     def __init__(self, i=0.0, j=0.0):
         self.x = i * 30.0 + 15.0
@@ -13,6 +14,9 @@ class Diamond:
         self.sx = 0
         if Diamond.image == None:
             Diamond.image = load_image("./Item/" + 'Diamond' + ".png")
+        if Diamond.Getitem_sound == None:
+            Diamond.Getitem_sound = load_wav("./Sound/Getitem.mp3")
+            Diamond.Getitem_sound.set_volume(32)
 
     def update(self):
         self.sx = self.x - server.background.window_left
@@ -31,4 +35,5 @@ class Diamond:
 
     def handle_collision(self, group, other):
         if group == 'server.character:diamond':
+            Diamond.Getitem_sound.play()
             game_world.remove_object(self)
