@@ -18,7 +18,7 @@ class DashEffect:
             DashEffect.image = load_image("./Effect/" + 'Dash' + " (1)" + ".png")
         if DashEffect.Dash_sound == None:
             DashEffect.Dash_sound = load_wav("./Sound/Dash.mp3")
-            DashEffect.Dash_sound.set_volume(32)
+            DashEffect.Dash_sound.set_volume(48)
 
     def update(self):
         self.sx = self.x - server.background.window_left

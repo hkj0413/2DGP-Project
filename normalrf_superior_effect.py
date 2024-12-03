@@ -20,7 +20,7 @@ class NormalRFSPEffect:
             NormalRFSPEffect.image = load_image("./Effect/RF/" + 'Lc_RF_superior' + " (1)" + ".png")
         if NormalRFSPEffect.Lc_RF_superior_sound == None:
             NormalRFSPEffect.Lc_RF_superior_sound = load_wav("./Sound/Lc_RF_superior.mp3")
-            NormalRFSPEffect.Lc_RF_superior_sound.set_volume(80)
+            NormalRFSPEffect.Lc_RF_superior_sound.set_volume(96)
 
     def update(self):
         self.sx = self.x - server.background.window_left

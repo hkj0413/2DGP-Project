@@ -17,7 +17,7 @@ class RcskillHGEffect:
             RcskillHGEffect.image = [load_image("./Effect/HG/" + 'Rc_HG' + " (%d)" % i + ".png") for i in range(1, 8 + 1)]
         if RcskillHGEffect.Rc_HG_sound == None:
             RcskillHGEffect.Rc_HG_sound = load_wav("./Sound/Rc_HG.mp3")
-            RcskillHGEffect.Rc_HG_sound.set_volume(48)
+            RcskillHGEffect.Rc_HG_sound.set_volume(64)
 
     def update(self):
         self.x = server.character.x

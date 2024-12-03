@@ -1559,13 +1559,13 @@ class Character:
             Character.Rc_RF_sound = load_wav("./Sound/Rc_RF.mp3")
             Character.Reload_SG_sound = load_wav("./Sound/Reload_SG.mp3")
             Character.Reload_HG_sound = load_wav("./Sound/Reload_HG.mp3")
-            Character.sg_stance_sound.set_volume(48)
-            Character.rf_stance_sound.set_volume(48)
-            Character.hg_stance_sound.set_volume(48)
-            Character.Rc_SG_sound.set_volume(48)
-            Character.Rc_RF_sound.set_volume(64)
-            Character.Reload_SG_sound.set_volume(64)
-            Character.Reload_HG_sound.set_volume(64)
+            Character.sg_stance_sound.set_volume(64)
+            Character.rf_stance_sound.set_volume(64)
+            Character.hg_stance_sound.set_volume(64)
+            Character.Rc_SG_sound.set_volume(64)
+            Character.Rc_RF_sound.set_volume(80)
+            Character.Reload_SG_sound.set_volume(80)
+            Character.Reload_HG_sound.set_volume(80)
 
     def update(self):
         global Jump, jump_velocity, Fall, fall_velocity, Attack, Move, screen_left, screen_right, Reload_SG, Reload_HG, mouse_x

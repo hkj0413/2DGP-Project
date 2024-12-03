@@ -18,7 +18,7 @@ class NormalSGEffect:
             NormalSGEffect.image = [load_image("./Effect/SG/" + 'Lc_SG' + " (%d)" % i + ".png") for i in range(1, 9 + 1)]
         if NormalSGEffect.Lc_SG_sound == None:
             NormalSGEffect.Lc_SG_sound = load_wav("./Sound/Lc_SG.mp3")
-            NormalSGEffect.Lc_SG_sound.set_volume(80)
+            NormalSGEffect.Lc_SG_sound.set_volume(96)
 
     def update(self):
         self.sx = self.x - server.background.window_left

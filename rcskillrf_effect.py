@@ -20,8 +20,8 @@ class RcskillRFEffect:
         if RcskillRFEffect.Rc_RF_shot_sound == None:
             RcskillRFEffect.Rc_RF_shot_sound = load_wav("./Sound/Rc_RF_shot.mp3")
             RcskillRFEffect.Rc_RF_last_sound = load_wav("./Sound/Rc_RF_last.mp3")
-            RcskillRFEffect.Rc_RF_shot_sound.set_volume(48)
-            RcskillRFEffect.Rc_RF_last_sound.set_volume(48)
+            RcskillRFEffect.Rc_RF_shot_sound.set_volume(64)
+            RcskillRFEffect.Rc_RF_last_sound.set_volume(64)
 
     def update(self):
         self.sx = self.x - server.background.window_left

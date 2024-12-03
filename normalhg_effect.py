@@ -20,7 +20,7 @@ class NormalHGEffect:
             NormalHGEffect.image = load_image("./Effect/HG/" + 'Lc_HG' + " (1)" + ".png")
         if NormalHGEffect.Lc_HG_sound == None:
             NormalHGEffect.Lc_HG_sound = load_wav("./Sound/Lc_HG.mp3")
-            NormalHGEffect.Lc_HG_sound.set_volume(48)
+            NormalHGEffect.Lc_HG_sound.set_volume(64)
 
     def update(self):
         self.sx = self.x - server.background.window_left

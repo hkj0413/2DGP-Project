@@ -23,7 +23,7 @@ class EskillHG:
             EskillHG.image = load_image("./Effect/HG/" + 'Lc_HG' + " (1)" + ".png")
         if EskillHG.Lc_HG_sound == None:
             EskillHG.Lc_HG_sound = load_wav("./Sound/Lc_HG.mp3")
-            EskillHG.Lc_HG_sound.set_volume(48)
+            EskillHG.Lc_HG_sound.set_volume(64)
 
     def update(self):
         self.sx = self.x - server.background.window_left

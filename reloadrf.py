@@ -22,7 +22,7 @@ class ReloadRF:
             ReloadRF.image = load_image("./Effect/RF/" + 'R_RF' + " (1)" + ".png")
         if ReloadRF.Reload_RF_sound == None:
             ReloadRF.Reload_RF_sound = load_wav("./Sound/Reload_RF.mp3")
-            ReloadRF.Reload_RF_sound.set_volume(48)
+            ReloadRF.Reload_RF_sound.set_volume(64)
 
     def update(self):
         self.sx = self.x - server.background.window_left
