@@ -2,6 +2,7 @@ from pico2d import get_time, load_image, draw_rectangle, clamp, load_wav
 
 import game_world
 import game_framework
+import play_mode
 import server
 import ground
 
@@ -1908,6 +1909,12 @@ class Character:
                 fall_velocity = 0.0
         elif group == 'server.character:diamond':
             Character.score += 500
+        elif group == 'server.character:portal':
+            if play_mode.stage == 1:
+                self.x, self.y = 34.0, 140.0
+                play_mode.change_stage(2)
+            elif play_mode.stage == 2:
+                self.x, self.y = 34.0, 140.0
 
     def handle_collision_fall(self, group, other):
         global Fall, fall_velocity

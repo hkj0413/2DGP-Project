@@ -1,5 +1,8 @@
 import time
 
+import play_mode
+
+
 def change_mode(mode):
     global stack
     if (len(stack) > 0):
@@ -32,14 +35,14 @@ def run(start_mode):
     global running, stack
     running = True
     stack = [start_mode]
-    start_mode.init()
+    start_mode.init(play_mode.stage)
 
     global frame_time
     frame_time = 0.0
     current_time = time.time()
     while running:
         stack[-1].handle_events()
-        stack[-1].update()
+        stack[0].update()
         stack[-1].draw()
         frame_time = time.time() - current_time
         current_time += frame_time

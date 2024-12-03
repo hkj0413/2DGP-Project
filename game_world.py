@@ -1,7 +1,7 @@
 import character
 import game_framework
 
-world = [[] for _ in range(4)]
+world = [[] for _ in range(5)]
 collision_pairs = {}
 
 def add_collision_pairs(group, a, b):
@@ -47,6 +47,13 @@ def remove_object(o):
 def clear():
     for layer in world:
         layer.clear()
+    collision_pairs.clear()
+
+def get_all_objects():
+    all_objects = []
+    for layer in world:
+        all_objects.extend(layer)
+    return all_objects
 
 def collide(a, b):
     al, ab, ar, at = a.get_bb()
@@ -106,7 +113,9 @@ def collide_ladder(a, b):
     return False
 
 def handle_collisions():
-    for group, pairs in collision_pairs.items():
+    collision_pairs_copy = list(collision_pairs.items())
+
+    for group, pairs in collision_pairs_copy:
         for a in pairs[0]:
             if character.screen_left - 15 <= a.x <= character.screen_right + 15:
                 for b in pairs[1]:
