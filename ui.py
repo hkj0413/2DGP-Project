@@ -98,7 +98,7 @@ class UI:
                     self.bullet_image[7].draw(character.mouse_x, 800 - character.mouse_y,
                                               120 - Character.target_down_size, 120 - Character.target_down_size)
         elif Character.stance == 2:
-            if Character.agile_shooting_cooldown == 0:
+            if Character.dexterous_shot_cooldown == 0:
                 self.image_rc_hg.draw(124 + 64 * 3, 40, 48 ,48)
 
             if Character.bullet_rain_cooldown == 0:
