@@ -134,6 +134,7 @@ class Idle:
                     Reload_SG = True
                     Character.speed = 1
                     character.frame = 0
+                    character.one = 0
             elif Character.stance == 1 and Character.bullet_RF == 0 and Character.state == 0:
                 if s_pressed:
                     Character.hit_delay = 1
@@ -147,6 +148,7 @@ class Idle:
                     Character.speed = 7
                     character.frame = 0
                     Invincibility = True
+                    Character.Reload_HG_sound.play()
         elif e_down(e):
             if Character.stance == 0:
                 pass
@@ -232,6 +234,9 @@ class Idle:
                     character.state_machine.add_event(('WALK', 0))
                 else:
                     character.state_machine.add_event(('IDLE', 0))
+            elif character.frame > 4.0 and character.one == 0:
+                Character.Reload_SG_sound.play()
+                character.one += 1
 
         elif Reload_HG:
             character.frame = character.frame + 8.0 * 1.8 * game_framework.frame_time
@@ -433,6 +438,7 @@ class Walk:
                     Reload_SG = True
                     Character.speed = 1
                     character.frame = 0
+                    character.one = 0
             elif Character.stance == 1 and Character.bullet_RF == 0 and Character.state == 0:
                 if s_pressed:
                     Character.hit_delay = 1
@@ -446,6 +452,7 @@ class Walk:
                     Character.speed = 7
                     character.frame = 0
                     Invincibility = True
+                    Character.Reload_HG_sound.play()
         elif e_down(e):
             if Character.stance == 0:
                 pass
@@ -534,6 +541,9 @@ class Walk:
                     character.state_machine.add_event(('WALK', 0))
                 else:
                     character.state_machine.add_event(('IDLE', 0))
+            elif character.frame > 4.0 and character.one == 0:
+                Character.Reload_SG_sound.play()
+                character.one += 1
 
         elif Reload_HG:
             character.frame = character.frame + 8.0 * 1.8 * game_framework.frame_time
@@ -1395,6 +1405,8 @@ class Character:
     hg_stance_sound = None
     Rc_SG_sound = None
     Rc_RF_sound = None
+    Reload_SG_sound = None
+    Reload_HG_sound = None
     stance = 0
     state = 0
     speed = 3
@@ -1477,6 +1489,7 @@ class Character:
         self.mouse = False
         self.load_images()
         self.name = ''
+        self.one = 0
         self.hit_cool = 0
         self.attack_cool = 0
         self.attack_time = 0
@@ -1543,11 +1556,15 @@ class Character:
             Character.hg_stance_sound = load_wav("./Sound/change_HG.mp3")
             Character.Rc_SG_sound = load_wav("./Sound/Rc_SG.mp3")
             Character.Rc_RF_sound = load_wav("./Sound/Rc_RF.mp3")
+            Character.Reload_SG_sound = load_wav("./Sound/Reload_SG.mp3")
+            Character.Reload_HG_sound = load_wav("./Sound/Reload_HG.mp3")
             Character.sg_stance_sound.set_volume(64)
             Character.rf_stance_sound.set_volume(64)
             Character.hg_stance_sound.set_volume(64)
             Character.Rc_SG_sound.set_volume(48)
             Character.Rc_RF_sound.set_volume(64)
+            Character.Reload_SG_sound.set_volume(96)
+            Character.Reload_HG_sound.set_volume(96)
 
     def update(self):
         global Jump, jump_velocity, Fall, fall_velocity, Attack, Move, screen_left, screen_right, Reload_SG, Reload_HG, mouse_x
