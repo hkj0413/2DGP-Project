@@ -1433,7 +1433,7 @@ class Character:
     attack_delay = 0 # 공격 속도
     dash_cooldown = 0 # 대쉬 쿨타임 6초
     target_down_cooldown = 0  # 타겟 다운 쿨타임 30초
-    agile_shooting_cooldown = 0 # 민첩한 사격 쿨타임 2초 / 1초 (+2)
+    dexterous_shot_cooldown = 0 # 민첩한 사격 쿨타임 2초 / 1초 (+2)
     bullet_rain_cooldown = 0 # 불렛 레인 쿨타임 6초 / 3초 (+4)
 
     def load_images(self):
@@ -1789,13 +1789,13 @@ class Character:
                     Attack = False
 
         if Character.stance == 2 and Character.state == 1:
-            if Character.agile_shooting_cooldown == 0 and not Attack and Character.bullet_HG > 0:
+            if Character.dexterous_shot_cooldown == 0 and not Attack and Character.bullet_HG > 0:
                 Character.speed = 7
                 self.frame = 0
                 if God or Character.upgrade >= 2:
-                    Character.agile_shooting_cooldown = 1
+                    Character.dexterous_shot_cooldown = 1
                 else:
-                    Character.agile_shooting_cooldown = 2
+                    Character.dexterous_shot_cooldown = 2
                 Character.bullet_HG -= 1
                 Character.hit_delay = 0.5
                 rchg = True
@@ -1839,11 +1839,11 @@ class Character:
                 Character.target_down_cooldown = 0
                 self.Rc_RF_cool = 0
 
-        if not Character.agile_shooting_cooldown == 0:
+        if not Character.dexterous_shot_cooldown == 0:
             if self.Rc_HG_cool == 0:
                 self.Rc_HG_cool = get_time()
-            if get_time() - self.Rc_HG_cool > Character.agile_shooting_cooldown:
-                Character.agile_shooting_cooldown = 0
+            if get_time() - self.Rc_HG_cool > Character.dexterous_shot_cooldown:
+                Character.dexterous_shot_cooldown = 0
                 self.Rc_HG_cool = 0
         
         if not Character.bullet_rain_cooldown == 0:

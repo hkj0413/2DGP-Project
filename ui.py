@@ -31,7 +31,7 @@ class UI:
         if UI.image_rc_rf == None:
             self.image_rc_rf = load_image("./Icon/" + 'RF_target_down' + ".png")
         if UI.image_rc_hg == None:
-            self.image_rc_hg = load_image("./Icon/" + 'HG_agile_shooting' + ".png")
+            self.image_rc_hg = load_image("./Icon/" + 'HG_dexterous_shot' + ".png")
         if UI.image_e_hg == None:
             self.image_e_hg = load_image("./Icon/" + 'HG_bullet_rain' + ".png")
         #self.font = load_font('ENCR10B.TTF', 20)
