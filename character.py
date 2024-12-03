@@ -668,6 +668,7 @@ class Hit:
         global a_pressed, d_pressed, Jump, jump_velocity, Fall, attacking, s_pressed, w_pressed, Rc_HG
         if take_hit(e):
             if Character.stance == 0 and (Character.state == 1 or Reload_SG):
+                Character.Rc_SG_sound.play()
                 Character.hp = max(0, Character.hp - max(0, (Character.damage - Character.shield_def)))
                 if Character.hp == 0:
                     Character.speed = 3
@@ -1391,6 +1392,7 @@ class Character:
     sg_stance_sound = None
     rf_stance_sound = None
     hg_stance_sound = None
+    Rc_SG_sound = None
     stance = 0
     state = 0
     speed = 3
@@ -1537,9 +1539,11 @@ class Character:
             Character.sg_stance_sound = load_wav("./Sound/change_SG.mp3")
             Character.rf_stance_sound = load_wav("./Sound/change_RF.mp3")
             Character.hg_stance_sound = load_wav("./Sound/change_HG.mp3")
+            Character.Rc_SG_sound = load_wav("./Sound/Rc_SG.mp3")
             Character.sg_stance_sound.set_volume(64)
             Character.rf_stance_sound.set_volume(64)
             Character.hg_stance_sound.set_volume(64)
+            Character.Rc_SG_sound.set_volume(48)
 
     def update(self):
         global Jump, jump_velocity, Fall, fall_velocity, Attack, Move, screen_left, screen_right, Reload_SG, Reload_HG, mouse_x

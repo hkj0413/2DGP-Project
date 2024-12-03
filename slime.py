@@ -46,7 +46,7 @@ class Slime:
         self.build_behavior_tree()
         if Slime.Slime_sound == None:
             Slime.Slime_sound = load_wav("./Sound/Hitsound.mp3")
-            Slime.Slime_sound.set_volume(16)
+            Slime.Slime_sound.set_volume(8)
 
     def update(self):
         self.sx = self.x - server.background.window_left

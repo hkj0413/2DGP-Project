@@ -46,7 +46,7 @@ class Spore:
         self.build_behavior_tree()
         if Spore.Spore_sound == None:
             Spore.Spore_sound = load_wav("./Sound/Hitsound.mp3")
-            Spore.Spore_sound.set_volume(16)
+            Spore.Spore_sound.set_volume(8)
 
     def update(self):
         self.sx = self.x - server.background.window_left
