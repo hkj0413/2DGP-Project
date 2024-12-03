@@ -36,5 +36,5 @@ class Enhance:
     def handle_collision(self, group, other):
         if group == 'server.character:enhance':
             other.enhance(1)
-            MoreHP.Getitem_sound.play()
+            Enhance.Getitem_sound.play()
             game_world.remove_object(self)

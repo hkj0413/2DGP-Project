@@ -18,12 +18,14 @@ class NormalSGEffect:
             NormalSGEffect.image = [load_image("./Effect/SG/" + 'Lc_SG' + " (%d)" % i + ".png") for i in range(1, 9 + 1)]
         if NormalSGEffect.Lc_SG_sound == None:
             NormalSGEffect.Lc_SG_sound = load_wav("./Sound/Lc_SG.mp3")
-            NormalSGEffect.Lc_SG_sound.set_volume(64)
+            NormalSGEffect.Lc_SG_sound.set_volume(80)
 
     def update(self):
         self.sx = self.x - server.background.window_left
+
         if self.frame == 0:
             NormalSGEffect.Lc_SG_sound.play()
+
         self.frame = self.frame + 9.0 * 1.5 * game_framework.frame_time
         if self.frame > 9.0:
             game_world.remove_object(self)
