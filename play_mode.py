@@ -177,6 +177,10 @@ stage_data = {
         ],
 
         'ground_positions': [
+            (14, range(32, 36)),
+            (11, range(24, 28)),
+            (8, range(16, 20)),
+            (5, range(8, 12)),
             (2, range(0, 36)),
         ],
     },
@@ -372,7 +376,7 @@ def init(stage):
         # 포탈
         game_world.add_collision_pairs('server.character:portal', server.character, None)
 
-        portal = Portal(34, 4)
+        portal = Portal(34, 16)
         game_world.add_object(portal, 0)
         game_world.add_collision_pairs('server.character:portal', None, portal)
 
