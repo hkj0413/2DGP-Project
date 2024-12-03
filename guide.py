@@ -2,13 +2,14 @@ from pico2d import load_image, load_font
 
 from character import Character
 
-class Mainguide:
+class Guide:
     image = None
 
-    def __init__(self):
+    def __init__(self, k):
         self.font = load_font('ENCR10B.TTF', 20)
-        if Mainguide.image == None:
-            Mainguide.image = load_image("./Background/" + 'Main_guide' + ".png")
+        self.frame = k
+        if Guide.image == None:
+            Guide.image = [load_image("./Background/" + 'Guide' + " (%d)" % i + ".png") for i in range(1, 19 + 1)]
 
     def update(self):
         pass
@@ -24,6 +25,6 @@ class Mainguide:
         width = right - left
         height = top - bottom
 
-        self.image.draw(center_x, center_y, width, height)
+        self.image[self.frame].draw(center_x, center_y, width, height)
 
         self.font.draw(480.0, 720.0, f'Score : {Character.score}', (0, 0, 0))
