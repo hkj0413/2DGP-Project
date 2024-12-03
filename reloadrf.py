@@ -3,10 +3,11 @@ import character
 import game_framework
 import game_world
 
-from pico2d import load_image, draw_rectangle
+from pico2d import load_image, draw_rectangle, load_wav
 
 class ReloadRF:
     image = None
+    Reload_RF_sound = None
 
     def __init__(self, d):
         self.x = server.character.x
@@ -15,12 +16,20 @@ class ReloadRF:
         self.stun = server.character.stun_RF
         self.timer = 0
         self.temp = 0
+        self.one = 0
         self.face = d
         if ReloadRF.image == None:
             ReloadRF.image = load_image("./Effect/RF/" + 'R_RF' + " (1)" + ".png")
+        if ReloadRF.Reload_RF_sound == None:
+            ReloadRF.Reload_RF_sound = load_wav("./Sound/Reload_RF.mp3")
+            ReloadRF.Reload_RF_sound.set_volume(48)
 
     def update(self):
         self.sx = self.x - server.background.window_left
+
+        if self.one == 0:
+            ReloadRF.Reload_RF_sound.play()
+            self.one += 1
 
         self.timer += game_framework.frame_time
 
