@@ -1602,7 +1602,7 @@ class Character:
                         scroll_offset = 2700 - 1080 // 2
                         mouse_x = mouse_x + scroll_offset
                         self.mouse = True
-                    elif self.x > 540 and not self.mouse:
+                    elif self.x > 540 and not self.mouse and server.background.w > 1080:
                         scroll_offset = self.x - 1080 // 2
                         mouse_x = mouse_x + scroll_offset
                         self.mouse = True
@@ -1644,7 +1644,7 @@ class Character:
                             scroll_offset = 2700 - 1080 // 2
                             mouse_x = mouse_x + scroll_offset
                             self.mouse = True
-                        elif self.x > 540 and not self.mouse:
+                        elif self.x > 540 and not self.mouse and server.background.w > 1080:
                             scroll_offset = self.x - 1080 // 2
                             mouse_x = mouse_x + scroll_offset
                             self.mouse = True
@@ -1687,7 +1687,7 @@ class Character:
                             scroll_offset = 2700 - 1080 // 2
                             mouse_x = mouse_x + scroll_offset
                             self.mouse = True
-                        elif self.x > 540 and not self.mouse:
+                        elif self.x > 540 and not self.mouse and server.background.w > 1080:
                             scroll_offset = self.x - 1080 // 2
                             mouse_x = mouse_x + scroll_offset
                             self.mouse = True
@@ -1720,7 +1720,7 @@ class Character:
                             scroll_offset = 2700 - 1080 // 2
                             mouse_x = mouse_x + scroll_offset
                             self.mouse = True
-                        elif self.x > 540 and not self.mouse:
+                        elif self.x > 540 and not self.mouse and server.background.w > 1080:
                             scroll_offset = self.x - 1080 // 2
                             mouse_x = mouse_x + scroll_offset
                             self.mouse = True
@@ -1754,7 +1754,7 @@ class Character:
                             scroll_offset = 2700 - 1080 // 2
                             mouse_x = mouse_x + scroll_offset
                             self.mouse = True
-                        elif self.x > 540 and not self.mouse:
+                        elif self.x > 540 and not self.mouse and server.background.w > 1080:
                             scroll_offset = self.x - 1080 // 2
                             mouse_x = mouse_x + scroll_offset
                             self.mouse = True
