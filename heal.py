@@ -1,10 +1,11 @@
 import server
 import character
 
-from pico2d import load_image, draw_rectangle, get_time
+from pico2d import load_image, draw_rectangle, get_time, load_wav
 
 class Heal:
     image = None
+    Getitem_sound = None
 
     def __init__(self, i=0.0, j=0.0, k=0):
         self.x = i * 30.0 + 15.0
@@ -15,6 +16,9 @@ class Heal:
         self.heal = k
         if Heal.image == None:
             Heal.image = load_image("./Item/" + 'Heal' + ".png")
+        if Heal.Getitem_sound == None:
+            Heal.Getitem_sound = load_wav("./Sound/Getitem.mp3")
+            Heal.Getitem_sound.set_volume(32)
 
     def update(self):
         self.sx = self.x - server.background.window_left
@@ -41,3 +45,4 @@ class Heal:
                 self.state = 1
                 self.delay = get_time()
                 other.take_heal(self.heal)
+                Heal.Getitem_sound.play()
