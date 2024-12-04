@@ -66,6 +66,8 @@ mouse_x, mouse_y = 0, 0
 screen_left = 0
 screen_right = 1080
 
+chance = 0
+
 mob_group = ['spore', 'slime', 'pig']
 
 class Idle:
@@ -1411,20 +1413,12 @@ class RcRF:
 class ERF:
     @staticmethod
     def enter(character, e):
-        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump, Attack
+        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump
         if rf_e(e):
             Move = False
-            Attack = True
             character.frame = 0
-            character.attack_time = get_time()
-
-            normalrfeffect = NormalRFEffect(character.face_dir)
-            game_world.add_object(normalrfeffect, 3)
-
-            normalrf = NormalRF(character.face_dir)
-            game_world.add_object(normalrf, 3)
-            for mob in mob_group:
-                game_world.add_collision_pairs(f'normalrf:{mob}', normalrf, None)
+            character.wait_time = get_time()
+            Character.E_RF_sound.play()
         elif right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -1477,12 +1471,47 @@ class ERF:
 
     @staticmethod
     def do(character):
-        global Move
+        global Move, Attack, chance
+        if get_time() - character.wait_time > 0.3 and chance <= 2:
+            if not Attack:
+                Attack = True
+                character.attack_time = get_time()
+                chance += 1
+
+                normalrfeffect = NormalRFEffect(character.face_dir)
+                game_world.add_object(normalrfeffect, 3)
+
+                normalrf = NormalRF(character.face_dir)
+                game_world.add_object(normalrf, 3)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'normalrf:{mob}', normalrf, None)
+
+                rfeffect = RFEffect(character.face_dir)
+                game_world.add_object(rfeffect, 3)
+
+        elif get_time() - character.wait_time > 2.0 and chance == 3:
+            if not Attack:
+                Attack = True
+                character.attack_time = get_time()
+                chance += 1
+
+                normalrfspeffect = NormalRFSPEffect(character.face_dir)
+                game_world.add_object(normalrfspeffect, 3)
+
+                normalrfsp = NormalRFSP(character.face_dir)
+                game_world.add_object(normalrfsp, 3)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'normalrfsp:{mob}', normalrfsp, None)
+
+                rfeffect = RFEffect(character.face_dir)
+                game_world.add_object(rfeffect, 3)
+
         if Attack:
             character.frame = (character.frame + 7.0 * 2.0 * game_framework.frame_time) % 7
 
-        elif not Attack:
+        elif not Attack and chance >= 4:
             Character.state = 0
+            chance = 0
             if God:
                 Character.focus_shot_cooldown = 1
             else:
@@ -1815,6 +1844,7 @@ class Character:
             Character.Rc_RF_sound = load_wav("./Sound/Rc_RF.mp3")
             Character.Reload_SG_sound = load_wav("./Sound/Reload_SG.mp3")
             Character.Reload_HG_sound = load_wav("./Sound/Reload_HG.mp3")
+            Character.E_RF_sound = load_wav("./Sound/E_RF.mp3")
             Character.sg_stance_sound.set_volume(64)
             Character.rf_stance_sound.set_volume(64)
             Character.hg_stance_sound.set_volume(64)
@@ -1822,6 +1852,7 @@ class Character:
             Character.Rc_RF_sound.set_volume(80)
             Character.Reload_SG_sound.set_volume(80)
             Character.Reload_HG_sound.set_volume(80)
+            Character.E_RF_sound.set_volume(112)
 
     def update(self):
         global Jump, jump_velocity, Fall, fall_velocity, Attack, Move, screen_left, screen_right, Reload_SG, Reload_HG, mouse_x
@@ -1923,9 +1954,6 @@ class Character:
                                 game_world.add_object(normalrf, 3)
                                 for mob in mob_group:
                                     game_world.add_collision_pairs(f'normalrf:{mob}', normalrf, None)
-
-                                rfeffect = RFEffect(self.attack_dir)
-                                game_world.add_object(rfeffect, 3)
                             else:
                                 normalrfspeffect = NormalRFSPEffect(self.attack_dir)
                                 game_world.add_object(normalrfspeffect, 3)
@@ -1935,8 +1963,8 @@ class Character:
                                 for mob in mob_group:
                                     game_world.add_collision_pairs(f'normalrfsp:{mob}', normalrfsp, None)
 
-                                rfeffect = RFEffect(self.attack_dir)
-                                game_world.add_object(rfeffect, 3)
+                            rfeffect = RFEffect(self.attack_dir)
+                            game_world.add_object(rfeffect, 3)
                             Attack = True
                     elif Character.state == 1 and Character.target_down_bullet > 0:
                         if self.x > 2700 and not self.mouse:
