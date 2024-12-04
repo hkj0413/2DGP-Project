@@ -14,6 +14,7 @@ class UI:
     image_rc_sg = None
     image_q_sg = None
     image_rc_rf = None
+    image_e_rf = None
     image_rc_hg = None
     image_e_hg = None
 
@@ -27,6 +28,7 @@ class UI:
             self.image_rc_sg = load_image("./Icon/" + 'SG_defensive_stance' + ".png")
             self.image_q_sg = load_image("./Icon/" + 'SG_hour_of_judgment' + ".png")
             self.image_rc_rf = load_image("./Icon/" + 'RF_target_down' + ".png")
+            self.image_e_rf = load_image("./Icon/" + 'RF_focus_shot' + ".png")
             self.image_rc_hg = load_image("./Icon/" + 'HG_dexterous_shot' + ".png")
             self.image_e_hg = load_image("./Icon/" + 'HG_bullet_rain' + ".png")
 
@@ -83,6 +85,9 @@ class UI:
         elif Character.stance == 1:
             if Character.target_down_cooldown == 0:
                 self.image_rc_rf.draw(124 + 64 * 3, 40, 48 ,48)
+
+            if Character.focus_shot_cooldown == 0 and (character.God or Character.score >= 1500):
+                self.image_e_rf.draw(124 + 64 * 9, 40, 48 ,48)
 
             for i in range(4):
                 if i < Character.bullet_RF:

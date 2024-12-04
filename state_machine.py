@@ -81,6 +81,9 @@ def rf_reload_s(e):
 def rf_rc(e):
     return e[0] == 'RF_RC'
 
+def rf_e(e):
+    return e[0] == 'RF_E'
+
 def hg_e(e):
     return e[0] == 'HG_E'
 
