@@ -1413,10 +1413,11 @@ class RcRF:
 class ERF:
     @staticmethod
     def enter(character, e):
-        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump
+        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump, chance
         if rf_e(e):
             Move = False
             character.frame = 0
+            chance = 0
             character.wait_time = get_time()
             Character.E_RF_sound.play()
         elif right_down(e):
@@ -1447,21 +1448,12 @@ class ERF:
             attacking = True
         elif lc_up(e):
             attacking = False
-        elif jump(e) and not Jump and not Fall:
-            Jump = True
-        elif dash(e) and Character.dash_cooldown == 0:
-            Character.state = 0
-            if God:
-                Character.focus_shot_cooldown = 1
-            else:
-                Character.focus_shot_cooldown = 22
-            Character.hit_delay = 1
-            character.state_machine.add_event(('USE_DASH', 0))
         elif take_hit(e):
             Character.hp = max(0, Character.hp - Character.damage)
             Character.hit_delay = 1.5
             if Character.hp == 0:
                 Character.score -= 100
+                chance = 0
                 Character.focus_shot_cooldown = 22
                 character.state_machine.add_event(('DIE', 0))
 
@@ -1822,10 +1814,8 @@ class Character:
                     under_down: RcRF, on_down: RcRF,  dash: RcRF, use_dash: Dash, idle: Idle, walk: Walk, take_hit: RcRF, die: Die,
                 },
                 ERF: {
-                    right_down: ERF, left_down: ERF, left_up: ERF, right_up: ERF, on_up: ERF, under_up: ERF,
-                    lc_down: ERF, lc_up: ERF,
-                    under_down: ERF, on_down: ERF, dash: ERF, use_dash: Dash, idle: Idle, walk: Walk, take_hit: ERF,
-                    die: Die,
+                    right_down: ERF, left_down: ERF, left_up: ERF, right_up: ERF, on_up: ERF, under_up: ERF, lc_down: ERF, lc_up: ERF,
+                     under_down: ERF, on_down: ERF, idle: Idle, walk: Walk, take_hit: ERF, die: Die,
                 },
                 EHG: {
                     right_down: EHG, left_down: EHG, left_up: EHG, right_up: EHG, on_up: EHG, under_up: EHG,
