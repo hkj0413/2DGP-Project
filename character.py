@@ -22,6 +22,8 @@ from normalrfsp import NormalRFSP
 from reloadrf import ReloadRF
 from rcskillrf import RcskillRF
 from rcskillrf_effect import RcskillRFEffect
+from qskillrf import QskillRF
+from qskillrf_effect import QskillRFEffect
 
 from hg_effect import HGEffect
 from normalhg import NormalHG
@@ -162,7 +164,10 @@ class Idle:
                     Character.hit_delay = 1
                     character.state_machine.add_event(('SG_Q', 0))
             elif Character.stance == 1:
-                pass
+                if Character.perfect_shot_cooldown == 0 and (God or Character.score >= 500):
+                    Character.state = 3
+                    Character.hit_delay = 1
+                    character.state_machine.add_event(('RF_Q', 0))
             elif Character.stance == 2:
                 pass
         elif e_down(e):
@@ -170,12 +175,12 @@ class Idle:
                 pass
             elif Character.stance == 1:
                 if Character.focus_shot_cooldown == 0 and (God or Character.score >= 1500):
-                    Character.state = 2
+                    Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('RF_E', 0))
             elif Character.stance == 2:
                 if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 1500):
-                    Character.state = 2
+                    Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('HG_E', 0))
 
@@ -479,7 +484,10 @@ class Walk:
                     Character.hit_delay = 1
                     character.state_machine.add_event(('SG_Q', 0))
             elif Character.stance == 1:
-                pass
+                if Character.perfect_shot_cooldown == 0 and (God or Character.score >= 500):
+                    Character.state = 3
+                    Character.hit_delay = 1
+                    character.state_machine.add_event(('RF_Q', 0))
             elif Character.stance == 2:
                 pass
         elif e_down(e):
@@ -487,12 +495,12 @@ class Walk:
                 pass
             elif Character.stance == 1:
                 if Character.focus_shot_cooldown == 0 and (God or Character.score >= 1500):
-                    Character.state = 2
+                    Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('RF_E', 0))
             elif Character.stance == 2:
                 if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 1500):
-                    Character.state = 2
+                    Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('HG_E', 0))
 
@@ -1410,6 +1418,116 @@ class RcRF:
                 character.images['Idle_RF'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
                                                                                    170, 170)
 
+class QRF:
+    @staticmethod
+    def enter(character, e):
+        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump
+        if rf_q(e):
+            Move = False
+            character.frame = 0
+            character.wait_time = get_time()
+        elif right_down(e):
+            d_pressed = True
+            character.face_dir = 1
+            character.attack_dir = 1
+        elif right_up(e):
+            d_pressed = False
+        elif left_down(e):
+            a_pressed = True
+            character.face_dir = -1
+            character.attack_dir = -1
+        elif left_up(e):
+            a_pressed = False
+        elif on_down(e):
+            w_pressed = True
+        elif on_up(e):
+            w_pressed = False
+            if Climb and not s_pressed:
+                Move = False
+        elif under_down(e):
+            s_pressed = True
+        elif under_up(e):
+            s_pressed = False
+            if Climb and not w_pressed:
+                Move = False
+        elif lc_down(e):
+            attacking = True
+        elif lc_up(e):
+            attacking = False
+        elif take_hit(e):
+            Character.hp = max(0, Character.hp - Character.damage)
+            Character.hit_delay = 1.5
+            if Character.hp == 0:
+                Character.score -= 100
+                Character.perfect_shot_cooldown = 12
+                character.state_machine.add_event(('DIE', 0))
+
+    @staticmethod
+    def exit(character, e):
+        pass
+
+    @staticmethod
+    def do(character):
+        global Move, Attack
+        if 0.6 > get_time() - character.wait_time > 0.5:
+            if not Attack:
+                Attack = True
+                character.attack_time = get_time()
+
+                qskillrfeffect = QskillRFEffect(character.face_dir)
+                game_world.add_object(qskillrfeffect, 3)
+
+                qskillrf = QskillRF(character.face_dir)
+                game_world.add_object(qskillrf, 3)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'qskillrf:{mob}', qskillrf, None)
+
+                rfeffect = RFEffect(character.face_dir)
+                game_world.add_object(rfeffect, 3)
+
+        if Attack:
+            character.frame = (character.frame + 7.0 * 2.0 * game_framework.frame_time) % 7
+
+        elif not Attack and get_time() - character.wait_time > 0.6:
+            Character.state = 0
+            if God:
+                Character.perfect_shot_cooldown = 1
+            else:
+                Character.perfect_shot_cooldown = 12
+            if d_pressed or a_pressed:
+                character.state_machine.add_event(('WALK', 0))
+            else:
+                character.state_machine.add_event(('IDLE', 0))
+
+        if Climb:
+            if w_pressed and not s_pressed:
+                if not Move:
+                    Move = True
+                character.y += Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                for block in game_world.collision_pairs['server.character:ground'][1]:
+                    if screen_left - 15 <= block.x <= screen_right + 15:
+                        if game_world.collide(character, block):
+                            character.y -= Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                            return
+            elif s_pressed and not w_pressed:
+                if not Move:
+                    Move = True
+                character.y -= Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                for block in game_world.collision_pairs['server.character:ground'][1]:
+                    if screen_left - 15 <= block.x <= screen_right + 15:
+                        if game_world.collide(character, block):
+                            character.y += Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                            return
+
+    @staticmethod
+    def draw(character):
+        if character.face_dir == 1:
+            character.images['Attack_RF'][int(character.frame)].composite_draw(0, '', character.sx, character.y,
+                                                                               170, 170)
+        elif character.face_dir == -1:
+            character.images['Attack_RF'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
+                                                                               170, 170)
+
 class ERF:
     @staticmethod
     def enter(character, e):
@@ -1695,6 +1813,7 @@ class Character:
     dash_cooldown = 0 # 대쉬 쿨타임 6초
     hour_of_judgment_cooldown = 0 # 심판의 시간 쿨타임 8초
     target_down_cooldown = 0  # 타겟 다운 쿨타임 30초
+    perfect_shot_cooldown = 0 # 퍼펙트 샷 쿨타임 12초
     focus_shot_cooldown = 0 # 포커스 샷 쿨타임 22초
     dexterous_shot_cooldown = 0 # 민첩한 사격 쿨타임 2초 / 1초 (+2)
     bullet_rain_cooldown = 0 # 불렛 레인 쿨타임 6초 / 3초 (+4)
@@ -1760,6 +1879,7 @@ class Character:
         self.Lshift_cool = 0
         self.Q_SG_cool = 0
         self.Rc_RF_cool = 0
+        self.Q_RF_cool = 0
         self.E_RF_cool = 0
         self.Rc_HG_cool = 0
         self.E_HG_cool = 0
@@ -1772,7 +1892,7 @@ class Character:
                     walk: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash, lc_down: Idle, lc_up: Idle,
                     reload: Idle, rf_reload: RRF, idle: Idle, under_down: Idle, under_up: Idle, rf_reload_s: RsRF, rf_rc: RcRF,
                     on_up: Idle, on_down: Idle, q_down: Idle, e_down: Idle, c_down: Idle,
-                    take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF,
+                    take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF, rf_q: QRF,
                     temp_bullet: Idle, temp_god: Idle, temp_up: Idle, temp_down: Idle, temp_medal: Idle,
                 },
                 Walk: {
@@ -1780,7 +1900,7 @@ class Character:
                     idle: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash, lc_down: Walk, lc_up: Walk,
                     reload: Walk, rf_reload: RRF, walk: Walk, under_down: Walk, under_up: Walk, rf_reload_s: RsRF, rf_rc: RcRF,
                     on_up: Walk, on_down: Walk, q_down: Walk, e_down: Walk, c_down: Walk,
-                    take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF,
+                    take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF, rf_q: QRF,
                     temp_bullet: Walk, temp_god: Walk, temp_up: Walk, temp_down: Walk, temp_medal: Walk,
                 },
                 Hit: {
@@ -1812,6 +1932,10 @@ class Character:
                 RcRF: {
                     right_down: RcRF, left_down: RcRF, left_up: RcRF, right_up: RcRF, on_up: RcRF, under_up: RcRF, lc_down: RcRF, lc_up: RcRF,
                     under_down: RcRF, on_down: RcRF,  dash: RcRF, use_dash: Dash, idle: Idle, walk: Walk, take_hit: RcRF, die: Die,
+                },
+                QRF: {
+                    right_down: QRF, left_down: QRF, left_up: QRF, right_up: QRF, on_up: QRF, under_up: QRF, lc_down: QRF, lc_up: QRF,
+                    under_down: QRF, on_down: QRF, idle: Idle, walk: Walk, take_hit: QRF, die: Die,
                 },
                 ERF: {
                     right_down: ERF, left_down: ERF, left_up: ERF, right_up: ERF, on_up: ERF, under_up: ERF, lc_down: ERF, lc_up: ERF,
@@ -2119,6 +2243,13 @@ class Character:
             if get_time() - self.Rc_RF_cool > Character.target_down_cooldown:
                 Character.target_down_cooldown = 0
                 self.Rc_RF_cool = 0
+
+        if not Character.perfect_shot_cooldown == 0:
+            if self.Q_RF_cool == 0:
+                self.Q_RF_cool = get_time()
+            if get_time() - self.Q_RF_cool > Character.perfect_shot_cooldown:
+                Character.perfect_shot_cooldown = 0
+                self.Q_RF_cool = 0
 
         if not Character.focus_shot_cooldown == 0:
             if self.E_RF_cool == 0:
