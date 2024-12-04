@@ -43,6 +43,7 @@ class Spore:
         self.stun = 0
         self.timer = 0
         self.temp = 0
+        self.delay = False
         self.build_behavior_tree()
         if Spore.Spore_sound == None:
             Spore.Spore_sound = load_wav("./Sound/Hitsound.mp3")
@@ -57,12 +58,13 @@ class Spore:
         if self.timer >= 1:
             self.timer = 0
             self.temp += 1
-            if not self.stun == 0:
-                self.stun -= 1
-                if self.stun <= 0:
-                    self.state = 1
-                    self.stun = 0
+            self.delay = False
+            if self.state == 3:
+                if not self.stun == 0:
+                    self.stun -= 1
                     self.temp = 0
+                else:
+                    self.state = 1
 
             logic_map = {
                 0: self.check_zero_logic,
@@ -130,7 +132,7 @@ class Spore:
             other.get_count()
 
     def take_damage(self, damage):
-        if self.state == 0 or self.state == 1 or self.state == 3:
+        if (self.state == 0 or self.state == 1 or self.state == 3) and not self.delay:
             self.hp = max(0, self.hp - damage)
             Spore.Spore_sound.play()
             if self.hp <= 0:
@@ -140,6 +142,8 @@ class Spore:
                 self.stun = 0
             else:
                 self.state = 2
+            self.delay = True
+            self.timer = 0
 
     def take_stun(self, stun):
         if self.state == 0 or self.state == 1 or self.state == 2:

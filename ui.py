@@ -1,4 +1,4 @@
-from pico2d import load_image, load_font
+from pico2d import load_image
 
 from character import Character
 
@@ -11,6 +11,7 @@ class UI:
     image_medal = None
     image_dash = None
     image_rc_sg = None
+    image_q_sg = None
     image_rc_rf = None
     image_rc_hg = None
     image_e_hg = None
@@ -18,21 +19,14 @@ class UI:
     def __init__(self):
         if UI.image_hp == None:
             self.hp_image = [load_image("./Icon/" + 'Heart' + " (%d)" % i + ".png") for i in range(1, 3 + 1)]
-        if UI.image_bullet == None:
             self.bullet_image = [load_image("./Icon/" + 'Bullet' + " (%d)" % i + ".png") for i in range(1, 8 + 1)]
-        if UI.image_enhance == None:
             self.image_enhance = load_image("./Item/" + 'Enhance' + ".png")
-        if UI.image_medal == None:
             self.image_medal = load_image("./Item/" + 'Medal' + ".png")
-        if UI.image_dash == None:
             self.image_dash = load_image("./Icon/" + 'All_dash' + ".png")
-        if UI.image_rc_sg == None:
             self.image_rc_sg = load_image("./Icon/" + 'SG_defensive_stance' + ".png")
-        if UI.image_rc_rf == None:
+            self.image_q_sg = load_image("./Icon/" + 'SG_hour_of_judgment' + ".png")
             self.image_rc_rf = load_image("./Icon/" + 'RF_target_down' + ".png")
-        if UI.image_rc_hg == None:
             self.image_rc_hg = load_image("./Icon/" + 'HG_dexterous_shot' + ".png")
-        if UI.image_e_hg == None:
             self.image_e_hg = load_image("./Icon/" + 'HG_bullet_rain' + ".png")
 
     def update(self):
@@ -73,6 +67,9 @@ class UI:
 
         if Character.stance == 0:
             self.image_rc_sg.draw(124 + 64 * 3, 40, 48 ,48)
+
+            if Character.hour_of_judgment_cooldown == 0:
+                self.image_q_sg.draw(124 + 64 * 6, 40, 48 ,48)
 
             for i in range(8):
                 if i < Character.bullet_SG:

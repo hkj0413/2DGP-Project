@@ -11,6 +11,8 @@ from normalsg1 import NormalSG1
 from normalsg2 import NormalSG2
 from normalsg3 import NormalSG3
 from qskillsg_effect import QskillSGEffect
+from qskillsg import QskillSG
+from qskillsg_stun import QskillstunSG
 
 from rf_effect import RFEffect
 from normalrf_effect import NormalRFEffect
@@ -1035,8 +1037,19 @@ class QSG:
             Attack = True
             character.frame = 0
             character.attack_time = get_time()
+
             qskillsgeffect = QskillSGEffect(character.face_dir)
             game_world.add_object(qskillsgeffect, 3)
+
+            qskillstunsg = QskillstunSG(character.face_dir)
+            game_world.add_object(qskillstunsg, 3)
+            for mob in mob_group:
+                game_world.add_collision_pairs(f'qskillstunsg:{mob}', qskillstunsg, None)
+
+            qskillsg = QskillSG(character.face_dir)
+            game_world.add_object(qskillsg, 3)
+            for mob in mob_group:
+                game_world.add_collision_pairs(f'qskillsg:{mob}', qskillsg, None)
         elif right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -1546,6 +1559,7 @@ class Character:
     max_bullet_HG = 20 # 핸드건 총알 개수 20 / 24 (+1) / 30 (+3)
     bullet_HG = max_bullet_HG
     damage_SG = 1
+    stun_SG = 2
     damage_RF = 4
     stun_RF = 2
     damage_HG = 1
@@ -2084,6 +2098,7 @@ class Character:
 
         # 0강
         if Character.upgrade == 0:
+            # 1 -> 0강
             Character.damage_SG = 1
             Character.damage_RF = 4
             Character.damage_HG = 1
@@ -2097,19 +2112,35 @@ class Character:
             Character.target_down_max = 3
             Character.max_bullet_HG = 24
 
+            # 2 -> 1강
+            Character.damage_SG = 1
+            Character.damage_RF = 4
+
         # 2강
         elif Character.upgrade == 2:
             Character.damage_SG = 2
             Character.damage_RF = 6
-            Character.stun_RF = 2
             # 민첩한 사격 쿨타임 감소
+            # AT02 유탄 범위 증가
+
+            # 3 -> 2강
+            Character.stun_SG = 2
+            Character.stun_RF = 2
+            Character.damage_HG = 1
+            Character.shield_def = 2
 
         # 3강
         elif Character.upgrade == 3:
+            Character.stun_SG = 4
             Character.stun_RF = 4
             Character.damage_HG = 2
             Character.shield_def = 4
             # 타겟 다운 범위 증가
+
+            # 4 -> 3강
+            Character.max_bullet_HG = 24
+            Character.damage_SG = 2
+            Character.damage_RF = 6
 
         # 4강
         elif Character.upgrade == 4:
@@ -2117,10 +2148,17 @@ class Character:
             Character.damage_SG = 3
             Character.damage_RF = 10
             # 민첩한 사격 범위 증가
+            # AT02 유탄 범위 증가
             # 불렛 레인 쿨타임 감소
+
+            # 5 -> 4강
+            Character.stun_SG = 4
+            Character.damage_HG = 2
+            Character.shield_def = 4
 
         # 5강
         elif Character.upgrade == 5:
+            Character.stun_SG = 6
             Character.damage_RF = 16
             Character.damage_HG = 4
             Character.shield_def = 8
