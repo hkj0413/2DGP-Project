@@ -69,6 +69,9 @@ def die(e):
 def use_dash(e):
     return e[0] == 'USE_DASH'
 
+def sg_q(e):
+    return e[0] == 'SG_Q'
+
 def rf_reload(e):
     return e[0] == 'RF_RELOAD'
 
