@@ -26,13 +26,13 @@ class QskillSGEffect:
         if self.frame == 0:
             QskillSGEffect.Q_SG_sound.play()
 
-        self.frame = self.frame + 9.0 * 1.5 * game_framework.frame_time
-        if self.frame > 9.0:
+        self.frame = self.frame + 13.0 * 1.5 * game_framework.frame_time
+        if self.frame > 13.0:
             game_world.remove_object(self)
 
     def draw(self):
-        if self.frame < 9.0:
+        if 4.0 < self.frame < 13.0:
             if self.face == 1:
-                self.image[int(self.frame)].composite_draw(0, '', self.sx + 75, self.y, 201, 200)
+                self.image[int(self.frame) - 4].composite_draw(0, '', self.sx + 75, self.y, 201, 200)
             elif self.face == -1:
-                self.image[int(self.frame)].composite_draw(0, 'h', self.sx - 75, self.y, 201, 200)
+                self.image[int(self.frame) - 4].composite_draw(0, 'h', self.sx - 75, self.y, 201, 200)

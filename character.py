@@ -1039,25 +1039,14 @@ class Dash:
 class QSG:
     @staticmethod
     def enter(character, e):
-        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump, Attack
+        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump
         if sg_q(e):
             Move = False
-            Attack = True
             character.frame = 0
-            character.attack_time = get_time()
+            character.wait_time = get_time()
 
             qskillsgeffect = QskillSGEffect(character.face_dir)
             game_world.add_object(qskillsgeffect, 3)
-
-            qskillstunsg = QskillstunSG(character.face_dir)
-            game_world.add_object(qskillstunsg, 3)
-            for mob in mob_group:
-                game_world.add_collision_pairs(f'qskillstunsg:{mob}', qskillstunsg, None)
-
-            qskillsg = QskillSG(character.face_dir)
-            game_world.add_object(qskillsg, 3)
-            for mob in mob_group:
-                game_world.add_collision_pairs(f'qskillsg:{mob}', qskillsg, None)
         elif right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -1100,11 +1089,26 @@ class QSG:
 
     @staticmethod
     def do(character):
-        global Move
+        global Move, Attack
+        if 0.3 > get_time() - character.wait_time > 0.2:
+            if not Attack:
+                Attack = True
+                character.attack_time = get_time()
+
+                qskillstunsg = QskillstunSG(character.face_dir)
+                game_world.add_object(qskillstunsg, 3)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'qskillstunsg:{mob}', qskillstunsg, None)
+
+                qskillsg = QskillSG(character.face_dir)
+                game_world.add_object(qskillsg, 3)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'qskillsg:{mob}', qskillsg, None)
+
         if Attack:
             character.frame = (character.frame + 15.0 * 0.8 * game_framework.frame_time) % 15
 
-        elif not Attack:
+        elif not Attack and get_time() - character.wait_time > 0.3:
             Character.state = 0
             if God:
                 Character.hour_of_judgment_cooldown = 1
