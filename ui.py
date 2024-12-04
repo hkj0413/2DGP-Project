@@ -1,5 +1,6 @@
 from pico2d import load_image
 
+import server
 from character import Character
 
 import character
@@ -68,7 +69,7 @@ class UI:
         if Character.stance == 0:
             self.image_rc_sg.draw(124 + 64 * 3, 40, 48 ,48)
 
-            if Character.hour_of_judgment_cooldown == 0:
+            if Character.hour_of_judgment_cooldown == 0 and (character.God or Character.score >= 500):
                 self.image_q_sg.draw(124 + 64 * 6, 40, 48 ,48)
 
             for i in range(8):
@@ -98,7 +99,7 @@ class UI:
             if Character.dexterous_shot_cooldown == 0:
                 self.image_rc_hg.draw(124 + 64 * 3, 40, 48 ,48)
 
-            if Character.bullet_rain_cooldown == 0:
+            if Character.bullet_rain_cooldown == 0 and (character.God or Character.score >= 1500):
                 self.image_e_hg.draw(124 + 64 * 9, 40, 48 ,48)
 
             for i in range(Character.max_bullet_HG):

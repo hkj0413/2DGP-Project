@@ -155,7 +155,7 @@ class Idle:
                     Character.Reload_HG_sound.play()
         elif q_down(e):
             if Character.stance == 0:
-                if Character.hour_of_judgment_cooldown == 0 and not Attack:
+                if Character.hour_of_judgment_cooldown == 0 and not Attack and (God or Character.score >= 500):
                     Character.state = 2
                     Character.hit_delay = 1
                     character.state_machine.add_event(('SG_Q', 0))
@@ -169,7 +169,7 @@ class Idle:
             elif Character.stance == 1:
                 pass
             elif Character.stance == 2:
-                if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0:
+                if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 1500):
                     Character.state = 2
                     Character.hit_delay = 1
                     character.state_machine.add_event(('HG_E', 0))
@@ -469,7 +469,7 @@ class Walk:
                     Character.Reload_HG_sound.play()
         elif q_down(e):
             if Character.stance == 0:
-                if Character.hour_of_judgment_cooldown == 0 and not Attack:
+                if Character.hour_of_judgment_cooldown == 0 and not Attack and (God or Character.score >= 500):
                     Character.state = 2
                     Character.hit_delay = 1
                     character.state_machine.add_event(('SG_Q', 0))
@@ -483,7 +483,7 @@ class Walk:
             elif Character.stance == 1:
                 pass
             elif Character.stance == 2:
-                if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0:
+                if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 1500):
                     Character.state = 2
                     Character.hit_delay = 1
                     character.state_machine.add_event(('HG_E', 0))
