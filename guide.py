@@ -2,6 +2,8 @@ from pico2d import load_image, load_font
 
 from character import Character
 
+import guide_mode
+
 class Guide:
     image = None
 
@@ -27,4 +29,6 @@ class Guide:
 
         self.image[self.frame].draw(center_x, center_y, width, height)
 
-        self.font.draw(480.0, 720.0, f'Score : {Character.score}', (0, 0, 0))
+        if guide_mode.cn == 0:
+            self.font.draw(70.0, 725.0, f'HP : {Character.hp}', (255, 0, 0))
+            self.font.draw(480.0, 725.0, f'Score : {Character.score}', (0, 0, 0))
