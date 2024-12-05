@@ -1289,23 +1289,19 @@ class QSG:
 class ESG:
     @staticmethod
     def enter(character, e):
-        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump
+        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump, chance
         if sg_e(e):
             Move = False
+            chance = 0
             character.frame = 0
             character.wait_time = get_time()
             character.attack_dir = character.face_dir
-
-            qskillsgeffect = QskillSGEffect(character.attack_dir)
-            game_world.add_object(qskillsgeffect, 3)
         elif right_down(e):
             d_pressed = True
-            character.face_dir = 1
         elif right_up(e):
             d_pressed = False
         elif left_down(e):
             a_pressed = True
-            character.face_dir = -1
         elif left_up(e):
             a_pressed = False
         elif on_down(e):
@@ -1338,11 +1334,18 @@ class ESG:
 
     @staticmethod
     def do(character):
-        global Move, Attack
-        if 0.3 > get_time() - character.wait_time > 0.2:
+        global Move, Attack, chance
+        if get_time() - character.wait_time > 0.2 and chance <= 2:
             if not Attack:
                 Attack = True
                 character.attack_time = get_time()
+                chance += 1
+
+                character.wait_time = get_time()
+                character.attack_dir = character.face_dir
+
+                qskillsgeffect = QskillSGEffect(character.attack_dir)
+                game_world.add_object(qskillsgeffect, 3)
 
                 qskillstunsg = QskillstunSG(character.attack_dir)
                 game_world.add_object(qskillstunsg, 3)
@@ -1357,13 +1360,23 @@ class ESG:
         if Attack:
             character.frame = (character.frame + 15.0 * 0.8 * game_framework.frame_time) % 15
 
-        elif not Attack and get_time() - character.wait_time > 0.3:
+        if not Attack and chance >= 3:
             Character.state = 0
+            chance = 0
             if God:
                 Character.shotgun_rapid_fire_cooldown = 1
             else:
                 Character.shotgun_rapid_fire_cooldown = 16
-            if d_pressed or a_pressed:
+            if d_pressed and not a_pressed:
+                character.face_dir = 1
+                character.attack_dir = 1
+                character.state_machine.add_event(('WALK', 0))
+            elif a_pressed and not d_pressed:
+                character.face_dir = -1
+                character.attack_dir = -1
+                character.state_machine.add_event(('WALK', 0))
+            elif d_pressed and a_pressed:
+                character.attack_dir = character.face_dir
                 character.state_machine.add_event(('WALK', 0))
             else:
                 character.state_machine.add_event(('IDLE', 0))
@@ -1734,6 +1747,7 @@ class QRF:
             Move = False
             character.frame = 0
             character.wait_time = get_time()
+            character.attack_dir = character.face_dir
         elif right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -1845,6 +1859,7 @@ class ERF:
             character.frame = 0
             chance = 0
             character.wait_time = get_time()
+            character.attack_dir = character.face_dir
             Character.E_RF_sound.play()
         elif right_down(e):
             d_pressed = True
@@ -1927,7 +1942,7 @@ class ERF:
         if Attack:
             character.frame = (character.frame + 7.0 * 2.0 * game_framework.frame_time) % 7
 
-        elif not Attack and chance >= 4:
+        if not Attack and chance >= 4:
             Character.state = 0
             chance = 0
             if God:
