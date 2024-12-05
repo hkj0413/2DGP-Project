@@ -154,6 +154,9 @@ class Idle:
                         cskillrfeffect = CskillRFEffect(character.attack_dir)
                         game_world.add_object(cskillrfeffect, 3)
 
+                        rf_attack_sound_list = Character.voices['RF_Attack']
+                        random.choice(rf_attack_sound_list).play()
+
                         Attack = True
             elif Character.stance == 2:
                 Character.state = 1
@@ -528,6 +531,9 @@ class Walk:
 
                         cskillrfeffect = CskillRFEffect(character.attack_dir)
                         game_world.add_object(cskillrfeffect, 3)
+
+                        rf_attack_sound_list = Character.voices['RF_Attack']
+                        random.choice(rf_attack_sound_list).play()
 
                         Attack = True
             elif Character.stance == 2:
@@ -2263,9 +2269,9 @@ animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reloa
                    'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF', 'Ultimate_RF',
                    'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG', 'E_HG',]
 
-character_voices = ['SG_Hit', 'SG_Die', 'SG_Reload',
-                    'RF_Hit', 'RF_Die', 'RF_Reload',
-                    'HG_Hit', 'HG_Die', 'HG_Reload',]
+character_voices = ['SG_Hit', 'SG_Die', 'SG_Attack', 'SG_Reload',
+                    'RF_Hit', 'RF_Die', 'RF_Attack', 'RF_Reload',
+                    'HG_Hit', 'HG_Die', 'HG_Attack', 'HG_Reload',]
 
 class Character:
     images = None
@@ -2374,17 +2380,22 @@ class Character:
                 Character.voices[voice] = []
                 if voice == 'RF_Hit':
                     for i in range(1, 3 + 1):
-                        sound = load_wav("./Voice/RF/" + 'RF_Hit' + " (%d)" % i + ".mp3")
+                        sound = load_wav("./Voice/RF/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(24)
                         Character.voices[voice].append(sound)
                 elif voice == 'RF_Die':
                     for i in range(1, 2 + 1):
-                        sound = load_wav("./Voice/RF/" + 'RF_Die' + " (%d)" % i + ".mp3")
+                        sound = load_wav("./Voice/RF/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(24)
+                        Character.voices[voice].append(sound)
+                elif voice == 'RF_Attack':
+                    for i in range(1, 3 + 1):
+                        sound = load_wav("./Voice/RF/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(12)
                         Character.voices[voice].append(sound)
                 elif voice == 'RF_Reload':
                     for i in range(1, 3 + 1):
-                        sound = load_wav("./Voice/RF/" + 'RF_Reload' + " (%d)" % i + ".mp3")
+                        sound = load_wav("./Voice/RF/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(24)
                         Character.voices[voice].append(sound)
 
@@ -2634,6 +2645,10 @@ class Character:
 
                             rfeffect = RFEffect(self.attack_dir)
                             game_world.add_object(rfeffect, 3)
+
+                            rf_attack_sound_list = Character.voices['RF_Attack']
+                            random.choice(rf_attack_sound_list).play()
+
                             Attack = True
                     elif Character.state == 1 and Character.target_down_bullet > 0 and not Move:
                         if self.x > 2700 and not self.mouse:
@@ -2665,6 +2680,9 @@ class Character:
 
                             rfeffect = RFEffect(self.attack_dir)
                             game_world.add_object(rfeffect, 3)
+
+                            rf_attack_sound_list = Character.voices['RF_Attack']
+                            random.choice(rf_attack_sound_list).play()
 
                             Attack = True
                     elif Character.state == 4:
@@ -2698,6 +2716,9 @@ class Character:
 
                             cskillrfeffect = CskillRFEffect(self.attack_dir)
                             game_world.add_object(cskillrfeffect, 3)
+
+                            rf_attack_sound_list = Character.voices['RF_Attack']
+                            random.choice(rf_attack_sound_list).play()
 
                             Attack = True
                 elif Character.stance == 2 and not Rc_HG:
