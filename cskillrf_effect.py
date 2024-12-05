@@ -18,7 +18,7 @@ class CskillRFEffect:
 
     def update(self):
         self.sx = self.x - server.background.window_left
-        self.frame = self.frame + 9.0 * 1.5 * game_framework.frame_time
+        self.frame = self.frame + 9.0 * 2.5 * game_framework.frame_time
         if self.frame > 9.0:
             game_world.remove_object(self)
 

@@ -72,6 +72,12 @@ def use_dash(e):
 def sg_q(e):
     return e[0] == 'SG_Q'
 
+def sg_e(e):
+    return e[0] == 'SG_E'
+
+def sg_c(e):
+    return e[0] == 'SG_C'
+
 def rf_reload(e):
     return e[0] == 'RF_RELOAD'
 

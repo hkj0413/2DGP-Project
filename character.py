@@ -214,7 +214,10 @@ class Idle:
                 pass
         elif e_down(e):
             if Character.stance == 0 and Character.state == 0:
-                pass
+                if Character.shotgun_rapid_fire_cooldown == 0 and (God or Character.score >= 1500):
+                    Character.state = 3
+                    Character.hit_delay = 1
+                    character.state_machine.add_event(('SG_E', 0))
             elif Character.stance == 1 and Character.state == 0:
                 if Character.focus_shot_cooldown == 0 and (God or Character.score >= 1500):
                     Character.state = 3
@@ -583,7 +586,10 @@ class Walk:
                 pass
         elif e_down(e):
             if Character.stance == 0 and Character.state == 0:
-                pass
+                if Character.shotgun_rapid_fire_cooldown == 0 and (God or Character.score >= 1500):
+                    Character.state = 3
+                    Character.hit_delay = 1
+                    character.state_machine.add_event(('SG_E', 0))
             elif Character.stance == 1 and Character.state == 0:
                 if Character.focus_shot_cooldown == 0 and (God or Character.score >= 1500):
                     Character.state = 3
@@ -1263,6 +1269,99 @@ class QSG:
                         if game_world.collide(character, block):
                             character.y += Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
                             return
+
+    @staticmethod
+    def draw(character):
+        if character.attack_dir == 1:
+            character.images['Attack_SG'][int(character.frame)].composite_draw(0, '', character.sx, character.y,
+                                                                          170, 170)
+        elif character.attack_dir == -1:
+            character.images['Attack_SG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
+                                                                          170, 170)
+
+class ESG:
+    @staticmethod
+    def enter(character, e):
+        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump
+        if sg_e(e):
+            Move = False
+            character.frame = 0
+            character.wait_time = get_time()
+            character.attack_dir = character.face_dir
+
+            qskillsgeffect = QskillSGEffect(character.attack_dir)
+            game_world.add_object(qskillsgeffect, 3)
+        elif right_down(e):
+            d_pressed = True
+            character.face_dir = 1
+        elif right_up(e):
+            d_pressed = False
+        elif left_down(e):
+            a_pressed = True
+            character.face_dir = -1
+        elif left_up(e):
+            a_pressed = False
+        elif on_down(e):
+            w_pressed = True
+        elif on_up(e):
+            w_pressed = False
+            if Climb and not s_pressed:
+                Move = False
+        elif under_down(e):
+            s_pressed = True
+        elif under_up(e):
+            s_pressed = False
+            if Climb and not w_pressed:
+                Move = False
+        elif lc_down(e):
+            attacking = True
+        elif lc_up(e):
+            attacking = False
+        elif jump(e) and not Jump and not Fall:
+            Jump = True
+        elif take_hit(e):
+            Character.hp = max(0, Character.hp - Character.damage)
+            Character.hit_delay = 1.5
+            if Character.hp == 0:
+                Character.score -= 100
+                Character.shotgun_rapid_fire_cooldown = 16
+                character.state_machine.add_event(('DIE', 0))
+
+    @staticmethod
+    def exit(character, e):
+        pass
+
+    @staticmethod
+    def do(character):
+        global Move, Attack
+        if 0.3 > get_time() - character.wait_time > 0.2:
+            if not Attack:
+                Attack = True
+                character.attack_time = get_time()
+
+                qskillstunsg = QskillstunSG(character.attack_dir)
+                game_world.add_object(qskillstunsg, 3)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'qskillstunsg:{mob}', qskillstunsg, None)
+
+                qskillsg = QskillSG(character.attack_dir)
+                game_world.add_object(qskillsg, 3)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'qskillsg:{mob}', qskillsg, None)
+
+        if Attack:
+            character.frame = (character.frame + 15.0 * 0.8 * game_framework.frame_time) % 15
+
+        elif not Attack and get_time() - character.wait_time > 0.3:
+            Character.state = 0
+            if God:
+                Character.shotgun_rapid_fire_cooldown = 1
+            else:
+                Character.shotgun_rapid_fire_cooldown = 16
+            if d_pressed or a_pressed:
+                character.state_machine.add_event(('WALK', 0))
+            else:
+                character.state_machine.add_event(('IDLE', 0))
 
     @staticmethod
     def draw(character):
@@ -1998,6 +2097,7 @@ class Character:
     attack_delay = 0 # 공격 속도
     dash_cooldown = 0 # 대쉬 쿨타임 6초
     hour_of_judgment_cooldown = 0 # 심판의 시간 쿨타임 8초
+    shotgun_rapid_fire_cooldown = 0  # 샷건 연사 쿨타임 16초
     target_down_cooldown = 0  # 타겟 다운 쿨타임 45초
     perfect_shot_cooldown = 0 # 퍼펙트 샷 쿨타임 15초
     focus_shot_cooldown = 0 # 포커스 샷 쿨타임 30초
@@ -2069,6 +2169,7 @@ class Character:
         self.catastrophe_time = 0
         self.Lshift_cool = 0
         self.Q_SG_cool = 0
+        self.E_SG_cool = 0
         self.Rc_RF_cool = 0
         self.Q_RF_cool = 0
         self.E_RF_cool = 0
@@ -2083,7 +2184,7 @@ class Character:
                     right_down: Walk, left_down: Walk, left_up: Idle, right_up: Idle, change_stance_z: Idle, change_stance_x: Idle,
                     walk: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash, lc_down: Idle, lc_up: Idle,
                     reload: Idle, rf_reload: RRF, idle: Idle, under_down: Idle, under_up: Idle, rf_reload_s: RsRF, rf_rc: RcRF,
-                    on_up: Idle, on_down: Idle, q_down: Idle, e_down: Idle, c_down: Idle,
+                    on_up: Idle, on_down: Idle, q_down: Idle, e_down: Idle, c_down: Idle, sg_e: ESG,
                     take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF, rf_q: QRF, rf_c: CRF,
                     temp_bullet: Idle, temp_god: Idle, temp_up: Idle, temp_down: Idle, temp_medal: Idle,
                 },
@@ -2091,7 +2192,7 @@ class Character:
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
                     idle: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash, lc_down: Walk, lc_up: Walk,
                     reload: Walk, rf_reload: RRF, walk: Walk, under_down: Walk, under_up: Walk, rf_reload_s: RsRF, rf_rc: RcRF,
-                    on_up: Walk, on_down: Walk, q_down: Walk, e_down: Walk, c_down: Walk,
+                    on_up: Walk, on_down: Walk, q_down: Walk, e_down: Walk, c_down: Walk, sg_e: ESG,
                     take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF, rf_q: QRF, rf_c: CRF,
                     temp_bullet: Walk, temp_god: Walk, temp_up: Walk, temp_down: Walk, temp_medal: Walk,
                 },
@@ -2111,6 +2212,12 @@ class Character:
                     right_down: QSG, left_down: QSG, left_up: QSG, right_up: QSG, on_up: QSG, under_up: QSG,
                     lc_down: QSG, lc_up: QSG, jump: QSG,
                     under_down: QSG, on_down: QSG, idle: Idle, walk: Walk, take_hit: QSG,
+                    die: Die,
+                },
+                ESG: {
+                    right_down: ESG, left_down: ESG, left_up: ESG, right_up: ESG, on_up: ESG, under_up: ESG,
+                    lc_down: ESG, lc_up: ESG, jump: ESG,
+                    under_down: ESG, on_down: ESG, idle: Idle, walk: Walk, take_hit: ESG,
                     die: Die,
                 },
                 RRF: {
@@ -2186,7 +2293,7 @@ class Character:
         if Fall:
             self.y -= fall_velocity * RUN_SPEED_PPS * game_framework.frame_time
             fall_velocity += gravity * RUN_SPEED_PPS * game_framework.frame_time
-            if Character.stance == 1 and Character.state == 4 and catastrophe:
+            if Character.state == 4:
                 if self.y < 50.0:
                     self.y = 50.0
                     Move = False
@@ -2471,6 +2578,13 @@ class Character:
             if get_time() - self.Q_SG_cool > Character.hour_of_judgment_cooldown:
                 Character.hour_of_judgment_cooldown = 0
                 self.Q_SG_cool = 0
+
+        if not Character.shotgun_rapid_fire_cooldown == 0:
+            if self.E_SG_cool == 0:
+                self.E_SG_cool = get_time()
+            if get_time() - self.E_SG_cool > Character.shotgun_rapid_fire_cooldown:
+                Character.shotgun_rapid_fire_cooldown = 0
+                self.E_SG_cool = 0
 
         if not Character.target_down_cooldown == 0:
             if self.Rc_RF_cool == 0:
