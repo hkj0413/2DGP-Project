@@ -1126,6 +1126,13 @@ class Dash:
                 Character.dash_cooldown = 6
             dasheffect = DashEffect(character.face_dir)
             game_world.add_object(dasheffect, 3)
+            if Character.stance == 0:
+                pass
+            elif Character.stance == 1:
+                rf_attack_sound_list = Character.voices['RF_Attack']
+                random.choice(rf_attack_sound_list).play()
+            elif Character.stance == 2:
+                pass
             if not Attack:
                 Character.frame = 0
                 Character.attack_delay = 0
