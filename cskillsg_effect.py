@@ -2,7 +2,7 @@ import server
 import game_framework
 import game_world
 
-from pico2d import load_image
+from pico2d import load_image, load_wav
 
 from cskillsg import CskillSG
 from cskillsg_stun import CskillStunSG
@@ -11,6 +11,8 @@ mob_group = ['spore', 'slime', 'pig']
 
 class CskillSGEffect:
     image = None
+    C_SG_sound = None
+    C_SG_stun_sound = None
 
     def __init__(self, d):
         self.x = server.character.x
@@ -21,19 +23,29 @@ class CskillSGEffect:
         self.face = d
         if CskillSGEffect.image == None:
             CskillSGEffect.image = [load_image("./Effect/SG/" + 'C_SG_crack' + " (%d)" % i + ".png") for i in range(1, 4 + 1)]
+        if CskillSGEffect.C_SG_sound == None:
+            CskillSGEffect.C_SG_sound = load_wav("./Sound/C_SG.mp3")
+            CskillSGEffect.C_SG_stun_sound = load_wav("./Sound/C_SG_stun.mp3")
+            CskillSGEffect.C_SG_sound.set_volume(108)
+            CskillSGEffect.C_SG_stun_sound.set_volume(128)
 
     def update(self):
         self.sx = self.x - server.background.window_left
         self.frame = self.frame + 19.0 * 0.8 * game_framework.frame_time
 
-        if 18.0 > self.frame > 15.0 and self.one == 0:
+        if self.one == 0:
+            CskillSGEffect.C_SG_stun_sound.play()
+            self.one += 1
+
+        if 18.0 > self.frame > 15.0 and self.one == 1:
             cskillstunsg = CskillStunSG(self.face)
             game_world.add_object(cskillstunsg, 3)
             for mob in mob_group:
                 game_world.add_collision_pairs(f'cskillstunsg:{mob}', cskillstunsg, None)
             self.one += 1
 
-        if 21.0 >  self.frame > 18.0 and self.one == 1:
+        if 21.0 >  self.frame > 18.0 and self.one == 2:
+            CskillSGEffect.C_SG_sound.play()
             cskillsg = CskillSG(self.face)
             game_world.add_object(cskillsg, 3)
             for mob in mob_group:
