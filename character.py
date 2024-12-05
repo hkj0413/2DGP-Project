@@ -24,6 +24,7 @@ from rcskillrf import RcskillRF
 from rcskillrf_effect import RcskillRFEffect
 from qskillrf import QskillRF
 from qskillrf_effect import QskillRFEffect
+from cskillrf import CskillRF
 
 from hg_effect import HGEffect
 from normalhg import NormalHG
@@ -1805,6 +1806,10 @@ class CRF:
             character.frame = 0
             Character.catastrophe_duration = 10
             Character.speed = 6
+
+            cskillrf = CskillRF()
+            game_world.add_object(cskillrf, 3)
+
             if d_pressed or a_pressed:
                 character.state_machine.add_event(('WALK', 0))
             else:
@@ -1965,6 +1970,7 @@ class Character:
     Rc_RF_sound = None
     Reload_SG_sound = None
     Reload_HG_sound = None
+    E_RF_sound = None
     stance = 0
     state = 0
     speed = 3
