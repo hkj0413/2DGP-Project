@@ -13,6 +13,7 @@ from normalsg3 import NormalSG3
 from qskillsg_effect import QskillSGEffect
 from qskillsg import QskillSG
 from qskillsg_stun import QskillstunSG
+from cskillsg_crack_effect import CskillCrackSGEffect
 
 from rf_effect import RFEffect
 from normalrf_effect import NormalRFEffect
@@ -1383,7 +1384,7 @@ class CSG:
         if sg_c(e):
             Move = False
             character.frame = 0
-            character.wait_time = get_time()
+            character.name = 'Ultimate_SG'
         elif right_down(e):
             d_pressed = True
         elif right_up(e):
@@ -1416,38 +1417,51 @@ class CSG:
     @staticmethod
     def do(character):
         global Invincibility, Fall
-        character.frame = character.frame + 19.0 * 0.8 * game_framework.frame_time
+        if character.name == 'Ultimate_SG':
+            character.frame = character.frame + 19.0 * 0.8 * game_framework.frame_time
 
-        if character.frame > 19.0:
-            Invincibility = False
-            character.frame = 0
-            Character.state = 0
-            Fall = True
-            if God:
-                Character.last_request_cooldown = 1
-            else:
-                Character.last_request_cooldown = 50
-            if d_pressed and not a_pressed:
-                character.face_dir = 1
-                character.attack_dir = 1
-                character.state_machine.add_event(('WALK', 0))
-            elif a_pressed and not d_pressed:
-                character.face_dir = -1
-                character.attack_dir = -1
-                character.state_machine.add_event(('WALK', 0))
-            elif d_pressed and a_pressed:
-                character.attack_dir = character.face_dir
-                character.state_machine.add_event(('WALK', 0))
-            else:
-                character.state_machine.add_event(('IDLE', 0))
+            if character.frame > 19.0:
+                character.name = 'Ultimate_wait_SG'
+                character.frame = -3
+                character.wait_time = get_time()
+
+                cskillcracksgeffect = CskillCrackSGEffect(character.face_dir)
+                game_world.add_object(cskillcracksgeffect, 3)
+
+        if character.name == 'Ultimate_wait_SG':
+            character.frame = (character.frame + 14.0 * 1.0 * game_framework.frame_time) % 14
+
+            if get_time() - character.wait_time > 1.5:
+                Invincibility = False
+                character.frame = 0
+                Character.state = 0
+                Fall = True
+
+                if God:
+                    Character.last_request_cooldown = 1
+                else:
+                    Character.last_request_cooldown = 50
+                if d_pressed and not a_pressed:
+                    character.face_dir = 1
+                    character.attack_dir = 1
+                    character.state_machine.add_event(('WALK', 0))
+                elif a_pressed and not d_pressed:
+                    character.face_dir = -1
+                    character.attack_dir = -1
+                    character.state_machine.add_event(('WALK', 0))
+                elif d_pressed and a_pressed:
+                    character.attack_dir = character.face_dir
+                    character.state_machine.add_event(('WALK', 0))
+                else:
+                    character.state_machine.add_event(('IDLE', 0))
 
     @staticmethod
     def draw(character):
         if character.face_dir == 1:
-            character.images['Ultimate_SG'][int(character.frame)].composite_draw(0, '', character.sx, character.y,
+            character.images[character.name][int(character.frame)].composite_draw(0, '', character.sx, character.y,
                                                                           170, 170)
         elif character.face_dir == -1:
-            character.images['Ultimate_SG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
+            character.images[character.name][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
                                                                           170, 170)
 
 class RRF:
