@@ -1620,6 +1620,8 @@ class RRF:
                 game_world.add_object(reloadrf, 3)
                 for mob in mob_group:
                     game_world.add_collision_pairs(f'reloadrf:{mob}', reloadrf, None)
+                rf_reload_sound_list = Character.voices['RF_Reload']
+                random.choice(rf_reload_sound_list).play()
             character.x -= 8 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
 
         for block in game_world.collision_pairs['server.character:ground'][1] + game_world.collision_pairs['server.character:wall'][1]:
@@ -1691,6 +1693,8 @@ class RsRF:
                 character.frame = 1
                 reloadrf = ReloadRF(character.face_dir)
                 game_world.add_object(reloadrf, 3)
+                rf_reload_sound_list = Character.voices['RF_Reload']
+                random.choice(rf_reload_sound_list).play()
                 for mob in mob_group:
                     game_world.add_collision_pairs(f'reloadrf:{mob}', reloadrf, None)
 
@@ -2259,9 +2263,9 @@ animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reloa
                    'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF', 'Ultimate_RF',
                    'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG', 'E_HG',]
 
-character_voices = ['SG_Hit', 'SG_Die',
-                    'RF_Hit', 'RF_Die',
-                    'HG_Hit', 'HG_Die',]
+character_voices = ['SG_Hit', 'SG_Die', 'SG_Reload',
+                    'RF_Hit', 'RF_Die', 'RF_Reload',
+                    'HG_Hit', 'HG_Die', 'HG_Reload',]
 
 class Character:
     images = None
@@ -2376,6 +2380,11 @@ class Character:
                 elif voice == 'RF_Die':
                     for i in range(1, 2 + 1):
                         sound = load_wav("./Voice/RF/" + 'RF_Die' + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
+                        Character.voices[voice].append(sound)
+                elif voice == 'RF_Reload':
+                    for i in range(1, 3 + 1):
+                        sound = load_wav("./Voice/RF/" + 'RF_Reload' + " (%d)" % i + ".mp3")
                         sound.set_volume(24)
                         Character.voices[voice].append(sound)
 
