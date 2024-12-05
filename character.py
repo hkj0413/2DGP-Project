@@ -170,6 +170,7 @@ class Idle:
         elif jump(e) and not Jump and not Fall:
             if Character.stance == 0 and Character.state == 0:
                 Jump = True
+                Character.jump_sound.play()
                 if not Attack and not Reload_SG:
                     character.frame = 0
             elif Character.stance == 1:
@@ -177,12 +178,15 @@ class Idle:
                     if not Attack:
                         Jump = True
                         character.frame = 0
+                        Character.jump_sound.play()
                 elif Character.state == 4:
                     Jump = True
+                    Character.jump_sound.play()
                     if not Attack:
                         character.frame = 0
             elif Character.stance == 2:
                 Jump = True
+                Character.jump_sound.play()
                 if not Attack and not Reload_HG and not Rc_HG:
                     character.frame = 0
         elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG and not Rc_HG:
@@ -548,6 +552,7 @@ class Walk:
         elif jump(e) and not Jump and not Fall:
             if Character.stance == 0 and Character.state == 0:
                 Jump = True
+                Character.jump_sound.play()
                 if not Attack and not Reload_SG:
                     character.frame = 0
             elif Character.stance == 1:
@@ -555,12 +560,15 @@ class Walk:
                     if not Attack:
                         Jump = True
                         character.frame = 0
+                        Character.jump_sound.play()
                 elif Character.state == 4:
                     Jump = True
+                    Character.jump_sound.play()
                     if not Attack:
                         character.frame = 0
             elif Character.stance == 2:
                 Jump = True
+                Character.jump_sound.play()
                 if not Attack and not Reload_HG and not Rc_HG:
                     character.frame = 0
         elif dash(e) and Character.dash_cooldown == 0 and not Reload_SG and not Reload_HG and not Rc_HG:
@@ -1247,6 +1255,7 @@ class QSG:
             attacking = False
         elif jump(e) and not Jump and not Fall:
             Jump = True
+            Character.jump_sound.play()
         elif take_hit(e):
             Character.hp = max(0, Character.hp - Character.damage)
             Character.hit_delay = 1.5
@@ -2188,6 +2197,7 @@ class EHG:
             attacking = False
         elif jump(e) and not Jump and not Fall:
             Jump = True
+            Character.jump_sound.play()
         elif dash(e) and Character.dash_cooldown == 0:
             Character.state = 0
             if God:
@@ -2294,6 +2304,8 @@ character_voices = ['SG_Hit', 'SG_Die', 'SG_Attack', 'SG_Reload',
 class Character:
     images = None
     voices = None
+    jump_sound = None
+    fall_sound = None
     sg_stance_sound = None
     rf_stance_sound = None
     hg_stance_sound = None
@@ -2433,7 +2445,7 @@ class Character:
                         Character.voices[voice].append(sound)
                 elif voice == 'RF_Portal':
                     sound = load_wav("./Voice/RF/" + voice + " (1)" + ".mp3")
-                    sound.set_volume(12)
+                    sound.set_volume(24)
                     Character.voices[voice].append(sound)
 
     def __init__(self):
@@ -2543,7 +2555,9 @@ class Character:
             }
         )
 
-        if Character.sg_stance_sound == None:
+        if Character.jump_sound == None:
+            Character.jump_sound = load_wav("./Sound/Jump.mp3")
+            Character.fall_sound = load_wav("./Sound/Fall.mp3")
             Character.sg_stance_sound = load_wav("./Sound/change_SG.mp3")
             Character.rf_stance_sound = load_wav("./Sound/change_RF.mp3")
             Character.hg_stance_sound = load_wav("./Sound/change_HG.mp3")
@@ -2554,6 +2568,8 @@ class Character:
             Character.E_SG_delay_sound = load_wav("./Sound/E_SG_delay.mp3")
             Character.E_RF_sound = load_wav("./Sound/E_RF.mp3")
             Character.C_RF_start_sound = load_wav("./Sound/C_RF_start.ogg")
+            Character.jump_sound.set_volume(80)
+            Character.fall_sound.set_volume(48)
             Character.sg_stance_sound.set_volume(64)
             Character.rf_stance_sound.set_volume(64)
             Character.hg_stance_sound.set_volume(64)
@@ -3026,6 +3042,8 @@ class Character:
         if group == 'server.character:ground' and Fall:
             self.y = ground.Ground.collide_fall(other)
             Fall = False
+            if fall_velocity > 2.0:
+                Character.fall_sound.play()
             fall_velocity = 0.0
 
     def handle_collision_jump(self, group, other):
