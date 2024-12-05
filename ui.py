@@ -18,6 +18,7 @@ class UI:
     image_q_rf = None
     image_e_rf = None
     image_c_rf = None
+    image_crc_rf = None
     image_rc_hg = None
     image_e_hg = None
 
@@ -36,6 +37,7 @@ class UI:
             self.image_q_rf = load_image("./Icon/" + 'RF_perfect_shot' + ".png")
             self.image_e_rf = load_image("./Icon/" + 'RF_focus_shot' + ".png")
             self.image_c_rf = load_image("./Icon/" + 'RF_catastrophe' + ".png")
+            self.image_crc_rf = load_image("./Icon/" + 'RF_bullseye' + ".png")
             self.image_rc_hg = load_image("./Icon/" + 'HG_dexterous_shot' + ".png")
             self.image_e_hg = load_image("./Icon/" + 'HG_bullet_rain' + ".png")
 
@@ -96,13 +98,16 @@ class UI:
                 for i in range(Character.shield_def):
                     self.bullet_image[6].draw(bx - i * 27, by - 40, 25, 30)
         elif Character.stance == 1:
-            if Character.target_down_cooldown == 0:
+            if Character.target_down_cooldown == 0 and not Character.state == 4:
                 self.image_rc_rf.draw(124 + 64 * 3, 40, 48 ,48)
 
-            if Character.perfect_shot_cooldown == 0 and (character.God or Character.score >= 500):
+            elif Character.state == 4:
+                self.image_crc_rf.draw(124 + 64 * 3, 40, 48, 48)
+
+            if Character.perfect_shot_cooldown == 0 and (character.God or Character.score >= 500) and not Character.state == 4:
                 self.image_q_rf.draw(124 + 64 * 6, 40, 48 ,48)
 
-            if Character.focus_shot_cooldown == 0 and (character.God or Character.score >= 1500):
+            if Character.focus_shot_cooldown == 0 and (character.God or Character.score >= 1500) and not Character.state == 4:
                 self.image_e_rf.draw(124 + 64 * 9, 40, 48 ,48)
 
             if Character.catastrophe_cooldown == 0 and (character.God or Character.score >= 3000):
