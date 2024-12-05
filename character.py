@@ -2288,7 +2288,7 @@ animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reloa
                    'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG', 'E_HG',]
 
 character_voices = ['SG_Hit', 'SG_Die', 'SG_Attack', 'SG_Reload',
-                    'RF_Hit', 'RF_Die', 'RF_Attack', 'RF_Reload', 'RF_Rc', 'RF_Q', 'RF_C',
+                    'RF_Hit', 'RF_Die', 'RF_Attack', 'RF_Reload', 'RF_Rc', 'RF_Q', 'RF_C', 'RF_Portal',
                     'HG_Hit', 'HG_Die', 'HG_Attack', 'HG_Reload',]
 
 class Character:
@@ -2431,6 +2431,10 @@ class Character:
                         sound = load_wav("./Voice/RF/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(24)
                         Character.voices[voice].append(sound)
+                elif voice == 'RF_Portal':
+                    sound = load_wav("./Voice/RF/" + voice + " (1)" + ".mp3")
+                    sound.set_volume(12)
+                    Character.voices[voice].append(sound)
 
     def __init__(self):
         self.x, self.y = 34.0, 140.0
@@ -3009,6 +3013,13 @@ class Character:
                 play_mode.change_stage(2)
             elif play_mode.stage == 2:
                 self.x, self.y = 34.0, 140.0
+
+            if Character.stance == 0:
+                pass
+            elif Character.stance == 1:
+                Character.voices['RF_Portal'][0].play()
+            elif Character.stance == 2:
+                pass
 
     def handle_collision_fall(self, group, other):
         global Fall, fall_velocity
