@@ -14,6 +14,7 @@ from qskillsg_effect import QskillSGEffect
 from qskillsg import QskillSG
 from qskillsg_stun import QskillstunSG
 from cskillsg_crack_effect import CskillCrackSGEffect
+from cskillsg import CskillSG
 
 from rf_effect import RFEffect
 from normalrf_effect import NormalRFEffect
@@ -1380,9 +1381,10 @@ class ESG:
 class CSG:
     @staticmethod
     def enter(character, e):
-        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump
+        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump, chance
         if sg_c(e):
             Move = False
+            chance = 0
             character.frame = 0
             character.name = 'Ultimate_SG'
         elif right_down(e):
@@ -1416,7 +1418,7 @@ class CSG:
 
     @staticmethod
     def do(character):
-        global Invincibility, Fall
+        global Invincibility, Fall, chance
         if character.name == 'Ultimate_SG':
             character.frame = character.frame + 19.0 * 0.8 * game_framework.frame_time
 
@@ -1426,15 +1428,16 @@ class CSG:
                 character.wait_time = get_time()
 
                 cskillcracksgeffect = CskillCrackSGEffect(character.face_dir)
-                game_world.add_object(cskillcracksgeffect, 3)
+                game_world.add_object(cskillcracksgeffect, 0)
 
         if character.name == 'Ultimate_wait_SG':
             character.frame = (character.frame + 14.0 * 1.0 * game_framework.frame_time) % 14
 
-            if get_time() - character.wait_time > 1.5:
+            if get_time() - character.wait_time > 2.0:
                 Invincibility = False
                 character.frame = 0
                 Character.state = 0
+                chance = 0
                 Fall = True
 
                 if God:

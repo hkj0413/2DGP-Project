@@ -4,6 +4,7 @@ import game_world
 
 from pico2d import load_image
 
+from cskillsg import CskillSG
 from cskillsg_crack import CskillCrackSG
 
 mob_group = ['spore', 'slime', 'pig']
@@ -16,6 +17,7 @@ class CskillCrackSGEffect:
         self.y = 140
         self.sx = 0
         self.frame = 0
+        self.one = 0
         self.face = d
         if CskillCrackSGEffect.image == None:
             CskillCrackSGEffect.image = [load_image("./Effect/SG/" + 'C_SG_crack' + " (%d)" % i + ".png") for i in range(1, 3 + 1)]
@@ -24,11 +26,20 @@ class CskillCrackSGEffect:
         self.sx = self.x - server.background.window_left
         self.frame = self.frame + 19.0 * 0.8 * game_framework.frame_time
 
-        if self.frame > 19.0:
+        if 19.0 > self.frame > 15.0 and self.one == 0:
             cskillcracksg = CskillCrackSG(self.face)
             game_world.add_object(cskillcracksg, 3)
             for mob in mob_group:
                 game_world.add_collision_pairs(f'cskillcracksg:{mob}', cskillcracksg, None)
+            self.one += 1
+
+        if self.frame > 19.0 and self.one == 1:
+            cskillsg = CskillSG(self.face)
+            game_world.add_object(cskillsg, 3)
+            for mob in mob_group:
+                game_world.add_collision_pairs(f'cskillsg:{mob}', cskillsg, None)
+
+            self.one += 1
             game_world.remove_object(self)
 
     def draw(self):
