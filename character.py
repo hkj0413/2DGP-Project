@@ -1851,6 +1851,8 @@ class QRF:
             character.frame = 0
             character.wait_time = get_time()
             character.attack_dir = character.face_dir
+            rf_q_sound_list = Character.voices['RF_Q']
+            random.choice(rf_q_sound_list).play()
         elif right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -1894,7 +1896,7 @@ class QRF:
     @staticmethod
     def do(character):
         global Move, Attack
-        if 0.6 > get_time() - character.wait_time > 0.5:
+        if 1.1 > get_time() - character.wait_time > 1.0:
             if not Attack:
                 Attack = True
                 character.attack_time = get_time()
@@ -1913,7 +1915,7 @@ class QRF:
         if Attack:
             character.frame = (character.frame + 7.0 * 2.0 * game_framework.frame_time) % 7
 
-        elif not Attack and get_time() - character.wait_time > 0.6:
+        elif not Attack and get_time() - character.wait_time > 1.1:
             Character.state = 0
             if God:
                 Character.perfect_shot_cooldown = 1
@@ -2025,7 +2027,11 @@ class ERF:
                 rfeffect = RFEffect(character.face_dir)
                 game_world.add_object(rfeffect, 3)
 
-        elif get_time() - character.wait_time > 2.0 and chance == 3:
+                if chance == 1:
+                    rf_attack_sound_list = Character.voices['RF_Attack']
+                    random.choice(rf_attack_sound_list).play()
+
+        if get_time() - character.wait_time > 2.0 and chance == 3:
             if not Attack:
                 Attack = True
                 character.attack_time = get_time()
@@ -2041,6 +2047,9 @@ class ERF:
 
                 rfeffect = RFEffect(character.face_dir)
                 game_world.add_object(rfeffect, 3)
+
+                rf_attack_sound_list = Character.voices['RF_Attack']
+                random.choice(rf_attack_sound_list).play()
 
         if Attack:
             character.frame = (character.frame + 7.0 * 2.0 * game_framework.frame_time) % 7
@@ -2279,7 +2288,7 @@ animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reloa
                    'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG', 'E_HG',]
 
 character_voices = ['SG_Hit', 'SG_Die', 'SG_Attack', 'SG_Reload',
-                    'RF_Hit', 'RF_Die', 'RF_Attack', 'RF_Reload', 'RF_Rc', 'RF_Q', 'RF_E', 'RF_C',
+                    'RF_Hit', 'RF_Die', 'RF_Attack', 'RF_Reload', 'RF_Rc', 'RF_Q', 'RF_C',
                     'HG_Hit', 'HG_Die', 'HG_Attack', 'HG_Reload',]
 
 class Character:
@@ -2408,6 +2417,11 @@ class Character:
                         sound.set_volume(24)
                         Character.voices[voice].append(sound)
                 elif voice == 'RF_Rc':
+                    for i in range(1, 2 + 1):
+                        sound = load_wav("./Voice/RF/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
+                        Character.voices[voice].append(sound)
+                elif voice == 'RF_Q':
                     for i in range(1, 2 + 1):
                         sound = load_wav("./Voice/RF/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(24)
@@ -2544,7 +2558,7 @@ class Character:
             Character.Reload_SG_sound.set_volume(80)
             Character.Reload_HG_sound.set_volume(80)
             Character.E_SG_delay_sound.set_volume(48)
-            Character.E_RF_sound.set_volume(112)
+            Character.E_RF_sound.set_volume(96)
             Character.C_RF_start_sound.set_volume(32)
 
     def update(self):
