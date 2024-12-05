@@ -1317,8 +1317,6 @@ class ESG:
             attacking = True
         elif lc_up(e):
             attacking = False
-        elif jump(e) and not Jump and not Fall:
-            Jump = True
         elif take_hit(e):
             Character.hp = max(0, Character.hp - Character.damage)
             Character.hit_delay = 1.5
@@ -1370,6 +1368,76 @@ class ESG:
                                                                           170, 170)
         elif character.attack_dir == -1:
             character.images['Attack_SG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
+                                                                          170, 170)
+
+class CSG:
+    @staticmethod
+    def enter(character, e):
+        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump
+        if sg_c(e):
+            Move = False
+            character.frame = 0
+            character.wait_time = get_time()
+        elif right_down(e):
+            d_pressed = True
+            character.face_dir = 1
+            character.attack_dir = 1
+        elif right_up(e):
+            d_pressed = False
+        elif left_down(e):
+            a_pressed = True
+            character.face_dir = -1
+            character.attack_dir = -1
+        elif left_up(e):
+            a_pressed = False
+        elif on_down(e):
+            w_pressed = True
+        elif on_up(e):
+            w_pressed = False
+            if Climb and not s_pressed:
+                Move = False
+        elif under_down(e):
+            s_pressed = True
+        elif under_up(e):
+            s_pressed = False
+            if Climb and not w_pressed:
+                Move = False
+        elif lc_down(e):
+            attacking = True
+        elif lc_up(e):
+            attacking = False
+
+    @staticmethod
+    def exit(character, e):
+        pass
+
+    @staticmethod
+    def do(character):
+        global Invincibility, catastrophe
+        character.frame = character.frame + 27.0 * 0.6 * game_framework.frame_time
+
+        if character.frame > 27.0:
+            Invincibility = False
+            catastrophe = True
+            character.frame = 0
+            Character.catastrophe_duration = 10
+            Character.speed = 6
+
+            cskillrf = CskillRF()
+            game_world.add_object(cskillrf, 3)
+
+            if d_pressed or a_pressed:
+                character.state_machine.add_event(('WALK', 0))
+            else:
+                character.state_machine.add_event(('IDLE', 0))
+
+    @staticmethod
+    def draw(character):
+        if character.face_dir == 1:
+            character.images['Ultimate_RF'][int(character.frame)].composite_draw(0, '', character.sx, character.y,
+                                                                          170, 170)
+        elif character.face_dir == -1:
+            character.images['Ultimate_RF'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
                                                                           170, 170)
 
 class RRF:
@@ -2057,7 +2125,7 @@ class EHG:
             character.images['E_HG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
                                                                           170, 170)
 
-animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reload_SG', 'Rc_SG',
+animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reload_SG', 'Rc_SG', 'Ultimate_SG', 'Ultimate_wait_SG',
                    'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF', 'Ultimate_RF',
                    'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG', 'E_HG',]
 
@@ -2098,6 +2166,7 @@ class Character:
     dash_cooldown = 0 # 대쉬 쿨타임 6초
     hour_of_judgment_cooldown = 0 # 심판의 시간 쿨타임 8초
     shotgun_rapid_fire_cooldown = 0  # 샷건 연사 쿨타임 16초
+    last_request_cooldown = 0 # 최후의 만찬 쿨타임 50초
     target_down_cooldown = 0  # 타겟 다운 쿨타임 45초
     perfect_shot_cooldown = 0 # 퍼펙트 샷 쿨타임 15초
     focus_shot_cooldown = 0 # 포커스 샷 쿨타임 30초
@@ -2170,6 +2239,7 @@ class Character:
         self.Lshift_cool = 0
         self.Q_SG_cool = 0
         self.E_SG_cool = 0
+        self.C_SG_cool = 0
         self.Rc_RF_cool = 0
         self.Q_RF_cool = 0
         self.E_RF_cool = 0
@@ -2184,7 +2254,7 @@ class Character:
                     right_down: Walk, left_down: Walk, left_up: Idle, right_up: Idle, change_stance_z: Idle, change_stance_x: Idle,
                     walk: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash, lc_down: Idle, lc_up: Idle,
                     reload: Idle, rf_reload: RRF, idle: Idle, under_down: Idle, under_up: Idle, rf_reload_s: RsRF, rf_rc: RcRF,
-                    on_up: Idle, on_down: Idle, q_down: Idle, e_down: Idle, c_down: Idle, sg_e: ESG,
+                    on_up: Idle, on_down: Idle, q_down: Idle, e_down: Idle, c_down: Idle, sg_e: ESG, sg_c: CSG,
                     take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF, rf_q: QRF, rf_c: CRF,
                     temp_bullet: Idle, temp_god: Idle, temp_up: Idle, temp_down: Idle, temp_medal: Idle,
                 },
@@ -2192,7 +2262,7 @@ class Character:
                     right_down: Walk, left_down: Walk, right_up: Walk, left_up: Walk, change_stance_z: Walk, change_stance_x: Walk,
                     idle: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash, lc_down: Walk, lc_up: Walk,
                     reload: Walk, rf_reload: RRF, walk: Walk, under_down: Walk, under_up: Walk, rf_reload_s: RsRF, rf_rc: RcRF,
-                    on_up: Walk, on_down: Walk, q_down: Walk, e_down: Walk, c_down: Walk, sg_e: ESG,
+                    on_up: Walk, on_down: Walk, q_down: Walk, e_down: Walk, c_down: Walk, sg_e: ESG, sg_c: CSG,
                     take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF, rf_q: QRF, rf_c: CRF,
                     temp_bullet: Walk, temp_god: Walk, temp_up: Walk, temp_down: Walk, temp_medal: Walk,
                 },
@@ -2216,9 +2286,14 @@ class Character:
                 },
                 ESG: {
                     right_down: ESG, left_down: ESG, left_up: ESG, right_up: ESG, on_up: ESG, under_up: ESG,
-                    lc_down: ESG, lc_up: ESG, jump: ESG,
+                    lc_down: ESG, lc_up: ESG,
                     under_down: ESG, on_down: ESG, idle: Idle, walk: Walk, take_hit: ESG,
                     die: Die,
+                },
+                CSG: {
+                    right_down: CSG, left_down: CSG, left_up: CSG, right_up: CSG, on_up: CSG, under_up: CSG,
+                    lc_down: CSG, lc_up: CSG,
+                    under_down: CSG, on_down: CSG, idle: Idle, walk: Walk,
                 },
                 RRF: {
                     left_up: RRF, right_up: RRF, on_up: RRF, under_up: RRF, lc_up: RRF,
@@ -2585,6 +2660,13 @@ class Character:
             if get_time() - self.E_SG_cool > Character.shotgun_rapid_fire_cooldown:
                 Character.shotgun_rapid_fire_cooldown = 0
                 self.E_SG_cool = 0
+
+        if not Character.last_request_cooldown == 0:
+            if self.C_SG_cool == 0:
+                self.C_SG_cool = get_time()
+            if get_time() - self.C_SG_cool > Character.last_request_cooldown:
+                Character.last_request_cooldown = 0
+                self.C_SG_cool = 0
 
         if not Character.target_down_cooldown == 0:
             if self.Rc_RF_cool == 0:

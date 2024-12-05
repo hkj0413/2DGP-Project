@@ -13,6 +13,7 @@ class UI:
     image_rc_sg = None
     image_q_sg = None
     image_e_sg = None
+    image_c_sg = None
     image_rc_rf = None
     image_q_rf = None
     image_e_rf = None
@@ -30,6 +31,7 @@ class UI:
             self.image_rc_sg = load_image("./Icon/" + 'SG_defensive_stance' + ".png")
             self.image_q_sg = load_image("./Icon/" + 'SG_hour_of_judgment' + ".png")
             self.image_e_sg = load_image("./Icon/" + 'SG_shotgun_rapid_fire' + ".png")
+            self.image_c_sg = load_image("./Icon/" + 'SG_last_request' + ".png")
             self.image_rc_rf = load_image("./Icon/" + 'RF_target_down' + ".png")
             self.image_q_rf = load_image("./Icon/" + 'RF_perfect_shot' + ".png")
             self.image_e_rf = load_image("./Icon/" + 'RF_focus_shot' + ".png")
@@ -81,6 +83,9 @@ class UI:
 
             if Character.shotgun_rapid_fire_cooldown == 0 and (character.God or Character.score >= 1500):
                 self.image_e_sg.draw(124 + 64 * 9, 40, 48 ,48)
+
+            if Character.last_request_cooldown == 0 and (character.God or Character.score >= 3000):
+                self.image_c_sg.draw(124 + 64 * 12, 40, 48, 48)
 
             for i in range(8):
                 if i < Character.bullet_SG:
