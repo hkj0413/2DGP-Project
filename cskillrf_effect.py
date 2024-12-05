@@ -17,6 +17,8 @@ class CskillRFEffect:
             CskillRFEffect.image = [load_image("./Effect/RF/" + 'C_RF_effect' + " (%d)" % i + ".png") for i in range(1, 9 + 1)]
 
     def update(self):
+        self.x = server.character.x
+        self.y = server.character.y
         self.sx = self.x - server.background.window_left
         self.frame = self.frame + 9.0 * 2.5 * game_framework.frame_time
         if self.frame > 9.0:

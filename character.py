@@ -230,7 +230,10 @@ class Idle:
                     character.state_machine.add_event(('HG_E', 0))
         elif c_down(e):
             if Character.stance == 0 and Character.state == 0:
-                pass
+                if Character.last_request_cooldown == 0 and (God or Character.score >= 3000):
+                    Character.state = 4
+                    Invincibility = True
+                    character.state_machine.add_event(('SG_C', 0))
             elif Character.stance == 1 and Character.state == 0:
                 if Character.catastrophe_cooldown == 0 and (God or Character.score >= 3000):
                     Character.state = 4
@@ -602,7 +605,10 @@ class Walk:
                     character.state_machine.add_event(('HG_E', 0))
         elif c_down(e):
             if Character.stance == 0 and Character.state == 0:
-                pass
+                if Character.last_request_cooldown == 0 and (God or Character.score >= 3000):
+                    Character.state = 4
+                    Invincibility = True
+                    character.state_machine.add_event(('SG_C', 0))
             elif Character.stance == 1 and Character.state == 0:
                 if Character.catastrophe_cooldown == 0 and (God or Character.score >= 3000):
                     Character.state = 4
@@ -1380,14 +1386,10 @@ class CSG:
             character.wait_time = get_time()
         elif right_down(e):
             d_pressed = True
-            character.face_dir = 1
-            character.attack_dir = 1
         elif right_up(e):
             d_pressed = False
         elif left_down(e):
             a_pressed = True
-            character.face_dir = -1
-            character.attack_dir = -1
         elif left_up(e):
             a_pressed = False
         elif on_down(e):
@@ -1413,20 +1415,28 @@ class CSG:
 
     @staticmethod
     def do(character):
-        global Invincibility, catastrophe
-        character.frame = character.frame + 27.0 * 0.6 * game_framework.frame_time
+        global Invincibility, Fall
+        character.frame = character.frame + 19.0 * 0.8 * game_framework.frame_time
 
-        if character.frame > 27.0:
+        if character.frame > 19.0:
             Invincibility = False
-            catastrophe = True
             character.frame = 0
-            Character.catastrophe_duration = 10
-            Character.speed = 6
-
-            cskillrf = CskillRF()
-            game_world.add_object(cskillrf, 3)
-
-            if d_pressed or a_pressed:
+            Character.state = 0
+            Fall = True
+            if God:
+                Character.last_request_cooldown = 1
+            else:
+                Character.last_request_cooldown = 50
+            if d_pressed and not a_pressed:
+                character.face_dir = 1
+                character.attack_dir = 1
+                character.state_machine.add_event(('WALK', 0))
+            elif a_pressed and not d_pressed:
+                character.face_dir = -1
+                character.attack_dir = -1
+                character.state_machine.add_event(('WALK', 0))
+            elif d_pressed and a_pressed:
+                character.attack_dir = character.face_dir
                 character.state_machine.add_event(('WALK', 0))
             else:
                 character.state_machine.add_event(('IDLE', 0))
@@ -1434,10 +1444,10 @@ class CSG:
     @staticmethod
     def draw(character):
         if character.face_dir == 1:
-            character.images['Ultimate_RF'][int(character.frame)].composite_draw(0, '', character.sx, character.y,
+            character.images['Ultimate_SG'][int(character.frame)].composite_draw(0, '', character.sx, character.y,
                                                                           170, 170)
         elif character.face_dir == -1:
-            character.images['Ultimate_RF'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
+            character.images['Ultimate_SG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
                                                                           170, 170)
 
 class RRF:
@@ -1932,14 +1942,10 @@ class CRF:
             character.wait_time = get_time()
         elif right_down(e):
             d_pressed = True
-            character.face_dir = 1
-            character.attack_dir = 1
         elif right_up(e):
             d_pressed = False
         elif left_down(e):
             a_pressed = True
-            character.face_dir = -1
-            character.attack_dir = -1
         elif left_up(e):
             a_pressed = False
         elif on_down(e):
@@ -1978,7 +1984,16 @@ class CRF:
             cskillrf = CskillRF()
             game_world.add_object(cskillrf, 3)
 
-            if d_pressed or a_pressed:
+            if d_pressed and not a_pressed:
+                character.face_dir = 1
+                character.attack_dir = 1
+                character.state_machine.add_event(('WALK', 0))
+            elif a_pressed and not d_pressed:
+                character.face_dir = -1
+                character.attack_dir = -1
+                character.state_machine.add_event(('WALK', 0))
+            elif d_pressed and a_pressed:
+                character.attack_dir = character.face_dir
                 character.state_machine.add_event(('WALK', 0))
             else:
                 character.state_machine.add_event(('IDLE', 0))
@@ -2192,6 +2207,10 @@ class Character:
                 elif name == 'Reload_SG':
                     Character.images[name] = [load_image("./HKCAWS/" + name + " (%d)" % i + ".png") for i in range(1, 16 + 1)]
                 elif name == 'Rc_SG':
+                    Character.images[name] = [load_image("./HKCAWS/" + name + " (%d)" % i + ".png") for i in range(1, 14 + 1)]
+                elif name == 'Ultimate_SG':
+                    Character.images[name] = [load_image("./HKCAWS/" + name + " (%d)" % i + ".png") for i in range(1, 19 + 1)]
+                elif name == 'Ultimate_wait_SG':
                     Character.images[name] = [load_image("./HKCAWS/" + name + " (%d)" % i + ".png") for i in range(1, 14 + 1)]
 
                 elif name == 'Idle_RF':
