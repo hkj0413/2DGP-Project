@@ -2037,6 +2037,7 @@ class CRF:
             Move = False
             character.frame = 0
             character.wait_time = get_time()
+            Character.C_RF_start_sound.play()
         elif right_down(e):
             d_pressed = True
         elif right_up(e):
@@ -2252,6 +2253,7 @@ class Character:
     Reload_HG_sound = None
     E_SG_delay_sound = None
     E_RF_sound = None
+    C_RF_start_sound = None
     stance = 0
     state = 0
     speed = 3
@@ -2455,6 +2457,7 @@ class Character:
             Character.Reload_HG_sound = load_wav("./Sound/Reload_HG.mp3")
             Character.E_SG_delay_sound = load_wav("./Sound/E_SG_delay.mp3")
             Character.E_RF_sound = load_wav("./Sound/E_RF.mp3")
+            Character.C_RF_start_sound = load_wav("./Sound/C_RF_start.ogg")
             Character.sg_stance_sound.set_volume(64)
             Character.rf_stance_sound.set_volume(64)
             Character.hg_stance_sound.set_volume(64)
@@ -2464,6 +2467,7 @@ class Character:
             Character.Reload_HG_sound.set_volume(80)
             Character.E_SG_delay_sound.set_volume(48)
             Character.E_RF_sound.set_volume(112)
+            Character.C_RF_start_sound.set_volume(32)
 
     def update(self):
         global Jump, jump_velocity, Fall, fall_velocity, Attack, Move, screen_left, screen_right, Reload_SG, Reload_HG, mouse_x
