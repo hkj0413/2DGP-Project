@@ -5,7 +5,7 @@ main_file = 'main.py'
 
 # 2. 데이타 파일들을 지정하세요.
 data_files = [
-    'ENCR10B.TTF', 'HKCAWS_ultimate_1.png', 'HKCAWS_ultimate_2.png',
+    'ENCR10B.TTF',
 ]
 
 # 3. 데이타가 들어있는 폴더들을 지정하세요.

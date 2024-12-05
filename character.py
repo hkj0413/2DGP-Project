@@ -1342,7 +1342,6 @@ class ESG:
                 chance += 1
 
                 character.wait_time = get_time()
-                character.attack_dir = character.face_dir
 
                 qskillsgeffect = QskillSGEffect(character.attack_dir)
                 game_world.add_object(qskillsgeffect, 3)

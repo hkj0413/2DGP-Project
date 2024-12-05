@@ -40,7 +40,7 @@ def handle_events():
 
 projectile_group = [
         'normalsg1', 'normalsg2', 'normalsg3', 'normalrf', 'normalrfsp', 'normalhg', 'reloadrf', 'rcskillrf', 'eskillhg',
-        'rcskillhg', 'qskillsg', 'qskillstunsg', 'qskillrf', 'cskillstunsg', 'cskillsg',
+        'rcskillhg', 'qskillsg', 'qskillstunsg', 'qskillrf', 'cskillstunsg', 'cskillsg', 'eskillsg1', 'eskillsg2', 'eskillsg3',
                         ]
 
 stage_data = {
