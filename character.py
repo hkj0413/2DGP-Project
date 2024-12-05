@@ -13,8 +13,7 @@ from normalsg3 import NormalSG3
 from qskillsg_effect import QskillSGEffect
 from qskillsg import QskillSG
 from qskillsg_stun import QskillstunSG
-from cskillsg_crack_effect import CskillCrackSGEffect
-from cskillsg import CskillSG
+from cskillsg_effect import CskillSGEffect
 
 from rf_effect import RFEffect
 from normalrf_effect import NormalRFEffect
@@ -1427,8 +1426,8 @@ class CSG:
                 character.frame = -3
                 character.wait_time = get_time()
 
-                cskillcracksgeffect = CskillCrackSGEffect(character.face_dir)
-                game_world.add_object(cskillcracksgeffect, 0)
+                cskillsgeffect = CskillSGEffect(character.face_dir)
+                game_world.add_object(cskillsgeffect, 0)
 
         if character.name == 'Ultimate_wait_SG':
             character.frame = (character.frame + 14.0 * 1.0 * game_framework.frame_time) % 14

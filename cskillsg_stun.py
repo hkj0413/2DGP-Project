@@ -5,7 +5,7 @@ import game_world
 
 from pico2d import draw_rectangle
 
-class CskillCrackSG:
+class CskillStunSG:
     def __init__(self, d):
         self.x = server.character.x
         self.y = 140
