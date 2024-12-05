@@ -16,6 +16,7 @@ class UI:
     image_rc_rf = None
     image_q_rf = None
     image_e_rf = None
+    image_c_rf = None
     image_rc_hg = None
     image_e_hg = None
 
@@ -31,6 +32,7 @@ class UI:
             self.image_rc_rf = load_image("./Icon/" + 'RF_target_down' + ".png")
             self.image_q_rf = load_image("./Icon/" + 'RF_perfect_shot' + ".png")
             self.image_e_rf = load_image("./Icon/" + 'RF_focus_shot' + ".png")
+            self.image_c_rf = load_image("./Icon/" + 'RF_catastrophe' + ".png")
             self.image_rc_hg = load_image("./Icon/" + 'HG_dexterous_shot' + ".png")
             self.image_e_hg = load_image("./Icon/" + 'HG_bullet_rain' + ".png")
 
@@ -93,6 +95,9 @@ class UI:
 
             if Character.focus_shot_cooldown == 0 and (character.God or Character.score >= 1500):
                 self.image_e_rf.draw(124 + 64 * 9, 40, 48 ,48)
+
+            if Character.catastrophe_cooldown == 0 and (character.God or Character.score >= 3000):
+                self.image_c_rf.draw(124 + 64 * 12, 40, 48, 48)
 
             for i in range(4):
                 if i < Character.bullet_RF:
