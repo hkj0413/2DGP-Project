@@ -5,12 +5,12 @@ import game_world
 
 from pico2d import draw_rectangle
 
-class Eskillsg3:
+class EskillSG3:
     def __init__(self, d):
         self.x = server.character.x
         self.y = server.character.y
         self.sx = 0
-        self.damage = server.character.damage_SG
+        self.damage = server.character.damage_SG * 2
         self.frame = 0
         self.face = d
 
@@ -26,15 +26,15 @@ class Eskillsg3:
 
     def get_bb(self):
         if self.face == 1:
-            return self.x + 241.0 + 17.0, self.y - 49.0, self.x + 360.0 + 17.0, self.y + 19.0
+            return self.x + 121.0 + 17.0, self.y - 64.0, self.x + 180.0 + 17.0, self.y + 34.0
         elif self.face == -1:
-            return self.x - 360.0 - 17.0, self.y - 49.0, self.x - 241.0 - 17.0, self.y + 19.0
+            return self.x - 180.0 - 17.0, self.y - 64.0, self.x - 121.0 - 17.0, self.y + 34.0
 
     def get_rect(self):
         if self.face == 1:
-            return self.sx + 241.0 + 17.0, self.y - 49.0, self.sx + 360.0 + 17.0, self.y + 19.0
+            return self.sx + 121.0 + 17.0, self.y - 64.0, self.sx + 180 + 17.0, self.y + 34.0
         elif self.face == -1:
-            return self.sx - 360.0 - 17.0, self.y - 49.0, self.sx - 241.0 - 17.0, self.y + 19.0
+            return self.sx - 180.0 - 17.0, self.y - 64.0, self.sx - 121.0 - 17.0, self.y + 34.0
 
     def handle_collision(self, group, other):
         mob_group = ['spore', 'slime', 'pig']

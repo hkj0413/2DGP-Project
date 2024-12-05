@@ -10,7 +10,7 @@ class EskillSG2:
         self.x = server.character.x
         self.y = server.character.y
         self.sx = 0
-        self.damage = server.character.damage_SG * 2
+        self.damage = server.character.damage_SG * 4
         self.frame = 0
         self.face = d
 
@@ -26,15 +26,15 @@ class EskillSG2:
 
     def get_bb(self):
         if self.face == 1:
-            return self.x + 121.0 + 17.0, self.y - 49.0, self.x + 240.0 + 17.0, self.y + 19.0
+            return self.x + 61.0 + 17.0, self.y - 64.0, self.x + 120.0 + 17.0, self.y + 34.0
         elif self.face == -1:
-            return self.x - 240.0 - 17.0, self.y - 49.0, self.x - 121.0 - 17.0, self.y + 19.0
+            return self.x - 120.0 - 17.0, self.y - 64.0, self.x - 61.0 - 17.0, self.y + 34.0
 
     def get_rect(self):
         if self.face == 1:
-            return self.sx + 121.0 + 17.0, self.y - 49.0, self.sx + 240.0 + 17.0, self.y + 19.0
+            return self.sx + 61.0 + 17.0, self.y - 64.0, self.sx + 120 + 17.0, self.y + 34.0
         elif self.face == -1:
-            return self.sx - 240.0 - 17.0, self.y - 49.0, self.sx - 121.0 - 17.0, self.y + 19.0
+            return self.sx - 120.0 - 17.0, self.y - 64.0, self.sx - 61.0 - 17.0, self.y + 34.0
 
     def handle_collision(self, group, other):
         mob_group = ['spore', 'slime', 'pig']

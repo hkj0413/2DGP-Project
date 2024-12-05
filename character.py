@@ -13,6 +13,10 @@ from normalsg3 import NormalSG3
 from qskillsg_effect import QskillSGEffect
 from qskillsg import QskillSG
 from qskillsg_stun import QskillstunSG
+from eskillsg_effect import EskillSGEffect
+from eskillsg1 import EskillSG1
+from eskillsg2 import EskillSG2
+from eskillsg3 import EskillSG3
 from cskillsg_effect import CskillSGEffect
 
 from rf_effect import RFEffect
@@ -1289,13 +1293,37 @@ class QSG:
 class ESG:
     @staticmethod
     def enter(character, e):
-        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump, chance
+        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump, chance, Attack
         if sg_e(e):
             Move = False
             chance = 0
             character.frame = 0
             character.wait_time = get_time()
             character.attack_dir = character.face_dir
+
+            Attack = True
+            character.attack_time = get_time()
+
+            character.wait_time = get_time()
+
+            normalsgeffect = NormalSGEffect(character.attack_dir)
+            game_world.add_object(normalsgeffect, 3)
+
+            normalsg1 = NormalSG1(character.attack_dir)
+            game_world.add_object(normalsg1, 3)
+            for mob in mob_group:
+                game_world.add_collision_pairs(f'normalsg1:{mob}', normalsg1, None)
+
+            normalsg2 = NormalSG2(character.attack_dir)
+            game_world.add_object(normalsg2, 3)
+            for mob in mob_group:
+                game_world.add_collision_pairs(f'normalsg2:{mob}', normalsg2, None)
+
+            normalsg3 = NormalSG3(character.attack_dir)
+            game_world.add_object(normalsg3, 3)
+            for mob in mob_group:
+                game_world.add_collision_pairs(f'normalsg3:{mob}', normalsg3, None)
+
         elif right_down(e):
             d_pressed = True
         elif right_up(e):
@@ -1336,7 +1364,12 @@ class ESG:
     @staticmethod
     def do(character):
         global Move, Attack, chance
-        if get_time() - character.wait_time > 0.2 and chance <= 2:
+
+        if get_time() - character.wait_time > 0.4 and chance == 0:
+            Character.E_SG_delay_sound.play()
+            chance += 1
+
+        elif get_time() - character.wait_time > 1 and chance == 1:
             if not Attack:
                 Attack = True
                 character.attack_time = get_time()
@@ -1344,25 +1377,59 @@ class ESG:
 
                 character.wait_time = get_time()
 
-                qskillsgeffect = QskillSGEffect(character.attack_dir)
-                game_world.add_object(qskillsgeffect, 3)
+                normalsgeffect = NormalSGEffect(character.attack_dir)
+                game_world.add_object(normalsgeffect, 3)
 
-                qskillstunsg = QskillstunSG(character.attack_dir)
-                game_world.add_object(qskillstunsg, 3)
+                normalsg1 = NormalSG1(character.attack_dir)
+                game_world.add_object(normalsg1, 3)
                 for mob in mob_group:
-                    game_world.add_collision_pairs(f'qskillstunsg:{mob}', qskillstunsg, None)
+                    game_world.add_collision_pairs(f'normalsg1:{mob}', normalsg1, None)
 
-                qskillsg = QskillSG(character.attack_dir)
-                game_world.add_object(qskillsg, 3)
+                normalsg2 = NormalSG2(character.attack_dir)
+                game_world.add_object(normalsg2, 3)
                 for mob in mob_group:
-                    game_world.add_collision_pairs(f'qskillsg:{mob}', qskillsg, None)
+                    game_world.add_collision_pairs(f'normalsg2:{mob}', normalsg2, None)
+
+                normalsg3 = NormalSG3(character.attack_dir)
+                game_world.add_object(normalsg3, 3)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'normalsg3:{mob}', normalsg3, None)
+
+        if get_time() - character.wait_time > 0.4 and chance == 2:
+            Character.E_SG_delay_sound.play()
+            chance += 1
+
+        elif get_time() - character.wait_time > 1 and chance == 3:
+            if not Attack:
+                Attack = True
+                character.attack_time = get_time()
+                chance += 1
+
+                character.wait_time = get_time()
+
+                eskillsgeffect = EskillSGEffect(character.attack_dir)
+                game_world.add_object(eskillsgeffect, 3)
+
+                eskillsg1 = EskillSG1(character.attack_dir)
+                game_world.add_object(eskillsg1, 3)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'eskillsg1:{mob}', eskillsg1, None)
+
+                eskillsg2 = EskillSG2(character.attack_dir)
+                game_world.add_object(eskillsg2, 3)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'eskillsg2:{mob}', eskillsg2, None)
+
+                eskillsg3 = EskillSG3(character.attack_dir)
+                game_world.add_object(eskillsg3, 3)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'eskillsg3:{mob}', eskillsg3, None)
 
         if Attack:
             character.frame = (character.frame + 15.0 * 0.8 * game_framework.frame_time) % 15
 
-        if not Attack and chance >= 3:
+        if not Attack and chance >= 4:
             Character.state = 0
-            chance = 0
             if God:
                 Character.shotgun_rapid_fire_cooldown = 1
             else:
@@ -1856,8 +1923,8 @@ class ERF:
         global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump, chance
         if rf_e(e):
             Move = False
-            character.frame = 0
             chance = 0
+            character.frame = 0
             character.wait_time = get_time()
             character.attack_dir = character.face_dir
             Character.E_RF_sound.play()
@@ -1944,7 +2011,6 @@ class ERF:
 
         if not Attack and chance >= 4:
             Character.state = 0
-            chance = 0
             if God:
                 Character.focus_shot_cooldown = 1
             else:
@@ -2184,6 +2250,7 @@ class Character:
     Rc_RF_sound = None
     Reload_SG_sound = None
     Reload_HG_sound = None
+    E_SG_delay_sound = None
     E_RF_sound = None
     stance = 0
     state = 0
@@ -2386,6 +2453,7 @@ class Character:
             Character.Rc_RF_sound = load_wav("./Sound/Rc_RF.mp3")
             Character.Reload_SG_sound = load_wav("./Sound/Reload_SG.mp3")
             Character.Reload_HG_sound = load_wav("./Sound/Reload_HG.mp3")
+            Character.E_SG_delay_sound = load_wav("./Sound/E_SG_delay.mp3")
             Character.E_RF_sound = load_wav("./Sound/E_RF.mp3")
             Character.sg_stance_sound.set_volume(64)
             Character.rf_stance_sound.set_volume(64)
@@ -2394,6 +2462,7 @@ class Character:
             Character.Rc_RF_sound.set_volume(80)
             Character.Reload_SG_sound.set_volume(80)
             Character.Reload_HG_sound.set_volume(80)
+            Character.E_SG_delay_sound.set_volume(48)
             Character.E_RF_sound.set_volume(112)
 
     def update(self):
