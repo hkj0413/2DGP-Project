@@ -87,6 +87,9 @@ def rf_q(e):
 def rf_e(e):
     return e[0] == 'RF_E'
 
+def rf_c(e):
+    return e[0] == 'RF_C'
+
 def hg_e(e):
     return e[0] == 'HG_E'
 

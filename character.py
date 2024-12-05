@@ -60,6 +60,7 @@ rrf = False
 Reload_HG = False
 Rc_HG = False
 rchg = False
+catastrophe = False
 
 jump_velocity = 10.0
 fall_velocity = 0.0
@@ -76,7 +77,7 @@ class Idle:
     @staticmethod
     def enter(character, e):
         global Jump, d_pressed, a_pressed, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, Invincibility, God
-        global Rc_HG
+        global Rc_HG, Attack, mouse_x
         if start_event(e):
             character.face_dir = 1
         elif right_up(e):
@@ -107,10 +108,44 @@ class Idle:
                 Character.state = 1
                 Character.speed = 1
             elif Character.stance == 1:
-                if Character.target_down_cooldown == 0:
-                    Character.state = 1
-                    Character.hit_delay = 1
-                    character.state_machine.add_event(('RF_RC', 0))
+                if Character.state == 0:
+                    if Character.target_down_cooldown == 0:
+                        Character.state = 1
+                        Character.hit_delay = 1
+                        character.state_machine.add_event(('RF_RC', 0))
+                elif Character.state == 4 and not Attack and Character.attack_delay == 0:
+                    if character.x > 2700 and not character.mouse:
+                        scroll_offset = 2700 - 1080 // 2
+                        mouse_x = mouse_x + scroll_offset
+                        character.mouse = True
+                    elif character.x > 540 and not character.mouse and server.background.w > 1080:
+                        scroll_offset = character.x - 1080 // 2
+                        mouse_x = mouse_x + scroll_offset
+                        character.mouse = True
+                    if mouse_x > character.x:
+                        character.attack_dir = 1
+                        if (not Move or Fall or Jump) and not d_pressed and not a_pressed:
+                            character.face_dir = 1
+                    elif mouse_x < character.x:
+                        character.attack_dir = -1
+                        if (not Move or Fall or Jump) and not d_pressed and not a_pressed:
+                            character.face_dir = -1
+                    if character.attack_time == 0:
+                        character.attack_time = get_time()
+                        character.frame = 0
+
+                        rcskillrfeffect = RcskillRFEffect()
+                        game_world.add_object(rcskillrfeffect, 3)
+
+                        rcskillrf = RcskillRF()
+                        game_world.add_object(rcskillrf, 3)
+                        for mob in mob_group:
+                            game_world.add_collision_pairs(f'rcskillrf:{mob}', rcskillrf, None)
+
+                        rfeffect = RFEffect(character.attack_dir)
+                        game_world.add_object(rfeffect, 3)
+
+                        Attack = True
             elif Character.stance == 2:
                 Character.state = 1
         elif rc_up(e):
@@ -125,10 +160,15 @@ class Idle:
                 Jump = True
                 if not Attack and not Reload_SG:
                     character.frame = 0
-            elif Character.stance == 1 and Character.state == 0:
-                if not Attack:
+            elif Character.stance == 1:
+                if Character.state == 0:
+                    if not Attack:
+                        Jump = True
+                        character.frame = 0
+                elif Character.state == 4:
                     Jump = True
-                    character.frame = 0
+                    if not Attack:
+                        character.frame = 0
             elif Character.stance == 2:
                 Jump = True
                 if not Attack and not Reload_HG and not Rc_HG:
@@ -158,31 +198,41 @@ class Idle:
                     Invincibility = True
                     Character.Reload_HG_sound.play()
         elif q_down(e):
-            if Character.stance == 0:
+            if Character.stance == 0 and Character.state == 0:
                 if Character.hour_of_judgment_cooldown == 0 and not Attack and (God or Character.score >= 500):
                     Character.state = 2
                     Character.hit_delay = 1
                     character.state_machine.add_event(('SG_Q', 0))
-            elif Character.stance == 1:
+            elif Character.stance == 1 and Character.state == 0:
                 if Character.perfect_shot_cooldown == 0 and (God or Character.score >= 500):
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('RF_Q', 0))
-            elif Character.stance == 2:
+            elif Character.stance == 2 and Character.state == 0:
                 pass
         elif e_down(e):
-            if Character.stance == 0:
+            if Character.stance == 0 and Character.state == 0:
                 pass
-            elif Character.stance == 1:
+            elif Character.stance == 1 and Character.state == 0:
                 if Character.focus_shot_cooldown == 0 and (God or Character.score >= 1500):
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('RF_E', 0))
-            elif Character.stance == 2:
+            elif Character.stance == 2 and Character.state == 0:
                 if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 1500):
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('HG_E', 0))
+        elif c_down(e):
+            if Character.stance == 0 and Character.state == 0:
+                pass
+            elif Character.stance == 1 and Character.state == 0:
+                if Character.catastrophe_cooldown == 0 and (God or Character.score >= 3000):
+                    Character.state = 4
+                    Invincibility = True
+                    character.state_machine.add_event(('RF_C', 0))
+            elif Character.stance == 2 and Character.state == 0:
+                pass
 
         elif temp_god(e):
            God = not God
@@ -383,7 +433,7 @@ class Walk:
     @staticmethod
     def enter(character, e):
         global a_pressed, d_pressed, Jump, attacking, Reload_SG, Reload_HG, s_pressed, w_pressed, Invincibility, God
-        global Rc_HG
+        global Rc_HG, Attack, mouse_x
         if right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -427,10 +477,44 @@ class Walk:
                 Character.state = 1
                 Character.speed = 1
             elif Character.stance == 1:
-                if Character.target_down_cooldown == 0:
-                    Character.state = 1
-                    Character.hit_delay = 1
-                    character.state_machine.add_event(('RF_RC', 0))
+                if Character.state == 0:
+                    if Character.target_down_cooldown == 0:
+                        Character.state = 1
+                        Character.hit_delay = 1
+                        character.state_machine.add_event(('RF_RC', 0))
+                elif Character.state == 4 and not Attack and Character.attack_delay == 0:
+                    if character.x > 2700 and not character.mouse:
+                        scroll_offset = 2700 - 1080 // 2
+                        mouse_x = mouse_x + scroll_offset
+                        character.mouse = True
+                    elif character.x > 540 and not character.mouse and server.background.w > 1080:
+                        scroll_offset = character.x - 1080 // 2
+                        mouse_x = mouse_x + scroll_offset
+                        character.mouse = True
+                    if mouse_x > character.x:
+                        character.attack_dir = 1
+                        if (not Move or Fall or Jump) and not d_pressed and not a_pressed:
+                            character.face_dir = 1
+                    elif mouse_x < character.x:
+                        character.attack_dir = -1
+                        if (not Move or Fall or Jump) and not d_pressed and not a_pressed:
+                            character.face_dir = -1
+                    if character.attack_time == 0:
+                        character.attack_time = get_time()
+                        character.frame = 0
+
+                        rcskillrfeffect = RcskillRFEffect()
+                        game_world.add_object(rcskillrfeffect, 3)
+
+                        rcskillrf = RcskillRF()
+                        game_world.add_object(rcskillrf, 3)
+                        for mob in mob_group:
+                            game_world.add_collision_pairs(f'rcskillrf:{mob}', rcskillrf, None)
+
+                        rfeffect = RFEffect(character.attack_dir)
+                        game_world.add_object(rfeffect, 3)
+
+                        Attack = True
             elif Character.stance == 2:
                 Character.state = 1
         elif rc_up(e):
@@ -445,10 +529,15 @@ class Walk:
                 Jump = True
                 if not Attack and not Reload_SG:
                     character.frame = 0
-            elif Character.stance == 1 and Character.state == 0:
-                if not Attack:
+            elif Character.stance == 1:
+                if Character.state == 0:
+                    if not Attack:
+                        Jump = True
+                        character.frame = 0
+                elif Character.state == 4:
                     Jump = True
-                    character.frame = 0
+                    if not Attack:
+                        character.frame = 0
             elif Character.stance == 2:
                 Jump = True
                 if not Attack and not Reload_HG and not Rc_HG:
@@ -478,31 +567,41 @@ class Walk:
                     Invincibility = True
                     Character.Reload_HG_sound.play()
         elif q_down(e):
-            if Character.stance == 0:
+            if Character.stance == 0 and Character.state == 0:
                 if Character.hour_of_judgment_cooldown == 0 and not Attack and (God or Character.score >= 500):
                     Character.state = 2
                     Character.hit_delay = 1
                     character.state_machine.add_event(('SG_Q', 0))
-            elif Character.stance == 1:
+            elif Character.stance == 1 and Character.state == 0:
                 if Character.perfect_shot_cooldown == 0 and (God or Character.score >= 500):
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('RF_Q', 0))
-            elif Character.stance == 2:
+            elif Character.stance == 2 and Character.state == 0:
                 pass
         elif e_down(e):
-            if Character.stance == 0:
+            if Character.stance == 0 and Character.state == 0:
                 pass
-            elif Character.stance == 1:
+            elif Character.stance == 1 and Character.state == 0:
                 if Character.focus_shot_cooldown == 0 and (God or Character.score >= 1500):
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('RF_E', 0))
-            elif Character.stance == 2:
+            elif Character.stance == 2 and Character.state == 0:
                 if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 1500):
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('HG_E', 0))
+        elif c_down(e):
+            if Character.stance == 0 and Character.state == 0:
+                pass
+            elif Character.stance == 1 and Character.state == 0:
+                if Character.catastrophe_cooldown == 0 and (God or Character.score >= 3000):
+                    Character.state = 4
+                    Invincibility = True
+                    character.state_machine.add_event(('RF_C', 0))
+            elif Character.stance == 2 and Character.state == 0:
+                pass
 
         elif temp_god(e):
            God = not God
@@ -637,7 +736,7 @@ class Walk:
                 if not Attack:
                     character.x += Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
             elif Character.stance == 1:
-                if Character.state == 0 and not Attack:
+                if (Character.state == 0 and not Attack) or Character.state == 4:
                     character.x += Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
             elif Character.stance == 2:
                 if not Character.state == 2:
@@ -715,7 +814,7 @@ class Walk:
 class Hit:
     @staticmethod
     def enter(character, e):
-        global a_pressed, d_pressed, Jump, jump_velocity, Fall, attacking, s_pressed, w_pressed, Rc_HG
+        global a_pressed, d_pressed, Jump, jump_velocity, Fall, attacking, s_pressed, w_pressed, Rc_HG, catastrophe
         if take_hit(e):
             if Character.stance == 0 and (Character.state == 1 or Reload_SG):
                 Character.Rc_SG_sound.play()
@@ -723,6 +822,19 @@ class Hit:
                 if Character.hp == 0:
                     Character.speed = 3
                     Character.score -= 100
+                    character.state_machine.add_event(('DIE', 0))
+                elif a_pressed or d_pressed:
+                    character.state_machine.add_event(('WALK', 0))
+            elif Character.stance == 1 and Character.state == 4 and catastrophe:
+                Character.hp = max(0, Character.hp - Character.damage)
+                if Character.hp == 0:
+                    Character.score -= 100
+                    Character.catastrophe_duration = 0
+                    Character.catastrophe_cooldown = 120
+                    Character.speed = 4
+                    Character.state = 0
+                    catastrophe = False
+                    character.catastrophe_time = 0
                     character.state_machine.add_event(('DIE', 0))
                 elif a_pressed or d_pressed:
                     character.state_machine.add_event(('WALK', 0))
@@ -1054,8 +1166,9 @@ class QSG:
             Move = False
             character.frame = 0
             character.wait_time = get_time()
+            character.attack_dir = character.face_dir
 
-            qskillsgeffect = QskillSGEffect(character.face_dir)
+            qskillsgeffect = QskillSGEffect(character.attack_dir)
             game_world.add_object(qskillsgeffect, 3)
         elif right_down(e):
             d_pressed = True
@@ -1105,12 +1218,12 @@ class QSG:
                 Attack = True
                 character.attack_time = get_time()
 
-                qskillstunsg = QskillstunSG(character.face_dir)
+                qskillstunsg = QskillstunSG(character.attack_dir)
                 game_world.add_object(qskillstunsg, 3)
                 for mob in mob_group:
                     game_world.add_collision_pairs(f'qskillstunsg:{mob}', qskillstunsg, None)
 
-                qskillsg = QskillSG(character.face_dir)
+                qskillsg = QskillSG(character.attack_dir)
                 game_world.add_object(qskillsg, 3)
                 for mob in mob_group:
                     game_world.add_collision_pairs(f'qskillsg:{mob}', qskillsg, None)
@@ -1151,10 +1264,10 @@ class QSG:
 
     @staticmethod
     def draw(character):
-        if character.face_dir == 1:
+        if character.attack_dir == 1:
             character.images['Attack_SG'][int(character.frame)].composite_draw(0, '', character.sx, character.y,
                                                                           170, 170)
-        elif character.face_dir == -1:
+        elif character.attack_dir == -1:
             character.images['Attack_SG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
                                                                           170, 170)
 
@@ -1337,7 +1450,7 @@ class RcRF:
             if God:
                 Character.target_down_cooldown = 1
             else:
-                Character.target_down_cooldown = 30
+                Character.target_down_cooldown = 45
             Character.target_down_size = 0
             Character.hit_delay = 1
             character.state_machine.add_event(('USE_DASH', 0))
@@ -1346,7 +1459,7 @@ class RcRF:
             Character.hit_delay = 1.5
             if Character.hp == 0:
                 Character.score -= 100
-                Character.target_down_cooldown = 30
+                Character.target_down_cooldown = 45
                 Character.target_down_size = 0
                 character.state_machine.add_event(('DIE', 0))
 
@@ -1367,7 +1480,7 @@ class RcRF:
                 if God:
                     Character.target_down_cooldown = 1
                 else:
-                    Character.target_down_cooldown = 30
+                    Character.target_down_cooldown = 45
                 Character.target_down_size = 0
                 Character.state = 0
                 if d_pressed or a_pressed:
@@ -1459,7 +1572,7 @@ class QRF:
             Character.hit_delay = 1.5
             if Character.hp == 0:
                 Character.score -= 100
-                Character.perfect_shot_cooldown = 12
+                Character.perfect_shot_cooldown = 15
                 character.state_machine.add_event(('DIE', 0))
 
     @staticmethod
@@ -1493,7 +1606,7 @@ class QRF:
             if God:
                 Character.perfect_shot_cooldown = 1
             else:
-                Character.perfect_shot_cooldown = 12
+                Character.perfect_shot_cooldown = 15
             if d_pressed or a_pressed:
                 character.state_machine.add_event(('WALK', 0))
             else:
@@ -1572,7 +1685,7 @@ class ERF:
             if Character.hp == 0:
                 Character.score -= 100
                 chance = 0
-                Character.focus_shot_cooldown = 22
+                Character.focus_shot_cooldown = 30
                 character.state_machine.add_event(('DIE', 0))
 
     @staticmethod
@@ -1625,7 +1738,7 @@ class ERF:
             if God:
                 Character.focus_shot_cooldown = 1
             else:
-                Character.focus_shot_cooldown = 22
+                Character.focus_shot_cooldown = 30
             if d_pressed or a_pressed:
                 character.state_machine.add_event(('WALK', 0))
             else:
@@ -1638,6 +1751,72 @@ class ERF:
                                                                           170, 170)
         elif character.face_dir == -1:
             character.images['Attack_RF'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
+                                                                          170, 170)
+
+class CRF:
+    @staticmethod
+    def enter(character, e):
+        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump
+        if rf_c(e):
+            Move = False
+            character.frame = 0
+            character.wait_time = get_time()
+        elif right_down(e):
+            d_pressed = True
+            character.face_dir = 1
+            character.attack_dir = 1
+        elif right_up(e):
+            d_pressed = False
+        elif left_down(e):
+            a_pressed = True
+            character.face_dir = -1
+            character.attack_dir = -1
+        elif left_up(e):
+            a_pressed = False
+        elif on_down(e):
+            w_pressed = True
+        elif on_up(e):
+            w_pressed = False
+            if Climb and not s_pressed:
+                Move = False
+        elif under_down(e):
+            s_pressed = True
+        elif under_up(e):
+            s_pressed = False
+            if Climb and not w_pressed:
+                Move = False
+        elif lc_down(e):
+            attacking = True
+        elif lc_up(e):
+            attacking = False
+
+    @staticmethod
+    def exit(character, e):
+        pass
+
+    @staticmethod
+    def do(character):
+        global Invincibility, catastrophe
+        character.frame = character.frame + 27.0 * 0.6 * game_framework.frame_time
+
+        if character.frame > 27.0:
+            Invincibility = False
+            catastrophe = True
+            character.frame = 0
+            Character.catastrophe_duration = 10
+            Character.speed = 6
+            if d_pressed or a_pressed:
+                character.state_machine.add_event(('WALK', 0))
+            else:
+                character.state_machine.add_event(('IDLE', 0))
+
+    @staticmethod
+    def draw(character):
+        if character.face_dir == 1:
+            character.images['Ultimate_RF'][int(character.frame)].composite_draw(0, '', character.sx, character.y,
+                                                                          170, 170)
+        elif character.face_dir == -1:
+            character.images['Ultimate_RF'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
                                                                           170, 170)
 
 class EHG:
@@ -1774,7 +1953,7 @@ class EHG:
                                                                           170, 170)
 
 animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reload_SG', 'Rc_SG',
-                   'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF',
+                   'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF', 'Ultimate_RF',
                    'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG', 'E_HG',]
 
 class Character:
@@ -1812,9 +1991,11 @@ class Character:
     attack_delay = 0 # 공격 속도
     dash_cooldown = 0 # 대쉬 쿨타임 6초
     hour_of_judgment_cooldown = 0 # 심판의 시간 쿨타임 8초
-    target_down_cooldown = 0  # 타겟 다운 쿨타임 30초
-    perfect_shot_cooldown = 0 # 퍼펙트 샷 쿨타임 12초
-    focus_shot_cooldown = 0 # 포커스 샷 쿨타임 22초
+    target_down_cooldown = 0  # 타겟 다운 쿨타임 45초
+    perfect_shot_cooldown = 0 # 퍼펙트 샷 쿨타임 15초
+    focus_shot_cooldown = 0 # 포커스 샷 쿨타임 30초
+    catastrophe_cooldown = 0 # 대재앙 쿨타임 120초
+    catastrophe_duration = 0 # 대재앙 지속 시간 10초
     dexterous_shot_cooldown = 0 # 민첩한 사격 쿨타임 2초 / 1초 (+2)
     bullet_rain_cooldown = 0 # 불렛 레인 쿨타임 6초 / 3초 (+4)
 
@@ -1847,6 +2028,8 @@ class Character:
                     Character.images[name] = [load_image("./R93/" + name + " (%d)" % i + ".png") for i in range(1, 18 + 1)]
                 elif name == 'Attack_RF':
                     Character.images[name] = [load_image("./R93/" + name + " (%d)" % i + ".png") for i in range(1, 7 + 1)]
+                elif name == 'Ultimate_RF':
+                    Character.images[name] = [load_image("./R93/" + name + " (%d)" % i + ".png") for i in range(1, 27 + 1)]
 
                 elif name == 'Idle_HG':
                     Character.images[name] = [load_image("./GSH18Mod/" + name + " (%d)" % i + ".png") for i in range(1, 11 + 1)]
@@ -1876,11 +2059,13 @@ class Character:
         self.hit_cool = 0
         self.attack_cool = 0
         self.attack_time = 0
+        self.catastrophe_time = 0
         self.Lshift_cool = 0
         self.Q_SG_cool = 0
         self.Rc_RF_cool = 0
         self.Q_RF_cool = 0
         self.E_RF_cool = 0
+        self.C_RF_cool = 0
         self.Rc_HG_cool = 0
         self.E_HG_cool = 0
         self.state_machine = StateMachine(self)
@@ -1892,7 +2077,7 @@ class Character:
                     walk: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash, lc_down: Idle, lc_up: Idle,
                     reload: Idle, rf_reload: RRF, idle: Idle, under_down: Idle, under_up: Idle, rf_reload_s: RsRF, rf_rc: RcRF,
                     on_up: Idle, on_down: Idle, q_down: Idle, e_down: Idle, c_down: Idle,
-                    take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF, rf_q: QRF,
+                    take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF, rf_q: QRF, rf_c: CRF,
                     temp_bullet: Idle, temp_god: Idle, temp_up: Idle, temp_down: Idle, temp_medal: Idle,
                 },
                 Walk: {
@@ -1900,7 +2085,7 @@ class Character:
                     idle: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash, lc_down: Walk, lc_up: Walk,
                     reload: Walk, rf_reload: RRF, walk: Walk, under_down: Walk, under_up: Walk, rf_reload_s: RsRF, rf_rc: RcRF,
                     on_up: Walk, on_down: Walk, q_down: Walk, e_down: Walk, c_down: Walk,
-                    take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF, rf_q: QRF,
+                    take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF, rf_q: QRF, rf_c: CRF,
                     temp_bullet: Walk, temp_god: Walk, temp_up: Walk, temp_down: Walk, temp_medal: Walk,
                 },
                 Hit: {
@@ -1941,6 +2126,10 @@ class Character:
                     right_down: ERF, left_down: ERF, left_up: ERF, right_up: ERF, on_up: ERF, under_up: ERF, lc_down: ERF, lc_up: ERF,
                      under_down: ERF, on_down: ERF, idle: Idle, walk: Walk, take_hit: ERF, die: Die,
                 },
+                CRF: {
+                    right_down: CRF, left_down: CRF, left_up: CRF, right_up: CRF, on_up: CRF, under_up: CRF, lc_down: CRF, lc_up: CRF,
+                    under_down: CRF, on_down: CRF, idle: Idle, walk: Walk,
+                },
                 EHG: {
                     right_down: EHG, left_down: EHG, left_up: EHG, right_up: EHG, on_up: EHG, under_up: EHG,
                     lc_down: EHG, lc_up: EHG, jump: EHG, e_down: EHG,
@@ -1970,7 +2159,7 @@ class Character:
 
     def update(self):
         global Jump, jump_velocity, Fall, fall_velocity, Attack, Move, screen_left, screen_right, Reload_SG, Reload_HG, mouse_x
-        global rchg
+        global rchg, catastrophe
         self.state_machine.update()
         self.x = clamp(17.0, self.x, server.background.w - 17.0)
         self.sx = self.x - server.background.window_left
@@ -1990,6 +2179,12 @@ class Character:
         if Fall:
             self.y -= fall_velocity * RUN_SPEED_PPS * game_framework.frame_time
             fall_velocity += gravity * RUN_SPEED_PPS * game_framework.frame_time
+            if Character.stance == 1 and Character.state == 4 and catastrophe:
+                if self.y < 50.0:
+                    self.y = 50.0
+                    Move = False
+                    Fall = False
+                    fall_velocity = 0.0
             if self.y < -68:
                 Move = False
                 Fall = False
@@ -2009,11 +2204,11 @@ class Character:
                         self.mouse = True
                     if mouse_x > self.x:
                         self.attack_dir = 1
-                        if not Move or Fall or Jump:
+                        if (not Move or Fall or Jump) and not d_pressed and not a_pressed:
                             self.face_dir = 1
                     elif mouse_x < self.x:
                         self.attack_dir = -1
-                        if not Move or Fall or Jump:
+                        if (not Move or Fall or Jump) and not d_pressed and not a_pressed:
                             self.face_dir = -1
 
                     if self.attack_time == 0:
@@ -2039,8 +2234,8 @@ class Character:
                         for mob in mob_group:
                             game_world.add_collision_pairs(f'normalsg3:{mob}', normalsg3, None)
                         Attack = True
-                elif Character.stance == 1 and not Move:
-                    if Character.state == 0 and Character.bullet_RF > 0:
+                elif Character.stance == 1:
+                    if Character.state == 0 and Character.bullet_RF > 0 and not Move:
                         if self.x > 2700 and not self.mouse:
                             scroll_offset = 2700 - 1080 // 2
                             mouse_x = mouse_x + scroll_offset
@@ -2080,7 +2275,7 @@ class Character:
                             rfeffect = RFEffect(self.attack_dir)
                             game_world.add_object(rfeffect, 3)
                             Attack = True
-                    elif Character.state == 1 and Character.target_down_bullet > 0:
+                    elif Character.state == 1 and Character.target_down_bullet > 0 and not Move:
                         if self.x > 2700 and not self.mouse:
                             scroll_offset = 2700 - 1080 // 2
                             mouse_x = mouse_x + scroll_offset
@@ -2112,6 +2307,39 @@ class Character:
                             game_world.add_object(rfeffect, 3)
 
                             Attack = True
+                    elif Character.state == 4:
+                        if self.x > 2700 and not self.mouse:
+                            scroll_offset = 2700 - 1080 // 2
+                            mouse_x = mouse_x + scroll_offset
+                            self.mouse = True
+                        elif self.x > 540 and not self.mouse and server.background.w > 1080:
+                            scroll_offset = self.x - 1080 // 2
+                            mouse_x = mouse_x + scroll_offset
+                            self.mouse = True
+                        if mouse_x > self.x:
+                            self.attack_dir = 1
+                            if (not Move or Fall or Jump) and not d_pressed and not a_pressed:
+                                self.face_dir = 1
+                        elif mouse_x < self.x:
+                            self.attack_dir = -1
+                            if (not Move or Fall or Jump) and not d_pressed and not a_pressed:
+                                self.face_dir = -1
+                        if self.attack_time == 0:
+                            self.attack_time = get_time()
+                            self.frame = 0
+
+                            normalrfspeffect = NormalRFSPEffect(self.attack_dir)
+                            game_world.add_object(normalrfspeffect, 3)
+
+                            normalrfsp = NormalRFSP(self.attack_dir)
+                            game_world.add_object(normalrfsp, 3)
+                            for mob in mob_group:
+                                game_world.add_collision_pairs(f'normalrfsp:{mob}', normalrfsp, None)
+
+                            rfeffect = RFEffect(self.attack_dir)
+                            game_world.add_object(rfeffect, 3)
+
+                            Attack = True
                 elif Character.stance == 2 and not Rc_HG:
                     if Character.state == 0 and Character.bullet_HG > 0:
                         if self.x > 2700 and not self.mouse:
@@ -2124,11 +2352,11 @@ class Character:
                             self.mouse = True
                         if mouse_x > self.x:
                             self.attack_dir = 1
-                            if not Move or Fall or Jump:
+                            if (not Move or Fall or Jump) and not d_pressed and not a_pressed:
                                 self.face_dir = 1
                         elif mouse_x < self.x:
                             self.attack_dir = -1
-                            if not Move or Fall or Jump:
+                            if (not Move or Fall or Jump) and not d_pressed and not a_pressed:
                                 self.face_dir = -1
                         if self.attack_time == 0:
                             self.attack_time = get_time()
@@ -2172,7 +2400,7 @@ class Character:
                     Attack = False
             elif Character.stance == 1:
                 if get_time() - self.attack_time > 0.4:
-                    if Character.stance == 1:
+                    if Character.state == 1 or Character.state == 4:
                         Character.attack_delay = 0.75
                     else:
                         Character.attack_delay = 1.5
@@ -2257,6 +2485,28 @@ class Character:
             if get_time() - self.E_RF_cool > Character.focus_shot_cooldown:
                 Character.focus_shot_cooldown = 0
                 self.E_RF_cool = 0
+
+        if not Character.catastrophe_cooldown == 0:
+            if self.C_RF_cool == 0:
+                self.C_RF_cool = get_time()
+            if get_time() - self.C_RF_cool > Character.catastrophe_cooldown:
+                Character.catastrophe_cooldown = 0
+                self.C_RF_cool = 0
+
+        if not Character.catastrophe_duration == 0:
+            if self.catastrophe_time == 0:
+                self.catastrophe_time = get_time()
+            if get_time() - self.catastrophe_time > Character.catastrophe_duration:
+                Character.catastrophe_duration = 0
+                if God:
+                    Character.catastrophe_cooldown = 1
+                else:
+                    Character.catastrophe_cooldown = 120
+                Character.speed = 4
+                Character.state = 0
+                catastrophe = False
+                Fall = True
+                self.catastrophe_time = 0
 
         if not Character.dexterous_shot_cooldown == 0:
             if self.Rc_HG_cool == 0:
@@ -2374,6 +2624,7 @@ class Character:
             Character.shield_def = 1
             Character.target_down_max = 2
             Character.max_bullet_HG = 20
+            Character.bullet_hg = min(20, Character.bullet_hg)
 
         # 1강
         elif Character.upgrade == 1:
@@ -2408,6 +2659,7 @@ class Character:
 
             # 4 -> 3강
             Character.max_bullet_HG = 24
+            Character.bullet_hg = min(24, Character.bullet_hg)
             Character.damage_SG = 2
             Character.damage_RF = 6
 
