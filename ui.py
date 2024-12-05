@@ -1,6 +1,5 @@
 from pico2d import load_image
 
-import server
 from character import Character
 
 import character

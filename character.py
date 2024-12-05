@@ -25,6 +25,7 @@ from rcskillrf_effect import RcskillRFEffect
 from qskillrf import QskillRF
 from qskillrf_effect import QskillRFEffect
 from cskillrf import CskillRF
+from cskillrf_effect import CskillRFEffect
 
 from hg_effect import HGEffect
 from normalhg import NormalHG
@@ -143,8 +144,8 @@ class Idle:
                         for mob in mob_group:
                             game_world.add_collision_pairs(f'rcskillrf:{mob}', rcskillrf, None)
 
-                        rfeffect = RFEffect(character.attack_dir)
-                        game_world.add_object(rfeffect, 3)
+                        cskillrfeffect = CskillRFEffect(character.attack_dir)
+                        game_world.add_object(cskillrfeffect, 3)
 
                         Attack = True
             elif Character.stance == 2:
@@ -512,8 +513,8 @@ class Walk:
                         for mob in mob_group:
                             game_world.add_collision_pairs(f'rcskillrf:{mob}', rcskillrf, None)
 
-                        rfeffect = RFEffect(character.attack_dir)
-                        game_world.add_object(rfeffect, 3)
+                        cskillrfeffect = CskillRFEffect(character.attack_dir)
+                        game_world.add_object(cskillrfeffect, 3)
 
                         Attack = True
             elif Character.stance == 2:
@@ -2342,8 +2343,8 @@ class Character:
                             for mob in mob_group:
                                 game_world.add_collision_pairs(f'normalrfsp:{mob}', normalrfsp, None)
 
-                            rfeffect = RFEffect(self.attack_dir)
-                            game_world.add_object(rfeffect, 3)
+                            cskillrfeffect = CskillRFEffect(self.attack_dir)
+                            game_world.add_object(cskillrfeffect, 3)
 
                             Attack = True
                 elif Character.stance == 2 and not Rc_HG:
