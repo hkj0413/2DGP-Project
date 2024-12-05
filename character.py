@@ -1,5 +1,7 @@
 from pico2d import get_time, load_image, draw_rectangle, clamp, load_wav
 
+import random
+
 import game_world
 import game_framework
 import play_mode
@@ -883,6 +885,14 @@ class Hit:
                 if Character.hp == 0:
                     Character.score -= 100
                     character.state_machine.add_event(('DIE', 0))
+                else:
+                    if Character.stance == 0:
+                        pass
+                    elif Character.stance == 1:
+                        rf_hit_sound_list = Character.voices['RF_Hit']
+                        random.choice(rf_hit_sound_list).play()
+                    elif Character.stance == 2:
+                        pass
             character.wait_time = get_time()
             Character.hit_delay = 1.5
         elif right_up(e):
@@ -1039,6 +1049,13 @@ class Die:
             character.attack_time = 0
             character.hit_cool = 0
             character.wait_time = get_time()
+            if Character.stance == 0:
+                pass
+            elif Character.stance == 1:
+                rf_die_sound_list = Character.voices['RF_Die']
+                random.choice(rf_die_sound_list).play()
+            elif Character.stance == 2:
+                pass
 
     @staticmethod
     def exit(character, e):
@@ -2242,8 +2259,13 @@ animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reloa
                    'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF', 'Ultimate_RF',
                    'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG', 'E_HG',]
 
+character_voices = ['SG_Hit', 'SG_Die',
+                    'RF_Hit', 'RF_Die',
+                    'HG_Hit', 'HG_Die',]
+
 class Character:
     images = None
+    voices = None
     sg_stance_sound = None
     rf_stance_sound = None
     hg_stance_sound = None
@@ -2341,6 +2363,22 @@ class Character:
                 elif name == 'E_HG':
                     Character.images[name] = [load_image("./GSH18Mod/" + name + " (%d)" % i + ".png") for i in range(1, 7 + 1)]
 
+    def load_voices(self):
+        if Character.voices == None:
+            Character.voices = {}
+            for voice in character_voices:
+                Character.voices[voice] = []
+                if voice == 'RF_Hit':
+                    for i in range(1, 3 + 1):
+                        sound = load_wav("./Voice/RF/" + 'RF_Hit' + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
+                        Character.voices[voice].append(sound)
+                elif voice == 'RF_Die':
+                    for i in range(1, 2 + 1):
+                        sound = load_wav("./Voice/RF/" + 'RF_Die' + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
+                        Character.voices[voice].append(sound)
+
     def __init__(self):
         self.x, self.y = 34.0, 140.0
         self.face_dir = 1
@@ -2349,6 +2387,7 @@ class Character:
         self.sx = 0
         self.mouse = False
         self.load_images()
+        self.load_voices()
         self.name = ''
         self.one = 0
         self.hit_cool = 0
