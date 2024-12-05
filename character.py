@@ -1728,6 +1728,8 @@ class RcRF:
             Character.target_down_bullet = Character.target_down_max
             character.frame = clamp(0, character.frame, 13)
             Character.Rc_RF_sound.play()
+            rf_rc_sound_list = Character.voices['RF_Rc']
+            random.choice(rf_rc_sound_list).play()
         elif right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -2094,8 +2096,6 @@ class CRF:
             s_pressed = False
             if Climb and not w_pressed:
                 Move = False
-        elif lc_down(e):
-            attacking = True
         elif lc_up(e):
             attacking = False
 
@@ -2279,7 +2279,7 @@ animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reloa
                    'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG', 'E_HG',]
 
 character_voices = ['SG_Hit', 'SG_Die', 'SG_Attack', 'SG_Reload',
-                    'RF_Hit', 'RF_Die', 'RF_Attack', 'RF_Reload', 'RF_Q', 'RF_E', 'RF_C',
+                    'RF_Hit', 'RF_Die', 'RF_Attack', 'RF_Reload', 'RF_Rc', 'RF_Q', 'RF_E', 'RF_C',
                     'HG_Hit', 'HG_Die', 'HG_Attack', 'HG_Reload',]
 
 class Character:
@@ -2404,6 +2404,11 @@ class Character:
                         Character.voices[voice].append(sound)
                 elif voice == 'RF_Reload':
                     for i in range(1, 3 + 1):
+                        sound = load_wav("./Voice/RF/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
+                        Character.voices[voice].append(sound)
+                elif voice == 'RF_Rc':
+                    for i in range(1, 2 + 1):
                         sound = load_wav("./Voice/RF/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(24)
                         Character.voices[voice].append(sound)
@@ -2694,9 +2699,6 @@ class Character:
 
                             rfeffect = RFEffect(self.attack_dir)
                             game_world.add_object(rfeffect, 3)
-
-                            rf_attack_sound_list = Character.voices['RF_Attack']
-                            random.choice(rf_attack_sound_list).play()
 
                             Attack = True
                     elif Character.state == 4:

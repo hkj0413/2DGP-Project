@@ -27,7 +27,7 @@ class RcskillRFEffect:
         self.sx = self.x - server.background.window_left
 
         if self.frame == 0:
-            if not server.character.target_down_bullet == 0:
+            if not server.character.target_down_bullet == 0 or server.character.state == 4:
                 RcskillRFEffect.Rc_RF_shot_sound.play()
             else:
                 RcskillRFEffect.Rc_RF_last_sound.play()
