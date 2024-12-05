@@ -2065,6 +2065,8 @@ class CRF:
             character.frame = 0
             character.wait_time = get_time()
             Character.C_RF_start_sound.play()
+            rf_c_sound_list = Character.voices['RF_C']
+            random.choice(rf_c_sound_list).play()
         elif right_down(e):
             d_pressed = True
         elif right_up(e):
@@ -2097,7 +2099,7 @@ class CRF:
     @staticmethod
     def do(character):
         global Invincibility, catastrophe
-        character.frame = character.frame + 27.0 * 0.6 * game_framework.frame_time
+        character.frame = character.frame + 27.0 * 0.5 * game_framework.frame_time
 
         if character.frame > 27.0:
             Invincibility = False
@@ -2270,7 +2272,7 @@ animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reloa
                    'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG', 'E_HG',]
 
 character_voices = ['SG_Hit', 'SG_Die', 'SG_Attack', 'SG_Reload',
-                    'RF_Hit', 'RF_Die', 'RF_Attack', 'RF_Reload',
+                    'RF_Hit', 'RF_Die', 'RF_Attack', 'RF_Reload', 'RF_Q', 'RF_E', 'RF_C',
                     'HG_Hit', 'HG_Die', 'HG_Attack', 'HG_Reload',]
 
 class Character:
@@ -2395,6 +2397,11 @@ class Character:
                         Character.voices[voice].append(sound)
                 elif voice == 'RF_Reload':
                     for i in range(1, 3 + 1):
+                        sound = load_wav("./Voice/RF/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
+                        Character.voices[voice].append(sound)
+                elif voice == 'RF_C':
+                    for i in range(1, 2 + 1):
                         sound = load_wav("./Voice/RF/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(24)
                         Character.voices[voice].append(sound)
