@@ -2862,7 +2862,7 @@ class Character:
             Character.shield_def = 1
             Character.target_down_max = 2
             Character.max_bullet_HG = 20
-            Character.bullet_hg = min(20, Character.bullet_hg)
+            Character.bullet_HG = min(20, Character.bullet_HG)
 
         # 1강
         elif Character.upgrade == 1:
@@ -2897,7 +2897,7 @@ class Character:
 
             # 4 -> 3강
             Character.max_bullet_HG = 24
-            Character.bullet_hg = min(24, Character.bullet_hg)
+            Character.bullet_HG = min(24, Character.bullet_HG)
             Character.damage_SG = 2
             Character.damage_RF = 6
 
