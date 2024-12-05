@@ -1,5 +1,5 @@
 from pico2d import clear_canvas, update_canvas, get_events
-from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_1, SDLK_2, SDLK_3, SDLK_RETURN, SDLK_RIGHT, SDLK_LEFT
+from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_1, SDLK_2, SDLK_3, SDLK_4, SDLK_RETURN, SDLK_RIGHT, SDLK_LEFT
 
 import game_framework
 import game_world
@@ -51,6 +51,10 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_3 and cn == 0:
             cn = 3
             dn = 13
+            change_guide()
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_4 and cn == 0:
+            cn = 4
+            dn = 19
             change_guide()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_RIGHT and cn == 1:
             if dn <= 5:
