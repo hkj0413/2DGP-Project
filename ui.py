@@ -92,7 +92,7 @@ class UI:
                     self.bullet_image[0].draw(bx - i * 27, by, 27, 50)
                 else:
                     self.bullet_image[1].draw(bx - i * 27, by, 27, 50)
-            if Character.state == 1 or character.Reload_SG:
+            if Character.state == 1 or Character.state == 3 or character.Reload_SG:
                 for i in range(Character.shield_def):
                     self.bullet_image[6].draw(bx - i * 27, by - 40, 25, 30)
         elif Character.stance == 1:

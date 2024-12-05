@@ -1321,11 +1321,12 @@ class ESG:
         elif lc_up(e):
             attacking = False
         elif take_hit(e):
-            Character.hp = max(0, Character.hp - Character.damage)
+            Character.Rc_SG_sound.play()
+            Character.hp = max(0, Character.hp - max(0, (Character.damage - Character.shield_def)))
             Character.hit_delay = 1.5
             if Character.hp == 0:
                 Character.score -= 100
-                Character.shotgun_rapid_fire_cooldown = 16
+                Character.shotgun_rapid_fire_cooldown = 8
                 character.state_machine.add_event(('DIE', 0))
 
     @staticmethod
@@ -1365,7 +1366,7 @@ class ESG:
             if God:
                 Character.shotgun_rapid_fire_cooldown = 1
             else:
-                Character.shotgun_rapid_fire_cooldown = 16
+                Character.shotgun_rapid_fire_cooldown = 8
             if d_pressed and not a_pressed:
                 character.face_dir = 1
                 character.attack_dir = 1
@@ -2210,7 +2211,7 @@ class Character:
     attack_delay = 0 # 공격 속도
     dash_cooldown = 0 # 대쉬 쿨타임 6초
     hour_of_judgment_cooldown = 0 # 심판의 시간 쿨타임 8초
-    shotgun_rapid_fire_cooldown = 0  # 샷건 연사 쿨타임 16초
+    shotgun_rapid_fire_cooldown = 0  # 샷건 연사 쿨타임 8초
     last_request_cooldown = 0 # 최후의 만찬 쿨타임 50초
     target_down_cooldown = 0  # 타겟 다운 쿨타임 45초
     perfect_shot_cooldown = 0 # 퍼펙트 샷 쿨타임 15초
