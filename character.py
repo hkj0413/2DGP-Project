@@ -41,6 +41,7 @@ from rcskillhg import RcskillHG
 from rcskillhg_effect import RcskillHGEffect
 from qskillhg import QskillHG
 from eskillhg import EskillHG
+from cskillhg_effect import CskillHGEffect
 
 from dasheffect import DashEffect
 
@@ -2380,13 +2381,19 @@ class EHG:
                                                                           170, 170)
 
 class CHG:
+    trails = []
+
     @staticmethod
     def enter(character, e):
         global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump
         if hg_c(e):
             Move = False
             character.frame = 0
+            CHG.trails.clear()
+            Character.C_HG_sound.play()
             character.wait_time = get_time()
+            character.trail_time = get_time()
+            character.effect_time = get_time()
         elif right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -2423,62 +2430,109 @@ class CHG:
 
     @staticmethod
     def exit(character, e):
-        pass
+        if time_out(e):
+            if d_pressed or a_pressed:
+                character.state_machine.add_event(('WALK', 0))
 
     @staticmethod
     def do(character):
         global Invincibility, Fall, random_angle, Climb
+        if get_time() - character.wait_time > 2.5:
+            Fall = True
+            Invincibility = False
+            Character.state = 0
+            Character.frame = 0
+            Character.bullet_HG = Character.max_bullet_HG
+            if God:
+                Character.equilibrium_cooldown = 1
+            else:
+                Character.equilibrium_cooldown = 20
+            character.state_machine.add_event(('TIME_OUT', 0))
+
         character.frame = (character.frame + 12.0 * 2.0 * game_framework.frame_time) % 12
 
-        if get_time() - character.wait_time > 0.2:
+        if get_time() - character.trail_time > 0.05:
+            CHG.add_trail(character)
+            character.trail_time = get_time()
+
+        if get_time() - character.effect_time > 0.1:
             random_angle = random.uniform(-3.141592, 3.141592)
-            character.wait_time = get_time()
+            character.effect_time = get_time()
+
+            for _ in range(4):
+                cskillhgeffect = CskillHGEffect()
+                game_world.add_object(cskillhgeffect, 3)
 
         if Climb:
             if w_pressed and not s_pressed:
-                character.y += Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                character.y += 2 * RUN_SPEED_PPS * game_framework.frame_time / 2
                 for block in game_world.collision_pairs['server.character:ground'][1]:
                     if screen_left - 15 <= block.x <= screen_right + 15:
                         if game_world.collide(character, block):
-                            character.y -= Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                            character.y -= 2 * RUN_SPEED_PPS * game_framework.frame_time / 2
                             return
             elif s_pressed and not w_pressed:
-                character.y -= Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                character.y -= 2 * RUN_SPEED_PPS * game_framework.frame_time / 2
                 for block in game_world.collision_pairs['server.character:ground'][1]:
                     if screen_left - 15 <= block.x <= screen_right + 15:
                         if game_world.collide(character, block):
-                            character.y += Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                            character.y += 2 * RUN_SPEED_PPS * game_framework.frame_time / 2
                             return
 
-        if d_pressed or a_pressed:
-            character.x += Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+        character.x += 2 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
 
-            for block in game_world.collision_pairs['server.character:ground'][1] + game_world.collision_pairs['server.character:wall'][1]:
-                if screen_left - 15 <= block.x <= screen_right + 15:
-                    if game_world.collide(character, block):
-                        character.x -= Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
-                        return
+        for block in game_world.collision_pairs['server.character:ground'][1] + \
+                     game_world.collision_pairs['server.character:wall'][1]:
+            if screen_left - 15 <= block.x <= screen_right + 15:
+                if game_world.collide(character, block):
+                    character.x -= 2 * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+                    return
 
-            ground_objects = game_world.collision_pairs['server.character:ground'][1]
-            for block in ground_objects:
-                if screen_left - 15 <= block.x <= screen_right + 15:
-                    if game_world.collide_ad(character, block, ground_objects):
-                        Fall = True
-                        return
+        ground_objects = game_world.collision_pairs['server.character:ground'][1]
+        for block in ground_objects:
+            if screen_left - 15 <= block.x <= screen_right + 15:
+                if game_world.collide_ad(character, block, ground_objects):
+                    Fall = True
+                    return
 
-            for block in game_world.collision_pairs['server.character:ladder'][1]:
-                if screen_left - 15 <= block.x <= screen_right + 15:
-                    if game_world.collide_ladder(character, block):
-                        Fall = True
-                        Climb = False
-                        return
+        for block in game_world.collision_pairs['server.character:ladder'][1]:
+            if screen_left - 15 <= block.x <= screen_right + 15:
+                if game_world.collide_ladder(character, block):
+                    Fall = True
+                    Climb = False
+                    return
 
     @staticmethod
     def draw(character):
+        screen_left = server.background.window_left
+
+        for trail in CHG.trails:
+            trail_x = trail['x'] - screen_left
+
+            if trail['face_dir'] == 1:
+                character.images['Ultimate_HG'][int(trail['frame'])].composite_draw(random_angle / 6, '', trail_x,
+                                                                                    trail['y'], 170, 170)
+            elif trail['face_dir'] == -1:
+                character.images['Ultimate_HG'][int(trail['frame'])].composite_draw(random_angle / 6, 'h', trail_x,
+                                                                                    trail['y'], 170, 170)
         if character.face_dir == 1:
-            character.images['Ultimate_HG'][int(character.frame)].composite_draw(random_angle / 6, '', character.sx, character.y, 170, 170)
+            character.images['Ultimate_HG'][int(character.frame)].composite_draw(random_angle / 6, '', character.sx,
+                                                                                 character.y, 170, 170)
         elif character.face_dir == -1:
-            character.images['Ultimate_HG'][int(character.frame)].composite_draw(random_angle / 6, 'h', character.sx, character.y, 170, 170)
+            character.images['Ultimate_HG'][int(character.frame)].composite_draw(random_angle / 6, 'h', character.sx,
+                                                                                 character.y, 170, 170)
+
+    @staticmethod
+    def add_trail(character):
+        CHG.trails.append({
+            'x': character.x,
+            'y': character.y,
+            'frame': character.frame,
+            'face_dir': character.face_dir,
+            'time': get_time()
+        })
+        if len(CHG.trails) > 2:
+            CHG.trails.pop(0)
 
 animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reload_SG', 'Rc_SG', 'Ultimate_SG', 'Ultimate_wait_SG',
                    'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF', 'Ultimate_RF',
@@ -2503,6 +2557,7 @@ class Character:
     E_SG_delay_sound = None
     E_RF_sound = None
     C_RF_start_sound = None
+    C_HG_sound = None
     stance = 0
     state = 0
     speed = 3
@@ -2791,7 +2846,7 @@ class Character:
                 },
                 CHG: {
                     right_down: CHG, left_down: CHG, left_up: CHG, right_up: CHG, on_up: CHG, under_up: CHG,
-                    lc_down: CHG, lc_up: CHG, jump: CHG,
+                    lc_down: CHG, lc_up: CHG, jump: CHG, time_out: Idle,
                     under_down: CHG, on_down: CHG, idle: Idle, walk: Walk,
                 },
             }
@@ -2810,6 +2865,7 @@ class Character:
             Character.E_SG_delay_sound = load_wav("./Sound/E_SG_delay.mp3")
             Character.E_RF_sound = load_wav("./Sound/E_RF.mp3")
             Character.C_RF_start_sound = load_wav("./Sound/C_RF_start.ogg")
+            Character.C_HG_sound = load_wav("./Sound/C_HG.mp3")
             Character.jump_sound.set_volume(80)
             Character.fall_sound.set_volume(48)
             Character.sg_stance_sound.set_volume(64)
@@ -2822,6 +2878,7 @@ class Character:
             Character.E_SG_delay_sound.set_volume(48)
             Character.E_RF_sound.set_volume(96)
             Character.C_RF_start_sound.set_volume(32)
+            Character.C_HG_sound.set_volume(16)
 
     def update(self):
         global Jump, jump_velocity, Fall, fall_velocity, Attack, Move, screen_left, screen_right, Reload_SG, Reload_HG, mouse_x
