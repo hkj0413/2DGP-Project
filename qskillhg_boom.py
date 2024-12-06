@@ -10,12 +10,12 @@ class QskillBoomHG:
         self.x = x
         self.y = y
         self.sx = 0
-        self.damage = server.character.damage_HG * 2
+        self.damage = server.character.damage_HG * 3
         self.frame = 0
 
     def update(self):
         self.sx = self.x - server.background.window_left
-        self.frame = self.frame + 6.0 * 1.5 * game_framework.frame_time
+        self.frame = self.frame + 6.0 * 2.5 * game_framework.frame_time
         if self.frame > 2.0:
             game_world.remove_object(self)
 
