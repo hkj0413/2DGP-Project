@@ -29,7 +29,7 @@ class QskillHG:
             QskillHG.image = [load_image("./Effect/HG/" + 'Q_HG' + " (%d)" % i + ".png") for i in range(1, 4 + 1)]
         if QskillHG.Q_HG_shot_sound == None:
             QskillHG.Q_HG_shot_sound = load_wav("./Sound/Q_HG_shot.mp3")
-            QskillHG.Q_HG_shot_sound.set_volume(64)
+            QskillHG.Q_HG_shot_sound.set_volume(128)
 
     def update(self):
         self.sx = self.x - server.background.window_left
