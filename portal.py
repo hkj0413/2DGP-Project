@@ -11,7 +11,6 @@ class Portal:
         self.x = i * 30.0 + 15.0
         self.y = j * 30.0 + 15.0
         self.sx = 0
-        self.one = 0
         if Portal.image == None:
             Portal.image = load_image("./Block/" + 'Block' + " (15)" + ".png")
         if Portal.sound == None:
@@ -35,6 +34,4 @@ class Portal:
 
     def handle_collision(self, group, other):
         if group == 'server.character:portal':
-            if self.one == 0:
-                Portal.sound.play()
-                self.one += 1
+            Portal.sound.play()

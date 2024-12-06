@@ -326,8 +326,7 @@ class Idle:
                 Character.bullet_SG = 8
                 character.frame = 0
                 Reload_SG = False
-                sg_reload_sound_list = Character.voices['SG_Reload']
-                random.choice(sg_reload_sound_list).play()
+                Character.voices['SG_Reload'][0].play()
                 if d_pressed or a_pressed:
                     character.state_machine.add_event(('WALK', 0))
                 else:
@@ -713,8 +712,7 @@ class Walk:
                 Character.bullet_SG = 8
                 character.frame = 0
                 Reload_SG = False
-                sg_reload_sound_list = Character.voices['SG_Reload']
-                random.choice(sg_reload_sound_list).play()
+                Character.voices['SG_Reload'][0].play()
                 if d_pressed or a_pressed:
                     character.state_machine.add_event(('WALK', 0))
                 else:
@@ -2326,7 +2324,7 @@ animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reloa
                    'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF', 'Ultimate_RF',
                    'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG', 'E_HG',]
 
-character_voices = ['SG_Hit', 'SG_Die', 'SG_Attack', 'SG_Reload', 'SG_Rc', 'SG_Q', 'SG_E', 'SG_C',
+character_voices = ['SG_Hit', 'SG_Die', 'SG_Attack', 'SG_Reload', 'SG_Rc', 'SG_Q', 'SG_E', 'SG_C', 'SG_Portal',
                     'RF_Hit', 'RF_Die', 'RF_Attack', 'RF_Reload', 'RF_Rc', 'RF_Q', 'RF_C', 'RF_Portal',
                     'HG_Hit', 'HG_Die', 'HG_Attack', 'HG_Reload',]
 
@@ -2476,6 +2474,10 @@ class Character:
                         sound = load_wav("./Voice/SG/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(24)
                         Character.voices[voice].append(sound)
+                elif voice == 'SG_Portal':
+                    sound = load_wav("./Voice/SG/" + voice + " (1)" + ".mp3")
+                    sound.set_volume(24)
+                    Character.voices[voice].append(sound)
 
                 elif voice == 'RF_Hit':
                     for i in range(1, 3 + 1):
@@ -3104,7 +3106,7 @@ class Character:
                 self.x, self.y = 34.0, 140.0
 
             if Character.stance == 0:
-                pass
+                Character.voices['SG_Portal'][0].play()
             elif Character.stance == 1:
                 Character.voices['RF_Portal'][0].play()
             elif Character.stance == 2:
