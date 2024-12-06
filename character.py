@@ -1145,7 +1145,8 @@ class Dash:
             dasheffect = DashEffect(character.face_dir)
             game_world.add_object(dasheffect, 3)
             if Character.stance == 0:
-                pass
+                sq_attack_sound_list = Character.voices['SG_Attack']
+                random.choice(sq_attack_sound_list).play()
             elif Character.stance == 1:
                 rf_attack_sound_list = Character.voices['RF_Attack']
                 random.choice(rf_attack_sound_list).play()
@@ -1304,6 +1305,7 @@ class QSG:
 
         elif not Attack and get_time() - character.wait_time > 0.3:
             Character.state = 0
+            character.frame = 0
             if God:
                 Character.hour_of_judgment_cooldown = 1
             else:
@@ -1488,6 +1490,7 @@ class ESG:
 
         if not Attack and chance >= 4:
             Character.state = 0
+            character.frame = 0
             if God:
                 Character.shotgun_rapid_fire_cooldown = 1
             else:
@@ -1824,6 +1827,7 @@ class RcRF:
                     Character.target_down_cooldown = 45
                 Character.target_down_size = 0
                 Character.state = 0
+                character.frame = 0
                 if d_pressed or a_pressed:
                     character.state_machine.add_event(('WALK', 0))
                 else:
@@ -1947,6 +1951,7 @@ class QRF:
 
         elif not Attack and get_time() - character.wait_time > 1.1:
             Character.state = 0
+            character.frame = 0
             if God:
                 Character.perfect_shot_cooldown = 1
             else:
@@ -2086,6 +2091,7 @@ class ERF:
 
         if not Attack and chance >= 4:
             Character.state = 0
+            character.frame = 0
             if God:
                 Character.focus_shot_cooldown = 1
             else:
@@ -2231,6 +2237,7 @@ class EHG:
             character.state_machine.add_event(('USE_DASH', 0))
         elif e_down(e):
             Character.state = 0
+            character.frame = 0
             if God:
                 Character.bullet_rain_cooldown = 1
             elif Character.upgrade >= 4:
@@ -2274,6 +2281,7 @@ class EHG:
             Character.bullet_HG -= 1
             if Character.bullet_HG == 0:
                 Character.state = 0
+                character.frame = 0
                 if God:
                     Character.bullet_rain_cooldown = 1
                 elif Character.upgrade >= 4:
