@@ -1229,6 +1229,9 @@ class QSG:
 
             qskillsgeffect = QskillSGEffect(character.attack_dir)
             game_world.add_object(qskillsgeffect, 3)
+
+            sg_q_sound_list = Character.voices['SG_Q']
+            random.choice(sg_q_sound_list).play()
         elif right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -2299,7 +2302,7 @@ animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reloa
                    'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF', 'Ultimate_RF',
                    'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG', 'E_HG',]
 
-character_voices = ['SG_Hit', 'SG_Die', 'SG_Attack', 'SG_Reload',
+character_voices = ['SG_Hit', 'SG_Die', 'SG_Attack', 'SG_Reload', 'SG_Q',
                     'RF_Hit', 'RF_Die', 'RF_Attack', 'RF_Reload', 'RF_Rc', 'RF_Q', 'RF_C', 'RF_Portal',
                     'HG_Hit', 'HG_Die', 'HG_Attack', 'HG_Reload',]
 
@@ -2422,6 +2425,11 @@ class Character:
                         Character.voices[voice].append(sound)
                 elif voice == 'SG_Attack':
                     for i in range(1, 3 + 1):
+                        sound = load_wav("./Voice/SG/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
+                        Character.voices[voice].append(sound)
+                elif voice == 'SG_Q':
+                    for i in range(1, 2 + 1):
                         sound = load_wav("./Voice/SG/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(24)
                         Character.voices[voice].append(sound)
