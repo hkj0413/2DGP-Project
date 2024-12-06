@@ -20,6 +20,7 @@ class UI:
     image_c_rf = None
     image_crc_rf = None
     image_rc_hg = None
+    image_q_hg = None
     image_e_hg = None
 
     def __init__(self):
@@ -39,6 +40,7 @@ class UI:
             self.image_c_rf = load_image("./Icon/" + 'RF_catastrophe' + ".png")
             self.image_crc_rf = load_image("./Icon/" + 'RF_bullseye' + ".png")
             self.image_rc_hg = load_image("./Icon/" + 'HG_dexterous_shot' + ".png")
+            self.image_q_hg = load_image("./Icon/" + 'HG_at02_grenade' + ".png")
             self.image_e_hg = load_image("./Icon/" + 'HG_bullet_rain' + ".png")
 
     def update(self):
@@ -127,6 +129,9 @@ class UI:
         elif Character.stance == 2:
             if Character.dexterous_shot_cooldown == 0:
                 self.image_rc_hg.draw(124 + 64 * 3, 40, 48 ,48)
+
+            if Character.at02_grenade_cooldown == 0 and (character.God or Character.score >= 500):
+                self.image_q_hg.draw(124 + 64 * 6, 40, 48 ,48)
 
             if Character.bullet_rain_cooldown == 0 and (character.God or Character.score >= 1500):
                 self.image_e_hg.draw(124 + 64 * 9, 40, 48 ,48)

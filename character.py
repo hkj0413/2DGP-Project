@@ -39,6 +39,7 @@ from normalhg import NormalHG
 from normalhg_effect import NormalHGEffect
 from rcskillhg import RcskillHG
 from rcskillhg_effect import RcskillHGEffect
+from qskillhg import QskillHG
 from eskillhg import EskillHG
 
 from dasheffect import DashEffect
@@ -224,8 +225,20 @@ class Idle:
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('RF_Q', 0))
-            elif Character.stance == 2 and Character.state == 0:
-                pass
+            elif Character.stance == 2:
+                if Character.at02_grenade_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 500):
+                    Character.hit_delay = 0.5
+                    Character.bullet_HG -= 1
+
+                    qskillhg = QskillHG(character.face_dir)
+                    game_world.add_object(qskillhg, 3)
+                    for mob in mob_group:
+                        game_world.add_collision_pairs(f'qskillhg:{mob}', qskillhg, None)
+
+                    if God:
+                        Character.at02_grenade_cooldown = 1
+                    else:
+                        Character.at02_grenade_cooldown = 4
         elif e_down(e):
             if Character.stance == 0 and Character.state == 0:
                 if Character.shotgun_rapid_fire_cooldown == 0 and (God or Character.score >= 1500):
@@ -608,7 +621,19 @@ class Walk:
                     Character.hit_delay = 1
                     character.state_machine.add_event(('RF_Q', 0))
             elif Character.stance == 2 and Character.state == 0:
-                pass
+                if Character.at02_grenade_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 500):
+                    Character.hit_delay = 0.5
+                    Character.bullet_HG -= 1
+
+                    qskillhg = QskillHG(character.face_dir)
+                    game_world.add_object(qskillhg, 3)
+                    for mob in mob_group:
+                        game_world.add_collision_pairs(f'qskillhg:{mob}', qskillhg, None)
+
+                    if God:
+                        Character.at02_grenade_cooldown = 1
+                    else:
+                        Character.at02_grenade_cooldown = 4
         elif e_down(e):
             if Character.stance == 0 and Character.state == 0:
                 if Character.shotgun_rapid_fire_cooldown == 0 and (God or Character.score >= 1500):
@@ -2233,6 +2258,34 @@ class EHG:
                 Character.bullet_rain_cooldown = 6
             Character.hit_delay = 1
             character.state_machine.add_event(('USE_DASH', 0))
+        elif q_down(e):
+            if Character.at02_grenade_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 500):
+                Character.hit_delay = 0.5
+                Character.bullet_HG -= 1
+
+                qskillhg = QskillHG(character.face_dir)
+                game_world.add_object(qskillhg, 3)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'qskillhg:{mob}', qskillhg, None)
+
+                if God:
+                    Character.at02_grenade_cooldown = 1
+                else:
+                    Character.at02_grenade_cooldown = 4
+
+                if Character.bullet_HG == 0:
+                    Character.state = 0
+                    character.frame = 0
+                    if God:
+                        Character.bullet_rain_cooldown = 1
+                    elif Character.upgrade >= 4:
+                        Character.bullet_rain_cooldown = 3
+                    else:
+                        Character.bullet_rain_cooldown = 6
+                    if d_pressed or a_pressed:
+                        character.state_machine.add_event(('WALK', 0))
+                    else:
+                        character.state_machine.add_event(('IDLE', 0))
         elif e_down(e):
             Character.state = 0
             character.frame = 0
@@ -2377,6 +2430,7 @@ class Character:
     catastrophe_cooldown = 0 # 대재앙 쿨타임 120초
     catastrophe_duration = 0 # 대재앙 지속 시간 10초
     dexterous_shot_cooldown = 0 # 민첩한 사격 쿨타임 2초 / 1초 (+2)
+    at02_grenade_cooldown = 0 # AT02 유탄 쿨타임 4초
     bullet_rain_cooldown = 0 # 불렛 레인 쿨타임 6초 / 3초 (+4)
 
     def load_images(self):
@@ -2543,6 +2597,7 @@ class Character:
         self.E_RF_cool = 0
         self.C_RF_cool = 0
         self.Rc_HG_cool = 0
+        self.Q_HG_cool = 0
         self.E_HG_cool = 0
         self.state_machine = StateMachine(self)
         self.state_machine.start(Idle)
@@ -2619,7 +2674,7 @@ class Character:
                 },
                 EHG: {
                     right_down: EHG, left_down: EHG, left_up: EHG, right_up: EHG, on_up: EHG, under_up: EHG,
-                    lc_down: EHG, lc_up: EHG, jump: EHG, e_down: EHG,
+                    lc_down: EHG, lc_up: EHG, jump: EHG, e_down: EHG, q_down: EHG,
                     under_down: EHG, on_down: EHG, dash: EHG, use_dash: Dash, idle: Idle, walk: Walk, take_hit: EHG,
                     die: Die,
                 },
@@ -3034,7 +3089,14 @@ class Character:
             if get_time() - self.Rc_HG_cool > Character.dexterous_shot_cooldown:
                 Character.dexterous_shot_cooldown = 0
                 self.Rc_HG_cool = 0
-        
+
+        if not Character.at02_grenade_cooldown == 0:
+            if self.Q_HG_cool == 0:
+                self.Q_HG_cool = get_time()
+            if get_time() - self.Q_HG_cool > Character.at02_grenade_cooldown:
+                Character.at02_grenade_cooldown = 0
+                self.Q_HG_cool = 0
+
         if not Character.bullet_rain_cooldown == 0:
             if self.E_HG_cool == 0:
                 self.E_HG_cool = get_time()

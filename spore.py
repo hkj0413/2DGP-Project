@@ -208,6 +208,7 @@ class Spore:
             self.state = 0
             self.temp = 0
             self.hp = 2
+            self.frame = 0
             self.x = self.base_x
             self.face_dir = random.randint(0, 1) * 2 - 1
 
