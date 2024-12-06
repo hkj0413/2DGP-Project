@@ -57,7 +57,7 @@ stage_data = {
         'wall_positions': [
             (range(18, 23), 49),
             (range(3, 12), 29),
-            (range(8, 26), 83),
+            (range(9, 27), 83),
             (range(9, 22), 93),
         ],
 
@@ -93,7 +93,7 @@ stage_data = {
             (12, range(95, 106)),
             (11, range(2, 4)),
             (9, range(6, 8)),
-            (8, range(82, 83)),
+            (8, range(82, 84)),
             (8, range(93, 94)),
             (7, range(11, 16)),
             (7, range(96, 107)),

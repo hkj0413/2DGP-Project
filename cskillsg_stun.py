@@ -39,5 +39,5 @@ class CskillStunSG:
     def handle_collision(self, group, other):
         mob_group = ['spore', 'slime', 'pig']
         for mob in mob_group:
-            if group == f'cskillcracksg:{mob}':
+            if group == f'cskillstunsg:{mob}':
                 other.take_stun(self.stun)

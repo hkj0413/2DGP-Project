@@ -901,7 +901,8 @@ class Hit:
                     character.state_machine.add_event(('DIE', 0))
                 else:
                     if Character.stance == 0:
-                        pass
+                        sg_hit_sound_list = Character.voices['SG_Hit']
+                        random.choice(sg_hit_sound_list).play()
                     elif Character.stance == 1:
                         rf_hit_sound_list = Character.voices['RF_Hit']
                         random.choice(rf_hit_sound_list).play()
@@ -1064,7 +1065,8 @@ class Die:
             character.hit_cool = 0
             character.wait_time = get_time()
             if Character.stance == 0:
-                pass
+                sg_die_sound_list = Character.voices['SG_Die']
+                random.choice(sg_die_sound_list).play()
             elif Character.stance == 1:
                 rf_die_sound_list = Character.voices['RF_Die']
                 random.choice(rf_die_sound_list).play()
@@ -2408,10 +2410,21 @@ class Character:
             Character.voices = {}
             for voice in character_voices:
                 Character.voices[voice] = []
-                if voice == 'RF_Hit':
+                if voice == 'SG_Hit':
+                    for i in range(1, 3 + 1):
+                        sound = load_wav("./Voice/SG/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
+                        Character.voices[voice].append(sound)
+                elif voice == 'SG_Die':
+                    for i in range(1, 2 + 1):
+                        sound = load_wav("./Voice/SG/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(48)
+                        Character.voices[voice].append(sound)
+
+                elif voice == 'RF_Hit':
                     for i in range(1, 3 + 1):
                         sound = load_wav("./Voice/RF/" + voice + " (%d)" % i + ".mp3")
-                        sound.set_volume(24)
+                        sound.set_volume(12)
                         Character.voices[voice].append(sound)
                 elif voice == 'RF_Die':
                     for i in range(1, 2 + 1):
