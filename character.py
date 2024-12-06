@@ -862,8 +862,12 @@ class Hit:
                     Character.speed = 3
                     Character.score -= 100
                     character.state_machine.add_event(('DIE', 0))
-                elif a_pressed or d_pressed:
-                    character.state_machine.add_event(('WALK', 0))
+                else:
+                    sg_rc_sound_list = Character.voices['SG_Rc']
+                    if random.random() < 0.25:
+                        random.choice(sg_rc_sound_list).play()
+                    if a_pressed or d_pressed:
+                        character.state_machine.add_event(('WALK', 0))
             elif Character.stance == 1 and Character.state == 4 and catastrophe:
                 Character.hp = max(0, Character.hp - Character.damage)
                 if Character.hp == 0:
@@ -2444,7 +2448,11 @@ class Character:
                     sound = load_wav("./Voice/SG/" + voice + " (1)" + ".mp3")
                     sound.set_volume(24)
                     Character.voices[voice].append(sound)
-
+                elif voice == 'SG_Rc':
+                    for i in range(1, 2 + 1):
+                        sound = load_wav("./Voice/SG/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
+                        Character.voices[voice].append(sound)
                 elif voice == 'SG_Q':
                     for i in range(1, 2 + 1):
                         sound = load_wav("./Voice/SG/" + voice + " (%d)" % i + ".mp3")
