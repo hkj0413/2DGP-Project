@@ -2420,6 +2420,11 @@ class Character:
                         sound = load_wav("./Voice/SG/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(48)
                         Character.voices[voice].append(sound)
+                elif voice == 'SG_Attack':
+                    for i in range(1, 3 + 1):
+                        sound = load_wav("./Voice/SG/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
+                        Character.voices[voice].append(sound)
 
                 elif voice == 'RF_Hit':
                     for i in range(1, 3 + 1):
@@ -2670,6 +2675,10 @@ class Character:
                         game_world.add_object(normalsg3, 3)
                         for mob in mob_group:
                             game_world.add_collision_pairs(f'normalsg3:{mob}', normalsg3, None)
+
+                        sg_attack_sound_list = Character.voices['SG_Attack']
+                        random.choice(sg_attack_sound_list).play()
+
                         Attack = True
                 elif Character.stance == 1:
                     if Character.state == 0 and Character.bullet_RF > 0 and not Move:
