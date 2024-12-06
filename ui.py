@@ -22,6 +22,7 @@ class UI:
     image_rc_hg = None
     image_q_hg = None
     image_e_hg = None
+    image_c_hg = None
 
     def __init__(self):
         if UI.image_hp == None:
@@ -42,6 +43,7 @@ class UI:
             self.image_rc_hg = load_image("./Icon/" + 'HG_dexterous_shot' + ".png")
             self.image_q_hg = load_image("./Icon/" + 'HG_at02_grenade' + ".png")
             self.image_e_hg = load_image("./Icon/" + 'HG_bullet_rain' + ".png")
+            self.image_c_hg = load_image("./Icon/" + 'HG_equilibrium' + ".png")
 
     def update(self):
         pass
@@ -135,6 +137,9 @@ class UI:
 
             if Character.bullet_rain_cooldown == 0 and (character.God or Character.score >= 1500):
                 self.image_e_hg.draw(124 + 64 * 9, 40, 48 ,48)
+
+            if Character.equilibrium_cooldown == 0 and (character.God or Character.score >= 3000):
+                self.image_c_hg.draw(124 + 64 * 12, 40, 48 ,48)
 
             for i in range(Character.max_bullet_HG):
                 if i < Character.bullet_HG:

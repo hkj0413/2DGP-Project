@@ -78,7 +78,7 @@ gravity = 0.5
 mouse_x, mouse_y = 0, 0
 screen_left = 0
 screen_right = 1080
-
+random_angle = 0
 chance = 0
 
 mob_group = ['spore', 'slime', 'pig']
@@ -267,7 +267,10 @@ class Idle:
                     Invincibility = True
                     character.state_machine.add_event(('RF_C', 0))
             elif Character.stance == 2 and Character.state == 0:
-                pass
+                if Character.equilibrium_cooldown == 0 and (God or Character.score >= 3000):
+                    Character.state = 4
+                    Invincibility = True
+                    character.state_machine.add_event(('HG_C', 0))
 
         elif temp_god(e):
            God = not God
@@ -662,7 +665,10 @@ class Walk:
                     Invincibility = True
                     character.state_machine.add_event(('RF_C', 0))
             elif Character.stance == 2 and Character.state == 0:
-                pass
+                if Character.equilibrium_cooldown == 0 and (God or Character.score >= 3000):
+                    Character.state = 4
+                    Invincibility = True
+                    character.state_machine.add_event(('HG_C', 0))
 
         elif temp_god(e):
            God = not God
@@ -2373,9 +2379,110 @@ class EHG:
             character.images['E_HG'][int(character.frame)].composite_draw(0, 'h', character.sx, character.y,
                                                                           170, 170)
 
+class CHG:
+    @staticmethod
+    def enter(character, e):
+        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump
+        if hg_c(e):
+            Move = False
+            character.frame = 0
+            character.wait_time = get_time()
+        elif right_down(e):
+            d_pressed = True
+            character.face_dir = 1
+        elif right_up(e):
+            d_pressed = False
+            if a_pressed:
+                character.face_dir = -1
+        elif left_down(e):
+            a_pressed = True
+            character.face_dir = -1
+        elif left_up(e):
+            a_pressed = False
+            if d_pressed:
+                character.face_dir = 1
+        elif on_down(e):
+            w_pressed = True
+        elif on_up(e):
+            w_pressed = False
+            if Climb and not s_pressed:
+                Move = False
+        elif under_down(e):
+            s_pressed = True
+        elif under_up(e):
+            s_pressed = False
+            if Climb and not w_pressed:
+                Move = False
+        elif lc_down(e):
+            attacking = True
+        elif lc_up(e):
+            attacking = False
+        elif jump(e) and not Jump and not Fall:
+            Jump = True
+            Character.jump_sound.play()
+
+    @staticmethod
+    def exit(character, e):
+        pass
+
+    @staticmethod
+    def do(character):
+        global Invincibility, Fall, random_angle, Climb
+        character.frame = (character.frame + 12.0 * 2.0 * game_framework.frame_time) % 12
+
+        if get_time() - character.wait_time > 0.2:
+            random_angle = random.uniform(-3.141592, 3.141592)
+            character.wait_time = get_time()
+
+        if Climb:
+            if w_pressed and not s_pressed:
+                character.y += Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                for block in game_world.collision_pairs['server.character:ground'][1]:
+                    if screen_left - 15 <= block.x <= screen_right + 15:
+                        if game_world.collide(character, block):
+                            character.y -= Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                            return
+            elif s_pressed and not w_pressed:
+                character.y -= Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                for block in game_world.collision_pairs['server.character:ground'][1]:
+                    if screen_left - 15 <= block.x <= screen_right + 15:
+                        if game_world.collide(character, block):
+                            character.y += Character.speed * RUN_SPEED_PPS * game_framework.frame_time / 2
+                            return
+
+        if d_pressed or a_pressed:
+            character.x += Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+
+            for block in game_world.collision_pairs['server.character:ground'][1] + game_world.collision_pairs['server.character:wall'][1]:
+                if screen_left - 15 <= block.x <= screen_right + 15:
+                    if game_world.collide(character, block):
+                        character.x -= Character.speed * character.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+                        return
+
+            ground_objects = game_world.collision_pairs['server.character:ground'][1]
+            for block in ground_objects:
+                if screen_left - 15 <= block.x <= screen_right + 15:
+                    if game_world.collide_ad(character, block, ground_objects):
+                        Fall = True
+                        return
+
+            for block in game_world.collision_pairs['server.character:ladder'][1]:
+                if screen_left - 15 <= block.x <= screen_right + 15:
+                    if game_world.collide_ladder(character, block):
+                        Fall = True
+                        Climb = False
+                        return
+
+    @staticmethod
+    def draw(character):
+        if character.face_dir == 1:
+            character.images['Ultimate_HG'][int(character.frame)].composite_draw(random_angle / 6, '', character.sx, character.y, 170, 170)
+        elif character.face_dir == -1:
+            character.images['Ultimate_HG'][int(character.frame)].composite_draw(random_angle / 6, 'h', character.sx, character.y, 170, 170)
+
 animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reload_SG', 'Rc_SG', 'Ultimate_SG', 'Ultimate_wait_SG',
                    'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF', 'Ultimate_RF',
-                   'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG', 'E_HG',]
+                   'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG', 'E_HG', 'Ultimate_HG']
 
 character_voices = ['SG_Hit', 'SG_Die', 'SG_Attack', 'SG_Reload', 'SG_Rc', 'SG_Q', 'SG_E', 'SG_C', 'SG_Portal',
                     'RF_Hit', 'RF_Die', 'RF_Attack', 'RF_Reload', 'RF_Rc', 'RF_Q', 'RF_C', 'RF_Portal',
@@ -2432,6 +2539,7 @@ class Character:
     dexterous_shot_cooldown = 0 # 민첩한 사격 쿨타임 2초 / 1초 (+2)
     at02_grenade_cooldown = 0 # AT02 유탄 쿨타임 4초
     bullet_rain_cooldown = 0 # 불렛 레인 쿨타임 6초 / 3초 (+4)
+    equilibrium_cooldown = 0
 
     def load_images(self):
         if Character.images == None:
@@ -2483,6 +2591,8 @@ class Character:
                     Character.images[name] = [load_image("./GSH18Mod/" + name + " (%d)" % i + ".png") for i in range(1, 8 + 1)]
                 elif name == 'E_HG':
                     Character.images[name] = [load_image("./GSH18Mod/" + name + " (%d)" % i + ".png") for i in range(1, 7 + 1)]
+                elif name == 'Ultimate_HG':
+                    Character.images[name] = [load_image("./GSH18Mod/" + name + " (%d)" % i + ".png") for i in range(1, 12 + 1)]
 
     def load_voices(self):
         if Character.voices == None:
@@ -2599,6 +2709,7 @@ class Character:
         self.Rc_HG_cool = 0
         self.Q_HG_cool = 0
         self.E_HG_cool = 0
+        self.C_HG_cool = 0
         self.state_machine = StateMachine(self)
         self.state_machine.start(Idle)
         self.state_machine.set_transitions(
@@ -2608,7 +2719,7 @@ class Character:
                     walk: Walk, jump: Idle, rc_down: Idle, rc_up: Idle, dash: Idle, use_dash: Dash, lc_down: Idle, lc_up: Idle,
                     reload: Idle, rf_reload: RRF, idle: Idle, under_down: Idle, under_up: Idle, rf_reload_s: RsRF, rf_rc: RcRF,
                     on_up: Idle, on_down: Idle, q_down: Idle, e_down: Idle, c_down: Idle, sg_e: ESG, sg_c: CSG,
-                    take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF, rf_q: QRF, rf_c: CRF,
+                    take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF, rf_q: QRF, rf_c: CRF, hg_c: CHG,
                     temp_bullet: Idle, temp_god: Idle, temp_up: Idle, temp_down: Idle, temp_medal: Idle,
                 },
                 Walk: {
@@ -2616,7 +2727,7 @@ class Character:
                     idle: Idle, jump: Walk, rc_down: Walk, rc_up: Walk, dash: Walk, use_dash: Dash, lc_down: Walk, lc_up: Walk,
                     reload: Walk, rf_reload: RRF, walk: Walk, under_down: Walk, under_up: Walk, rf_reload_s: RsRF, rf_rc: RcRF,
                     on_up: Walk, on_down: Walk, q_down: Walk, e_down: Walk, c_down: Walk, sg_e: ESG, sg_c: CSG,
-                    take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF, rf_q: QRF, rf_c: CRF,
+                    take_hit: Hit, die: Die, sg_q: QSG, hg_e: EHG, rf_e: ERF, rf_q: QRF, rf_c: CRF, hg_c: CHG,
                     temp_bullet: Walk, temp_god: Walk, temp_up: Walk, temp_down: Walk, temp_medal: Walk,
                 },
                 Hit: {
@@ -2677,6 +2788,11 @@ class Character:
                     lc_down: EHG, lc_up: EHG, jump: EHG, e_down: EHG, q_down: EHG,
                     under_down: EHG, on_down: EHG, dash: EHG, use_dash: Dash, idle: Idle, walk: Walk, take_hit: EHG,
                     die: Die,
+                },
+                CHG: {
+                    right_down: CHG, left_down: CHG, left_up: CHG, right_up: CHG, on_up: CHG, under_up: CHG,
+                    lc_down: CHG, lc_up: CHG, jump: CHG,
+                    under_down: CHG, on_down: CHG, idle: Idle, walk: Walk,
                 },
             }
         )
@@ -3103,6 +3219,13 @@ class Character:
             if get_time() - self.E_HG_cool > Character.bullet_rain_cooldown:
                 Character.bullet_rain_cooldown = 0
                 self.E_HG_cool = 0
+
+        if not Character.equilibrium_cooldown == 0:
+            if self.C_HG_cool == 0:
+                self.C_HG_cool = get_time()
+            if get_time() - self.C_HG_cool > Character.equilibrium_cooldown:
+                Character.equilibrium_cooldown = 0
+                self.C_HG_cool = 0
 
     def handle_event(self, event):
         global mouse_x, mouse_y

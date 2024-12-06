@@ -99,6 +99,9 @@ def rf_c(e):
 def hg_e(e):
     return e[0] == 'HG_E'
 
+def hg_c(e):
+    return e[0] == 'HG_C'
+
 def time_out(e):
     return e[0] == 'TIME_OUT'
 
