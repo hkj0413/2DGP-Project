@@ -326,6 +326,8 @@ class Idle:
                 Character.bullet_SG = 8
                 character.frame = 0
                 Reload_SG = False
+                sg_reload_sound_list = Character.voices['SG_Reload']
+                random.choice(sg_reload_sound_list).play()
                 if d_pressed or a_pressed:
                     character.state_machine.add_event(('WALK', 0))
                 else:
@@ -711,6 +713,8 @@ class Walk:
                 Character.bullet_SG = 8
                 character.frame = 0
                 Reload_SG = False
+                sg_reload_sound_list = Character.voices['SG_Reload']
+                random.choice(sg_reload_sound_list).play()
                 if d_pressed or a_pressed:
                     character.state_machine.add_event(('WALK', 0))
                 else:
@@ -1345,6 +1349,9 @@ class ESG:
             character.wait_time = get_time()
             character.attack_dir = character.face_dir
 
+            sg_e_sound_list = Character.voices['SG_E']
+            random.choice(sg_e_sound_list).play()
+
             Attack = True
             character.attack_time = get_time()
 
@@ -1469,6 +1476,9 @@ class ESG:
                 for mob in mob_group:
                     game_world.add_collision_pairs(f'eskillsg3:{mob}', eskillsg3, None)
 
+                sg_attack_sound_list = Character.voices['SG_Attack']
+                random.choice(sg_attack_sound_list).play()
+
         if Attack:
             character.frame = (character.frame + 15.0 * 0.8 * game_framework.frame_time) % 15
 
@@ -1510,6 +1520,8 @@ class CSG:
             chance = 0
             character.frame = 0
             character.name = 'Ultimate_SG'
+            sg_c_sound_list = Character.voices['SG_C']
+            random.choice(sg_c_sound_list).play()
         elif right_down(e):
             d_pressed = True
         elif right_up(e):
@@ -2302,7 +2314,7 @@ animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reloa
                    'Idle_RF', 'Walk_RF', 'Hit_RF', 'Die_RF', 'Attack_RF', 'Ultimate_RF',
                    'Idle_HG', 'Walk_HG', 'Hit_HG', 'Die_HG', 'Attack_HG', 'Reload_HG', 'E_HG',]
 
-character_voices = ['SG_Hit', 'SG_Die', 'SG_Attack', 'SG_Reload', 'SG_Q',
+character_voices = ['SG_Hit', 'SG_Die', 'SG_Attack', 'SG_Reload', 'SG_Rc', 'SG_Q', 'SG_E', 'SG_C',
                     'RF_Hit', 'RF_Die', 'RF_Attack', 'RF_Reload', 'RF_Rc', 'RF_Q', 'RF_C', 'RF_Portal',
                     'HG_Hit', 'HG_Die', 'HG_Attack', 'HG_Reload',]
 
@@ -2428,8 +2440,23 @@ class Character:
                         sound = load_wav("./Voice/SG/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(24)
                         Character.voices[voice].append(sound)
+                elif voice == 'SG_Reload':
+                    sound = load_wav("./Voice/SG/" + voice + " (1)" + ".mp3")
+                    sound.set_volume(24)
+                    Character.voices[voice].append(sound)
+
                 elif voice == 'SG_Q':
                     for i in range(1, 2 + 1):
+                        sound = load_wav("./Voice/SG/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
+                        Character.voices[voice].append(sound)
+                elif voice == 'SG_E':
+                    for i in range(1, 2 + 1):
+                        sound = load_wav("./Voice/SG/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
+                        Character.voices[voice].append(sound)
+                elif voice == 'SG_C':
+                    for i in range(1, 3 + 1):
                         sound = load_wav("./Voice/SG/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(24)
                         Character.voices[voice].append(sound)
