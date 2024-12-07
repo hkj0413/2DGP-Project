@@ -36,7 +36,7 @@ class Slime:
             self.frame = random.randint(0, 1)
         elif self.state == 1:
             self.frame = random.randint(0, 3)
-        self.name = ''
+        self.name = 'Idle'
         self.prev_state = -1
         self.load_images()
         self.hp = 3

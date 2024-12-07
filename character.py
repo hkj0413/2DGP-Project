@@ -3456,6 +3456,9 @@ class Character:
                 fall_velocity = 0.0
         elif group == 'server.character:diamond':
             Character.score += 500
+        if group == 'server.character:medal':
+            Character.medal += 1
+            Character.score += 1000
         elif group == 'server.character:portal':
             if play_mode.stage == 1 or play_mode.stage == 2:
                 self.x, self.y = 34.0, 140.0
@@ -3469,6 +3472,7 @@ class Character:
                     Character.voices['HG_Portal'][0].play()
             elif play_mode.stage == 3 and Character.medal == 1:
                 self.x, self.y = 34.0, 140.0
+                play_mode.change_stage(play_mode.stage + 1)
 
                 if Character.stance == 0:
                     Character.voices['SG_Portal'][0].play()

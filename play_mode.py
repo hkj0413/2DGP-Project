@@ -25,7 +25,7 @@ from stonegolem import Stonegolem
 
 character_created = False
 
-stage = 3
+stage = 1
 
 def handle_events():
     events = get_events()
@@ -203,14 +203,20 @@ stage_data = {
             (5, range(6, 9)),
             (2, range(0, 36)),
         ],
+    },
 
-        'spore_positions': [
-            (10, 3),
-            (13, 3),
-            (16, 3),
-            (19, 3),
-            (22, 3),
-            (25, 3),
+    4: {
+        'floor_positions': [
+            (1, range(0, 36)),
+            (0, range(0, 36)),
+        ],
+
+        'ground_positions': [
+            (10, range(0, 5)),
+            (8, range(12, 24)),
+            (5, range(27, 30)),
+            (5, range(6, 9)),
+            (2, range(0, 36)),
         ],
     },
 }
@@ -456,23 +462,14 @@ def init(stage):
         game_world.add_collision_pairs('server.character:stonegolem', server.character, None)
         game_world.add_collision_pairs('server.character:stonegolemattack', server.character, None)
         game_world.add_collision_pairs('server.character:stonegolemskill', server.character, None)
+        game_world.add_collision_pairs('server.character:enhance', server.character, None)
+        game_world.add_collision_pairs('server.character:medal', server.character, None)
 
         stonegolem = Stonegolem(18, 6)
         game_world.add_object(stonegolem, 0)
         game_world.add_collision_pairs('server.character:stonegolem', None, stonegolem)
         for projectile in projectile_group:
             game_world.add_collision_pairs(f'{projectile}:stonegolem', None, stonegolem)
-
-        # 몹 스포아
-        game_world.add_collision_pairs('server.character:spore', server.character, None)
-
-        for i, j in stage_info['spore_positions']:
-            spores = [Spore(i, j)]
-            game_world.add_objects(spores, 2)
-            for spore in spores:
-                game_world.add_collision_pairs('server.character:spore', None, spore)
-                for projectile in projectile_group:
-                    game_world.add_collision_pairs(f'{projectile}:spore', None, spore)
 
         # 회복 아이템 k = 힐량
         game_world.add_collision_pairs('server.character:heal', server.character, None)
@@ -481,6 +478,42 @@ def init(stage):
         game_world.add_objects(heals, 2)
         for heal in heals:
             game_world.add_collision_pairs('server.character:heal', None, heal)
+
+    elif stage == 4:
+        stage_info = stage_data[stage]
+
+        # 캐릭터
+        if not character_created:
+            server.character = Character()
+            game_world.add_object(server.character, 1)
+            character_created = True
+
+        # UI
+        ui = UI()
+        game_world.add_object(ui, 3)
+
+        server.background = Background(2)
+        game_world.add_object(server.background, 0)
+
+        game_world.add_collision_pairs('server.character:ladder', server.character, None)
+
+        # a, d 판정만 있는 바닥
+        game_world.add_collision_pairs('server.character:wall', server.character, None)
+
+        for j, i_range in stage_info['floor_positions']:
+            walls = [Wall(i, j, 1) for i in i_range]
+            game_world.add_objects(walls, 0)
+            for wall in walls:
+                game_world.add_collision_pairs('server.character:wall', None, wall)
+
+        # a, d, 점프, 추락 판정이 있는 블럭
+        game_world.add_collision_pairs('server.character:ground', server.character, None)
+
+        for j, i_range in stage_info['ground_positions']:
+            grounds = [Ground(i, j, 2) for i in i_range]
+            game_world.add_objects(grounds, 0)
+            for ground in grounds:
+                game_world.add_collision_pairs('server.character:ground', None, ground)
 
 def finish():
     game_world.clear()

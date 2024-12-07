@@ -12,7 +12,7 @@ class Background:
         self.cw = get_canvas_width() # 가로 3240 pixel == 108m 화면은 1080 pixel 만 출력,
         self.window_left = 0         # 세로 1200 pixel == 40m 이지만 800 pixel 만 사용 하고 출력
         if Background.image == None:
-            Background.image = [load_image("./Background/" + 'Background' + " (%d)" % i + ".png") for i in range(1, 2 + 1)]
+            Background.image = [load_image("./Background/" + 'Background' + " (%d)" % i + ".png") for i in range(1, 3 + 1)]
         self.w = self.image[k].w
         if Background.sound == None:
             Background.sound = [load_music("./Bgm/" + 'BGM' + " (%d)" % i + ".mp3") for i in range(1, 3 + 1)]
@@ -37,14 +37,14 @@ class Background:
                 Background.current_sound = Background.sound[0]
                 Background.current_sound.repeat_play()
 
-        elif self.frame == 1 or self.frame == 2:
+        elif self.frame == 1:
             if Background.current_sound != Background.sound[1]:
                 if Background.current_sound:
                     Background.current_sound.stop()
                 Background.current_sound = Background.sound[1]
                 Background.current_sound.repeat_play()
 
-        elif self.frame == 3:
+        elif self.frame == 2:
             if Background.current_sound != Background.sound[2]:
                 if Background.current_sound:
                     Background.current_sound.stop()
