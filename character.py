@@ -2605,7 +2605,7 @@ animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reloa
 
 character_voices = ['SG_Hit', 'SG_Die', 'SG_Attack', 'SG_Reload', 'SG_Rc', 'SG_Q', 'SG_E', 'SG_C', 'SG_Portal',
                     'RF_Hit', 'RF_Die', 'RF_Attack', 'RF_Reload', 'RF_Rc', 'RF_Q', 'RF_C', 'RF_Portal',
-                    'HG_Hit', 'HG_Die', 'HG_Attack', 'HG_Reload', 'HG_Q', 'HG_E', 'HG_C',]
+                    'HG_Hit', 'HG_Die', 'HG_Attack', 'HG_Reload', 'HG_Q', 'HG_E', 'HG_C', 'HG_Portal']
 
 class Character:
     images = None
@@ -2777,7 +2777,7 @@ class Character:
                 elif voice == 'RF_Attack':
                     for i in range(1, 3 + 1):
                         sound = load_wav("./Voice/RF/" + voice + " (%d)" % i + ".mp3")
-                        sound.set_volume(12)
+                        sound.set_volume(18)
                         Character.voices[voice].append(sound)
                 elif voice == 'RF_Reload':
                     for i in range(1, 3 + 1):
@@ -2814,6 +2814,11 @@ class Character:
                         sound = load_wav("./Voice/HG/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(48)
                         Character.voices[voice].append(sound)
+                elif voice == 'HG_Attack':
+                    for i in range(1, 5 + 1):
+                        sound = load_wav("./Voice/HG/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
+                        Character.voices[voice].append(sound)
                 elif voice == 'HG_Reload':
                     sound = load_wav("./Voice/HG/" + voice + " (1)" + ".mp3")
                     sound.set_volume(24)
@@ -2833,6 +2838,10 @@ class Character:
                         sound = load_wav("./Voice/HG/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(24)
                         Character.voices[voice].append(sound)
+                elif voice == 'HG_Portal':
+                    sound = load_wav("./Voice/HG/" + voice + " (1)" + ".mp3")
+                    sound.set_volume(24)
+                    Character.voices[voice].append(sound)
 
     def __init__(self):
         self.x, self.y = 34.0, 140.0
@@ -3206,6 +3215,10 @@ class Character:
                             hgeffect = HGEffect(self.attack_dir)
                             game_world.add_object(hgeffect, 3)
 
+                            if random.random() < 0.5:
+                                hg_attack_sound_list = Character.voices['HG_Attack']
+                                random.choice(hg_attack_sound_list).play()
+
                             Attack = True
                     elif Character.state == 2 and Character.bullet_HG > 0:
                         if self.x > 2700 and not self.mouse:
@@ -3264,6 +3277,11 @@ class Character:
                 game_world.add_object(rcskillhg, 3)
                 for mob in mob_group:
                     game_world.add_collision_pairs(f'rcskillhg:{mob}', rcskillhg, None)
+
+                if random.random() < 0.5:
+                    hg_attack_sound_list = Character.voices['HG_Attack']
+                    random.choice(hg_attack_sound_list).play()
+
                 if d_pressed or a_pressed:
                     self.state_machine.add_event(('WALK', 0))
                 else:
@@ -3450,7 +3468,7 @@ class Character:
             elif Character.stance == 1:
                 Character.voices['RF_Portal'][0].play()
             elif Character.stance == 2:
-                pass
+                Character.voices['HG_Portal'][0].play()
 
     def handle_collision_fall(self, group, other):
         global Fall, fall_velocity
