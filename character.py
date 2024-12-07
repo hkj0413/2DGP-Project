@@ -239,6 +239,10 @@ class Idle:
                     for mob in mob_group:
                         game_world.add_collision_pairs(f'qskillhg:{mob}', qskillhg, None)
 
+                    if not rchg:
+                        hg_q_sound_list = Character.voices['HG_Q']
+                        random.choice(hg_q_sound_list).play()
+
                     if God:
                         Character.at02_grenade_cooldown = 1
                     else:
@@ -627,7 +631,7 @@ class Walk:
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('RF_Q', 0))
-            elif Character.stance == 2 and Character.state == 0:
+            elif Character.stance == 2:
                 if Character.at02_grenade_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 200):
                     Character.hit_delay = 0.5
                     Character.bullet_HG -= 1
@@ -636,6 +640,10 @@ class Walk:
                     game_world.add_object(qskillhg, 3)
                     for mob in mob_group:
                         game_world.add_collision_pairs(f'qskillhg:{mob}', qskillhg, None)
+
+                    if not rchg:
+                        hg_q_sound_list = Character.voices['HG_Q']
+                        random.choice(hg_q_sound_list).play()
 
                     if God:
                         Character.at02_grenade_cooldown = 1
@@ -2593,7 +2601,7 @@ animation_names = ['Idle_SG', 'Walk_SG', 'Hit_SG', 'Die_SG', 'Attack_SG', 'Reloa
 
 character_voices = ['SG_Hit', 'SG_Die', 'SG_Attack', 'SG_Reload', 'SG_Rc', 'SG_Q', 'SG_E', 'SG_C', 'SG_Portal',
                     'RF_Hit', 'RF_Die', 'RF_Attack', 'RF_Reload', 'RF_Rc', 'RF_Q', 'RF_C', 'RF_Portal',
-                    'HG_Hit', 'HG_Die', 'HG_Attack', 'HG_Reload', 'HG_C',]
+                    'HG_Hit', 'HG_Die', 'HG_Attack', 'HG_Reload', 'HG_Q', 'HG_E', 'HG_C',]
 
 class Character:
     images = None
@@ -2801,6 +2809,11 @@ class Character:
                     for i in range(1, 2 + 1):
                         sound = load_wav("./Voice/HG/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(48)
+                        Character.voices[voice].append(sound)
+                elif voice == 'HG_Q':
+                    for i in range(1, 2 + 1):
+                        sound = load_wav("./Voice/HG/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
                         Character.voices[voice].append(sound)
                 elif voice == 'HG_C':
                     for i in range(1, 3 + 1):
