@@ -212,15 +212,6 @@ stage_data = {
             (22, 3),
             (25, 3),
         ],
-
-        'slime_positions': [
-            (16, 9),
-            (20, 9),
-        ],
-
-        'pig_positions': [
-            (18, 9),
-        ],
     },
 }
 
@@ -463,6 +454,8 @@ def init(stage):
 
         # 보스 골렘
         game_world.add_collision_pairs('server.character:stonegolem', server.character, None)
+        game_world.add_collision_pairs('server.character:stonegolemattack', server.character, None)
+        game_world.add_collision_pairs('server.character:stonegolemskill', server.character, None)
 
         stonegolem = Stonegolem(18, 6)
         game_world.add_object(stonegolem, 0)
@@ -480,28 +473,6 @@ def init(stage):
                 game_world.add_collision_pairs('server.character:spore', None, spore)
                 for projectile in projectile_group:
                     game_world.add_collision_pairs(f'{projectile}:spore', None, spore)
-
-        # 몹 슬라임
-        game_world.add_collision_pairs('server.character:slime', server.character, None)
-
-        for i, j in stage_info['slime_positions']:
-            slimes = [Slime(i, j)]
-            game_world.add_objects(slimes, 2)
-            for slime in slimes:
-                game_world.add_collision_pairs('server.character:slime', None, slime)
-                for projectile in projectile_group:
-                    game_world.add_collision_pairs(f'{projectile}:slime', None, slime)
-
-        # 몹 돼지
-        game_world.add_collision_pairs('server.character:pig', server.character, None)
-
-        for i, j in stage_info['pig_positions']:
-            pigs = [Pig(i, j)]
-            game_world.add_objects(pigs, 2)
-            for pig in pigs:
-                game_world.add_collision_pairs('server.character:pig', None, pig)
-                for projectile in projectile_group:
-                    game_world.add_collision_pairs(f'{projectile}:pig', None, pig)
 
         # 회복 아이템 k = 힐량
         game_world.add_collision_pairs('server.character:heal', server.character, None)
