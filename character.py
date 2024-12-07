@@ -218,6 +218,7 @@ class Idle:
                     character.frame = 0
                     Invincibility = True
                     Character.Reload_HG_sound.play()
+                    Character.voices['HG_Reload'][0].play()
         elif q_down(e):
             if Character.stance == 0 and Character.state == 0:
                 if Character.hour_of_judgment_cooldown == 0 and not Attack and (God or Character.score >= 200):
@@ -620,6 +621,7 @@ class Walk:
                     character.frame = 0
                     Invincibility = True
                     Character.Reload_HG_sound.play()
+                    Character.voices['HG_Reload'][0].play()
         elif q_down(e):
             if Character.stance == 0 and Character.state == 0:
                 if Character.hour_of_judgment_cooldown == 0 and not Attack and (God or Character.score >= 200):
@@ -2810,6 +2812,10 @@ class Character:
                         sound = load_wav("./Voice/HG/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(48)
                         Character.voices[voice].append(sound)
+                elif voice == 'HG_Reload':
+                    sound = load_wav("./Voice/HG/" + voice + " (1)" + ".mp3")
+                    sound.set_volume(24)
+                    Character.voices[voice].append(sound)
                 elif voice == 'HG_Q':
                     for i in range(1, 2 + 1):
                         sound = load_wav("./Voice/HG/" + voice + " (%d)" % i + ".mp3")
