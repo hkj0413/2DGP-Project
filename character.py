@@ -1615,7 +1615,7 @@ class CSG:
                 if God:
                     Character.last_request_cooldown = 1
                 else:
-                    Character.last_request_cooldown = 50
+                    Character.last_request_cooldown = 40
                 if d_pressed and not a_pressed:
                     character.face_dir = 1
                     character.attack_dir = 1
@@ -2577,7 +2577,7 @@ class Character:
     damage_SG = 1
     stun_SG = 2
     damage_RF = 4
-    stun_RF = 2
+    stun_RF = 1
     damage_HG = 1
     shield_def = 1 # 방어 태세 방어도 1 / 2 (+1) / 4 (+3) / 8 (+5)
     hit_delay = 0 # 피격 면역
@@ -2585,7 +2585,7 @@ class Character:
     dash_cooldown = 0 # 대쉬 쿨타임 6초
     hour_of_judgment_cooldown = 0 # 심판의 시간 쿨타임 8초
     shotgun_rapid_fire_cooldown = 0  # 샷건 연사 쿨타임 8초
-    last_request_cooldown = 0 # 최후의 만찬 쿨타임 50초
+    last_request_cooldown = 0 # 최후의 만찬 쿨타임 40초
     target_down_cooldown = 0  # 타겟 다운 쿨타임 45초
     perfect_shot_cooldown = 0 # 퍼펙트 샷 쿨타임 15초
     focus_shot_cooldown = 0 # 포커스 샷 쿨타임 30초
@@ -3416,14 +3416,14 @@ class Character:
 
             # 3 -> 2강
             Character.stun_SG = 2
-            Character.stun_RF = 2
+            Character.stun_RF = 1
             Character.damage_HG = 1
             Character.shield_def = 2
 
         # 3강
         elif Character.upgrade == 3:
             Character.stun_SG = 4
-            Character.stun_RF = 4
+            Character.stun_RF = 2
             Character.damage_HG = 2
             Character.shield_def = 4
             # 타겟 다운 범위 증가

@@ -10,7 +10,7 @@ class CskillSG:
         self.x = server.character.x
         self.y = 140
         self.sx = 0
-        self.damage = server.character.damage_SG * 6
+        self.damage = server.character.damage_SG * 8
         self.frame = 0
         self.face = d
 

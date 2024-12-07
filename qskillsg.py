@@ -10,7 +10,7 @@ class QskillSG:
         self.x = server.character.x
         self.y = server.character.y
         self.sx = 0
-        self.damage = server.character.damage_SG * 3
+        self.damage = server.character.damage_SG * 4
         self.frame = 0
         self.face = d
 

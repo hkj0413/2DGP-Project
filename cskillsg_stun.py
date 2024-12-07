@@ -10,7 +10,7 @@ class CskillStunSG:
         self.x = server.character.x
         self.y = 140
         self.sx = 0
-        self.stun = 10
+        self.stun = server.character.stun * 2 + 2
         self.frame = 0
         self.face = d
 
