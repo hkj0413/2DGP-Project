@@ -223,7 +223,11 @@ class Spore:
         return BehaviorTree.SUCCESS
 
     def check_six_logic(self):
-        self.state = 1
+        if self.stun == 0:
+            self.state = 1
+        else:
+            self.state = 3
+        self.temp = 0
 
     def check_six(self):
         if not self.state == 6:
