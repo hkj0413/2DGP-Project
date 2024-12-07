@@ -10,7 +10,7 @@ class CskillHG:
         self.x = server.character.x
         self.y = server.character.y
         self.sx = 0
-        self.damage = server.character.damage_HG * 2
+        self.damage = server.character.damage_HG * 2 + 2
         self.frame = 0
 
     def update(self):
