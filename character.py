@@ -12,6 +12,7 @@ from normalsg_effect import NormalSGEffect
 from normalsg1 import NormalSG1
 from normalsg2 import NormalSG2
 from normalsg3 import NormalSG3
+from rcskillsg_effect import RcskillSGEffect
 from rcskillsg import RcskillSG
 from qskillsg_effect import QskillSGEffect
 from qskillsg import QskillSG
@@ -889,6 +890,9 @@ class Hit:
         if take_hit(e):
             if Character.stance == 0 and (Character.state == 1 or Reload_SG):
                 Character.Rc_SG_sound.play()
+
+                rcskillsgeffect = RcskillSGEffect()
+                game_world.add_object(rcskillsgeffect, 3)
 
                 rcskillsg = RcskillSG()
                 game_world.add_object(rcskillsg, 3)
