@@ -6,6 +6,8 @@ import random
 
 from pico2d import load_image, draw_rectangle, clamp, load_wav, load_font
 from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
+from enhance import Enhance
+from medal import Medal
 from stonegolem_attack import StonegolemAttack
 from stonegolem_skill import StonegolemSkill
 
@@ -39,10 +41,10 @@ class Stonegolem:
         self.face_dir = -1
         self.state = 0
         self.frame = 0
-        self.name = ''
+        self.name = 'Idle'
         self.prev_state = -1
         self.load_images()
-        self.hp = 200
+        self.hp = 2
         self.speed = 0.75
         self.stun = 0
         self.timer = 0
@@ -220,6 +222,14 @@ class Stonegolem:
                 self.frame = 0
                 self.stun = 0
                 Stonegolem.Stonegolem_die_sound.play()
+
+                enhance = Enhance(self.x // 30.0, self.y // 30.0 - 3)
+                game_world.add_object(enhance, 2)
+                game_world.add_collision_pairs('server.character:enhance', None, enhance)
+
+                medal = Medal(self.x // 30.0, self.y // 30.0 - 1)
+                game_world.add_object(medal, 2)
+                game_world.add_collision_pairs('server.character:medal', None, medal)
             else:
                 if not self.state == 5 and not self.state == 6:
                     self.state = 2
