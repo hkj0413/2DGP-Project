@@ -71,6 +71,7 @@ class Slime:
                 1: self.check_one_logic,
                 2: self.check_two_logic,
                 5: self.check_five_logic,
+                6: self.check_six_logic,
             }
 
             if self.state in logic_map:
@@ -101,6 +102,10 @@ class Slime:
                 self.state = 5
                 self.temp = 0
                 self.frame = 0
+        elif self.state == 6:
+            if self.name != 'Idle':
+                self.name = 'Idle'
+            self.frame = (self.frame + 3.0 * 2.0 * game_framework.frame_time) % 3
 
     def draw(self):
         if -25 <= self.sx <= 1080 + 25:
@@ -119,20 +124,20 @@ class Slime:
         return self.sx - 25.0, self.y - 15.0, self.sx + 25.0, self.y + 20.0
 
     def handle_collision(self, group, other):
-        if group == 'server.character:slime' and not self.state == 4 and not self.state == 5:
+        if group == 'server.character:slime' and (self.state == 0 or self.state == 1):
             other.take_damage(1)
-        elif group == 'normalrf:slime' and (self.state == 0 or self.state == 1 or self.state == 3):
+        elif group == 'normalrf:slime' and (self.state == 0 or self.state == 1 or self.state == 3 or self.state == 6):
             self.take_damage(other.give_damage())
             other.get_count()
-        elif group == 'normalrfsp:slime' and (self.state == 0 or self.state == 1 or self.state == 3):
+        elif group == 'normalrfsp:slime' and (self.state == 0 or self.state == 1 or self.state == 3 or self.state == 6):
             self.take_damage(other.give_damage())
             other.get_count()
-        elif group == 'normalhg:slime' and (self.state == 0 or self.state == 1 or self.state == 3):
+        elif group == 'normalhg:slime' and (self.state == 0 or self.state == 1 or self.state == 3 or self.state == 6):
             self.take_damage(other.give_damage())
             other.get_count()
 
     def take_damage(self, damage):
-        if (self.state == 0 or self.state == 1 or self.state == 3) and not self.delay:
+        if (self.state == 0 or self.state == 1 or self.state == 3 or self.state == 6) and not self.delay:
             self.hp = max(0, self.hp - damage)
             Slime.Slime_sound.play()
             if self.hp <= 0:
@@ -205,7 +210,7 @@ class Slime:
 
     def check_five_logic(self):
         if self.temp == 5:
-            self.state = 0
+            self.state = 6
             self.temp = 0
             self.hp = 3
             self.frame = 0
@@ -217,6 +222,14 @@ class Slime:
             return BehaviorTree.FAIL
         return BehaviorTree.SUCCESS
 
+    def check_six_logic(self):
+        self.state = 1
+
+    def check_six(self):
+        if not self.state == 6:
+            return BehaviorTree.FAIL
+        return BehaviorTree.SUCCESS
+
     def build_behavior_tree(self):
         action_map = {
             0: self.check_zero,
@@ -225,6 +238,7 @@ class Slime:
             3: self.check_three,
             4: self.check_four,
             5: self.check_five,
+            6: self.check_six,
         }
 
         def run_state_actions():
