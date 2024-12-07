@@ -44,7 +44,7 @@ class Stonegolem:
         self.name = 'Idle'
         self.prev_state = -1
         self.load_images()
-        self.hp = 2
+        self.hp = 200
         self.speed = 0.75
         self.stun = 0
         self.timer = 0
