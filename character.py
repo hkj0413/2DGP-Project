@@ -2250,6 +2250,8 @@ class EHG:
             Move = False
             character.wait_time = get_time()
             character.frame = 0
+            hg_e_sound_list = Character.voices['HG_E']
+            random.choice(hg_e_sound_list).play()
         elif right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -2817,6 +2819,11 @@ class Character:
                     sound.set_volume(24)
                     Character.voices[voice].append(sound)
                 elif voice == 'HG_Q':
+                    for i in range(1, 2 + 1):
+                        sound = load_wav("./Voice/HG/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
+                        Character.voices[voice].append(sound)
+                elif voice == 'HG_E':
                     for i in range(1, 2 + 1):
                         sound = load_wav("./Voice/HG/" + voice + " (%d)" % i + ".mp3")
                         sound.set_volume(24)
