@@ -66,7 +66,7 @@ class ReloadRF:
             return self.sx - 92.0, self.y - 30.0, self.sx - 60.0, self.y + 10.0
 
     def handle_collision(self, group, other):
-        mob_group = ['spore', 'slime', 'pig']
+        mob_group = ['spore', 'slime', 'pig', 'stonegolem']
         for mob in mob_group:
             if group == f'reloadrf:{mob}':
                 other.take_stun(self.stun)

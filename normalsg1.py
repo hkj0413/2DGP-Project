@@ -37,7 +37,7 @@ class NormalSG1:
             return self.sx - 60.0 - 17.0, self.y - 49.0, self.sx, self.y + 19.0
 
     def handle_collision(self, group, other):
-        mob_group = ['spore', 'slime', 'pig']
+        mob_group = ['spore', 'slime', 'pig', 'stonegolem']
         for mob in mob_group:
             if group == f'normalsg1:{mob}':
                 other.take_damage(self.damage)

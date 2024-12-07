@@ -8,7 +8,7 @@ from math import sin, pi
 from qskillhg_effect import QskillHGEffect
 from qskillhg_boom import QskillBoomHG
 
-mob_group = ['spore', 'slime', 'pig']
+mob_group = ['spore', 'slime', 'pig', 'stonegolem']
 
 class QskillHG:
     image = None

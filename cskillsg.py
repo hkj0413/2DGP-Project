@@ -37,7 +37,7 @@ class CskillSG:
             return self.sx - 720.0 - 17.0, self.y - 49.0, self.sx, self.y + 630.0 + 19.0
 
     def handle_collision(self, group, other):
-        mob_group = ['spore', 'slime', 'pig']
+        mob_group = ['spore', 'slime', 'pig', 'stonegolem']
         for mob in mob_group:
             if group == f'cskillsg:{mob}':
                 other.take_damage(self.damage)

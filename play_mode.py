@@ -21,6 +21,7 @@ from background import Background
 from spore import Spore
 from slime import Slime
 from pig import Pig
+from stonegolem import Stonegolem
 
 character_created = False
 
@@ -459,6 +460,15 @@ def init(stage):
         portal = Portal(34, 4, 1)
         game_world.add_object(portal, 0)
         game_world.add_collision_pairs('server.character:portal', None, portal)
+
+        # 보스 골렘
+        game_world.add_collision_pairs('server.character:stonegolem', server.character, None)
+
+        stonegolem = Stonegolem(18, 6)
+        game_world.add_object(stonegolem, 0)
+        game_world.add_collision_pairs('server.character:stonegolem', None, stonegolem)
+        for projectile in projectile_group:
+            game_world.add_collision_pairs(f'{projectile}:stonegolem', None, stonegolem)
 
         # 몹 스포아
         game_world.add_collision_pairs('server.character:spore', server.character, None)
