@@ -959,7 +959,8 @@ class Hit:
                         rf_hit_sound_list = Character.voices['RF_Hit']
                         random.choice(rf_hit_sound_list).play()
                     elif Character.stance == 2:
-                        pass
+                        hg_hit_sound_list = Character.voices['HG_Hit']
+                        random.choice(hg_hit_sound_list).play()
             character.wait_time = get_time()
             Character.hit_delay = 1.5
         elif right_up(e):
@@ -1123,7 +1124,8 @@ class Die:
                 rf_die_sound_list = Character.voices['RF_Die']
                 random.choice(rf_die_sound_list).play()
             elif Character.stance == 2:
-                pass
+                hg_die_sound_list = Character.voices['HG_Die']
+                random.choice(hg_die_sound_list).play()
 
     @staticmethod
     def exit(character, e):
@@ -2644,7 +2646,7 @@ class Character:
     dexterous_shot_cooldown = 0 # 민첩한 사격 쿨타임 2초 / 1초 (+2)
     at02_grenade_cooldown = 0 # AT02 유탄 쿨타임 4초
     bullet_rain_cooldown = 0 # 불렛 레인 쿨타임 6초 / 3초 (+4)
-    equilibrium_cooldown = 0
+    equilibrium_cooldown = 0 # 이퀄리브리엄 쿨타임 12초
 
     def load_images(self):
         if Character.images == None:
@@ -2751,12 +2753,12 @@ class Character:
                 elif voice == 'RF_Hit':
                     for i in range(1, 3 + 1):
                         sound = load_wav("./Voice/RF/" + voice + " (%d)" % i + ".mp3")
-                        sound.set_volume(12)
+                        sound.set_volume(18)
                         Character.voices[voice].append(sound)
                 elif voice == 'RF_Die':
                     for i in range(1, 2 + 1):
                         sound = load_wav("./Voice/RF/" + voice + " (%d)" % i + ".mp3")
-                        sound.set_volume(24)
+                        sound.set_volume(36)
                         Character.voices[voice].append(sound)
                 elif voice == 'RF_Attack':
                     for i in range(1, 3 + 1):
@@ -2787,6 +2789,17 @@ class Character:
                     sound = load_wav("./Voice/RF/" + voice + " (1)" + ".mp3")
                     sound.set_volume(24)
                     Character.voices[voice].append(sound)
+
+                elif voice == 'HG_Hit':
+                    for i in range(1, 3 + 1):
+                        sound = load_wav("./Voice/HG/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(24)
+                        Character.voices[voice].append(sound)
+                elif voice == 'HG_Die':
+                    for i in range(1, 2 + 1):
+                        sound = load_wav("./Voice/HG/" + voice + " (%d)" % i + ".mp3")
+                        sound.set_volume(48)
+                        Character.voices[voice].append(sound)
 
     def __init__(self):
         self.x, self.y = 34.0, 140.0
