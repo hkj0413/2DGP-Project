@@ -889,16 +889,6 @@ class Hit:
         global a_pressed, d_pressed, Jump, jump_velocity, Fall, attacking, s_pressed, w_pressed, Rc_HG, catastrophe
         if take_hit(e):
             if Character.stance == 0 and (Character.state == 1 or Reload_SG):
-                Character.Rc_SG_sound.play()
-
-                rcskillsgeffect = RcskillSGEffect()
-                game_world.add_object(rcskillsgeffect, 3)
-
-                rcskillsg = RcskillSG()
-                game_world.add_object(rcskillsg, 3)
-                for mob in mob_group:
-                    game_world.add_collision_pairs(f'rcskillsg:{mob}', rcskillsg, None)
-
                 Character.hp = max(0, Character.hp - max(0, (Character.damage - Character.shield_def)))
                 if Character.hp == 0:
                     Character.speed = 3
@@ -907,7 +897,19 @@ class Hit:
                 else:
                     sg_rc_sound_list = Character.voices['SG_Rc']
                     if random.random() < 0.25:
+                        Character.Rc_SG_counter_sound.play()
+
+                        rcskillsgeffect = RcskillSGEffect()
+                        game_world.add_object(rcskillsgeffect, 3)
+
+                        rcskillsg = RcskillSG()
+                        game_world.add_object(rcskillsg, 3)
+                        for mob in mob_group:
+                            game_world.add_collision_pairs(f'rcskillsg:{mob}', rcskillsg, None)
+
                         random.choice(sg_rc_sound_list).play()
+                    else:
+                        Character.Rc_SG_sound.play()
                     if a_pressed or d_pressed:
                         character.state_machine.add_event(('WALK', 0))
             elif Character.stance == 1 and Character.state == 4 and catastrophe:
@@ -2598,6 +2600,7 @@ class Character:
     rf_stance_sound = None
     hg_stance_sound = None
     Rc_SG_sound = None
+    Rc_SG_counter_sound = None
     Rc_RF_sound = None
     Reload_SG_sound = None
     Reload_HG_sound = None
@@ -2906,6 +2909,7 @@ class Character:
             Character.rf_stance_sound = load_wav("./Sound/change_RF.mp3")
             Character.hg_stance_sound = load_wav("./Sound/change_HG.mp3")
             Character.Rc_SG_sound = load_wav("./Sound/Rc_SG.mp3")
+            Character.Rc_SG_counter_sound = load_wav("./Sound/Rc_SG_counter.ogg")
             Character.Rc_RF_sound = load_wav("./Sound/Rc_RF.mp3")
             Character.Reload_SG_sound = load_wav("./Sound/Reload_SG.mp3")
             Character.Reload_HG_sound = load_wav("./Sound/Reload_HG.mp3")
@@ -2918,7 +2922,8 @@ class Character:
             Character.sg_stance_sound.set_volume(64)
             Character.rf_stance_sound.set_volume(64)
             Character.hg_stance_sound.set_volume(64)
-            Character.Rc_SG_sound.set_volume(64)
+            Character.Rc_SG_sound.set_volume(32)
+            Character.Rc_SG_counter_sound.set_volume(32)
             Character.Rc_RF_sound.set_volume(80)
             Character.Reload_SG_sound.set_volume(80)
             Character.Reload_HG_sound.set_volume(80)
