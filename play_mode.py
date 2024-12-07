@@ -22,6 +22,7 @@ from spore import Spore
 from slime import Slime
 from pig import Pig
 from stonegolem import Stonegolem
+from stonestatue import Stonestatue
 
 character_created = False
 
@@ -217,6 +218,11 @@ stage_data = {
             (5, range(27, 30)),
             (5, range(6, 9)),
             (2, range(0, 36)),
+        ],
+
+        'stonestatue_positions': [
+            (17, 3),
+            (33, 3),
         ],
     },
 }
@@ -514,6 +520,17 @@ def init(stage):
             game_world.add_objects(grounds, 0)
             for ground in grounds:
                 game_world.add_collision_pairs('server.character:ground', None, ground)
+
+        # 몹 석상
+        game_world.add_collision_pairs('server.character:stonestatue', server.character, None)
+
+        for i, j in stage_info['stonestatue_positions']:
+            stonestatues = [Stonestatue(i, j)]
+            game_world.add_objects(stonestatues, 2)
+            for stonestatue in stonestatues:
+                game_world.add_collision_pairs('server.character:stonestatue', None, stonestatue)
+                for projectile in projectile_group:
+                    game_world.add_collision_pairs(f'{projectile}:stonestatue', None, stonestatue)
 
 def finish():
     game_world.clear()
