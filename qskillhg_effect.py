@@ -31,4 +31,7 @@ class QskillHGEffect:
 
     def draw(self):
         if self.frame < 6.0:
-            self.image[int(self.frame)].draw(self.sx, self.y, 256, 170)
+            if server.character.upgrade >= 4:
+                self.image[int(self.frame)].draw(self.sx, self.y, 384, 255)
+            else:
+                self.image[int(self.frame)].draw(self.sx, self.y, 256, 170)

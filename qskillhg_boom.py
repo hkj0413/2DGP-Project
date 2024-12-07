@@ -25,19 +25,19 @@ class QskillBoomHG:
 
     def get_bb(self):
         if server.character.upgrade >= 4:
-            return self.x - 75.0, self.y - 75.0, self.x + 75.0, self.y + 75.0
+            return self.x - 120.0, self.y - 120.0, self.x + 120.0, self.y + 120.0
         elif server.character.upgrade >= 2:
-            return self.x - 60.0, self.y - 60.0, self.x + 60.0, self.y + 60.0
+            return self.x - 90.0, self.y - 90.0, self.x + 90.0, self.y + 90.0
         else:
-            return self.x - 45.0, self.y - 45.0, self.x + 45.0, self.y + 45.0
+            return self.x - 60.0, self.y - 60.0, self.x + 60.0, self.y + 60.0
 
     def get_rect(self):
         if server.character.upgrade >= 4:
-            return self.sx - 75.0, self.y - 75.0, self.sx + 75.0, self.y + 75.0
+            return self.sx - 120.0, self.y - 120.0, self.sx + 120.0, self.y + 120.0
         elif server.character.upgrade >= 2:
-            return self.sx - 60.0, self.y - 60.0, self.sx + 60.0, self.y + 60.0
+            return self.sx - 90.0, self.y - 90.0, self.sx + 90.0, self.y + 90.0
         else:
-            return self.sx - 45.0, self.y - 45.0, self.sx + 45.0, self.y + 45.0
+            return self.sx - 60.0, self.y - 60.0, self.sx + 60.0, self.y + 60.0
 
     def handle_collision(self, group, other):
         mob_group = ['spore', 'slime', 'pig']

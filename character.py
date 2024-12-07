@@ -42,6 +42,7 @@ from rcskillhg_effect import RcskillHGEffect
 from qskillhg import QskillHG
 from eskillhg import EskillHG
 from cskillhg_effect import CskillHGEffect
+from cskillhg import CskillHG
 
 from dasheffect import DashEffect
 
@@ -217,17 +218,17 @@ class Idle:
                     Character.Reload_HG_sound.play()
         elif q_down(e):
             if Character.stance == 0 and Character.state == 0:
-                if Character.hour_of_judgment_cooldown == 0 and not Attack and (God or Character.score >= 500):
+                if Character.hour_of_judgment_cooldown == 0 and not Attack and (God or Character.score >= 200):
                     Character.state = 2
                     Character.hit_delay = 1
                     character.state_machine.add_event(('SG_Q', 0))
             elif Character.stance == 1 and Character.state == 0:
-                if Character.perfect_shot_cooldown == 0 and (God or Character.score >= 500):
+                if Character.perfect_shot_cooldown == 0 and (God or Character.score >= 200):
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('RF_Q', 0))
             elif Character.stance == 2:
-                if Character.at02_grenade_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 500):
+                if Character.at02_grenade_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 200):
                     Character.hit_delay = 0.5
                     Character.bullet_HG -= 1
 
@@ -242,33 +243,33 @@ class Idle:
                         Character.at02_grenade_cooldown = 4
         elif e_down(e):
             if Character.stance == 0 and Character.state == 0:
-                if Character.shotgun_rapid_fire_cooldown == 0 and (God or Character.score >= 1500):
+                if Character.shotgun_rapid_fire_cooldown == 0 and (God or Character.score >= 1000):
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('SG_E', 0))
             elif Character.stance == 1 and Character.state == 0:
-                if Character.focus_shot_cooldown == 0 and (God or Character.score >= 1500):
+                if Character.focus_shot_cooldown == 0 and (God or Character.score >= 1000):
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('RF_E', 0))
             elif Character.stance == 2 and Character.state == 0:
-                if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 1500):
+                if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 1000):
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('HG_E', 0))
         elif c_down(e):
             if Character.stance == 0 and Character.state == 0:
-                if Character.last_request_cooldown == 0 and (God or Character.score >= 3000):
+                if Character.last_request_cooldown == 0 and (God or Character.score >= 2000):
                     Character.state = 4
                     Invincibility = True
                     character.state_machine.add_event(('SG_C', 0))
             elif Character.stance == 1 and Character.state == 0:
-                if Character.catastrophe_cooldown == 0 and (God or Character.score >= 3000):
+                if Character.catastrophe_cooldown == 0 and (God or Character.score >= 2000):
                     Character.state = 4
                     Invincibility = True
                     character.state_machine.add_event(('RF_C', 0))
             elif Character.stance == 2 and Character.state == 0:
-                if Character.equilibrium_cooldown == 0 and (God or Character.score >= 3000):
+                if Character.equilibrium_cooldown == 0 and (God or Character.score >= 2000):
                     Character.state = 4
                     Invincibility = True
                     character.state_machine.add_event(('HG_C', 0))
@@ -615,17 +616,17 @@ class Walk:
                     Character.Reload_HG_sound.play()
         elif q_down(e):
             if Character.stance == 0 and Character.state == 0:
-                if Character.hour_of_judgment_cooldown == 0 and not Attack and (God or Character.score >= 500):
+                if Character.hour_of_judgment_cooldown == 0 and not Attack and (God or Character.score >= 200):
                     Character.state = 2
                     Character.hit_delay = 1
                     character.state_machine.add_event(('SG_Q', 0))
             elif Character.stance == 1 and Character.state == 0:
-                if Character.perfect_shot_cooldown == 0 and (God or Character.score >= 500):
+                if Character.perfect_shot_cooldown == 0 and (God or Character.score >= 200):
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('RF_Q', 0))
             elif Character.stance == 2 and Character.state == 0:
-                if Character.at02_grenade_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 500):
+                if Character.at02_grenade_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 200):
                     Character.hit_delay = 0.5
                     Character.bullet_HG -= 1
 
@@ -640,33 +641,33 @@ class Walk:
                         Character.at02_grenade_cooldown = 4
         elif e_down(e):
             if Character.stance == 0 and Character.state == 0:
-                if Character.shotgun_rapid_fire_cooldown == 0 and (God or Character.score >= 1500):
+                if Character.shotgun_rapid_fire_cooldown == 0 and (God or Character.score >= 1000):
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('SG_E', 0))
             elif Character.stance == 1 and Character.state == 0:
-                if Character.focus_shot_cooldown == 0 and (God or Character.score >= 1500):
+                if Character.focus_shot_cooldown == 0 and (God or Character.score >= 1000):
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('RF_E', 0))
             elif Character.stance == 2 and Character.state == 0:
-                if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 1500):
+                if Character.bullet_rain_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 1000):
                     Character.state = 3
                     Character.hit_delay = 1
                     character.state_machine.add_event(('HG_E', 0))
         elif c_down(e):
             if Character.stance == 0 and Character.state == 0:
-                if Character.last_request_cooldown == 0 and (God or Character.score >= 3000):
+                if Character.last_request_cooldown == 0 and (God or Character.score >= 2000):
                     Character.state = 4
                     Invincibility = True
                     character.state_machine.add_event(('SG_C', 0))
             elif Character.stance == 1 and Character.state == 0:
-                if Character.catastrophe_cooldown == 0 and (God or Character.score >= 3000):
+                if Character.catastrophe_cooldown == 0 and (God or Character.score >= 2000):
                     Character.state = 4
                     Invincibility = True
                     character.state_machine.add_event(('RF_C', 0))
             elif Character.stance == 2 and Character.state == 0:
-                if Character.equilibrium_cooldown == 0 and (God or Character.score >= 3000):
+                if Character.equilibrium_cooldown == 0 and (God or Character.score >= 2000):
                     Character.state = 4
                     Invincibility = True
                     character.state_machine.add_event(('HG_C', 0))
@@ -1167,7 +1168,7 @@ class Dash:
             fall_velocity = 0.0
             Climb = False
             character.wait_time = get_time()
-            Character.hit_delay = 0.3
+            Character.hit_delay = 0.5
             if God:
                 Character.dash_cooldown = 1
             else:
@@ -2266,7 +2267,7 @@ class EHG:
             Character.hit_delay = 1
             character.state_machine.add_event(('USE_DASH', 0))
         elif q_down(e):
-            if Character.at02_grenade_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 500):
+            if Character.at02_grenade_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 200):
                 Character.hit_delay = 0.5
                 Character.bullet_HG -= 1
 
@@ -2385,15 +2386,21 @@ class CHG:
 
     @staticmethod
     def enter(character, e):
-        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump
+        global d_pressed, a_pressed, attacking, s_pressed, w_pressed, Move, Jump, count
         if hg_c(e):
             Move = False
+            count = 0
             character.frame = 0
             CHG.trails.clear()
             Character.C_HG_sound.play()
             character.wait_time = get_time()
             character.trail_time = get_time()
             character.effect_time = get_time()
+
+            cskillhg = CskillHG()
+            game_world.add_object(cskillhg, 3)
+            for mob in mob_group:
+                game_world.add_collision_pairs(f'cskillhg:{mob}', cskillhg, None)
         elif right_down(e):
             d_pressed = True
             character.face_dir = 1
@@ -2427,6 +2434,20 @@ class CHG:
         elif jump(e) and not Jump and not Fall:
             Jump = True
             Character.jump_sound.play()
+        elif q_down(e):
+            if Character.at02_grenade_cooldown == 0 and Character.bullet_HG > 0 and (God or Character.score >= 200):
+                Character.hit_delay = 0.5
+                Character.bullet_HG -= 1
+
+                qskillhg = QskillHG(character.face_dir)
+                game_world.add_object(qskillhg, 3)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'qskillhg:{mob}', qskillhg, None)
+
+                if God:
+                    Character.at02_grenade_cooldown = 1
+                else:
+                    Character.at02_grenade_cooldown = 4
 
     @staticmethod
     def exit(character, e):
@@ -2436,18 +2457,33 @@ class CHG:
 
     @staticmethod
     def do(character):
-        global Invincibility, Fall, random_angle, Climb
+        global Invincibility, Fall, random_angle, Climb, count
         if get_time() - character.wait_time > 2.5:
             Fall = True
             Invincibility = False
             Character.state = 0
             Character.frame = 0
+            Character.hit_delay = 1
             Character.bullet_HG = Character.max_bullet_HG
             if God:
                 Character.equilibrium_cooldown = 1
             else:
                 Character.equilibrium_cooldown = 20
             character.state_machine.add_event(('TIME_OUT', 0))
+
+        elif get_time() - character.wait_time > 2.0 and count == 1:
+            cskillhg = CskillHG()
+            game_world.add_object(cskillhg, 3)
+            for mob in mob_group:
+                game_world.add_collision_pairs(f'cskillhg:{mob}', cskillhg, None)
+            count += 1
+
+        elif get_time() - character.wait_time > 1.0 and count == 0:
+            cskillhg = CskillHG()
+            game_world.add_object(cskillhg, 3)
+            for mob in mob_group:
+                game_world.add_collision_pairs(f'cskillhg:{mob}', cskillhg, None)
+            count += 1
 
         character.frame = (character.frame + 12.0 * 2.0 * game_framework.frame_time) % 12
 
@@ -2846,7 +2882,7 @@ class Character:
                 },
                 CHG: {
                     right_down: CHG, left_down: CHG, left_up: CHG, right_up: CHG, on_up: CHG, under_up: CHG,
-                    lc_down: CHG, lc_up: CHG, jump: CHG, time_out: Idle,
+                    lc_down: CHG, lc_up: CHG, jump: CHG, time_out: Idle, q_down: CHG,
                     under_down: CHG, on_down: CHG, idle: Idle, walk: Walk,
                 },
             }

@@ -84,13 +84,13 @@ class UI:
         if Character.stance == 0:
             self.image_rc_sg.draw(124 + 64 * 3, 40, 48 ,48)
 
-            if Character.hour_of_judgment_cooldown == 0 and (character.God or Character.score >= 500):
+            if Character.hour_of_judgment_cooldown == 0 and (character.God or Character.score >= 200):
                 self.image_q_sg.draw(124 + 64 * 6, 40, 48 ,48)
 
-            if Character.shotgun_rapid_fire_cooldown == 0 and (character.God or Character.score >= 1500):
+            if Character.shotgun_rapid_fire_cooldown == 0 and (character.God or Character.score >= 1000):
                 self.image_e_sg.draw(124 + 64 * 9, 40, 48 ,48)
 
-            if Character.last_request_cooldown == 0 and (character.God or Character.score >= 3000):
+            if Character.last_request_cooldown == 0 and (character.God or Character.score >= 2000):
                 self.image_c_sg.draw(124 + 64 * 12, 40, 48, 48)
 
             for i in range(8):
@@ -108,13 +108,13 @@ class UI:
             elif Character.state == 4:
                 self.image_crc_rf.draw(124 + 64 * 3, 40, 48, 48)
 
-            if Character.perfect_shot_cooldown == 0 and (character.God or Character.score >= 500) and not Character.state == 4:
+            if Character.perfect_shot_cooldown == 0 and (character.God or Character.score >= 200) and not Character.state == 4:
                 self.image_q_rf.draw(124 + 64 * 6, 40, 48 ,48)
 
-            if Character.focus_shot_cooldown == 0 and (character.God or Character.score >= 1500) and not Character.state == 4:
+            if Character.focus_shot_cooldown == 0 and (character.God or Character.score >= 1000) and not Character.state == 4:
                 self.image_e_rf.draw(124 + 64 * 9, 40, 48 ,48)
 
-            if Character.catastrophe_cooldown == 0 and (character.God or Character.score >= 3000):
+            if Character.catastrophe_cooldown == 0 and (character.God or Character.score >= 2000):
                 self.image_c_rf.draw(124 + 64 * 12, 40, 48, 48)
 
             for i in range(4):
@@ -132,13 +132,13 @@ class UI:
             if Character.dexterous_shot_cooldown == 0:
                 self.image_rc_hg.draw(124 + 64 * 3, 40, 48 ,48)
 
-            if Character.at02_grenade_cooldown == 0 and (character.God or Character.score >= 500):
+            if Character.at02_grenade_cooldown == 0 and (character.God or Character.score >= 200):
                 self.image_q_hg.draw(124 + 64 * 6, 40, 48 ,48)
 
-            if Character.bullet_rain_cooldown == 0 and (character.God or Character.score >= 1500):
+            if Character.bullet_rain_cooldown == 0 and (character.God or Character.score >= 1000):
                 self.image_e_hg.draw(124 + 64 * 9, 40, 48 ,48)
 
-            if Character.equilibrium_cooldown == 0 and (character.God or Character.score >= 3000):
+            if Character.equilibrium_cooldown == 0 and (character.God or Character.score >= 2000):
                 self.image_c_hg.draw(124 + 64 * 12, 40, 48 ,48)
 
             for i in range(Character.max_bullet_HG):
