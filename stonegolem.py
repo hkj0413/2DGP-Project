@@ -1,3 +1,4 @@
+import game_world
 import server
 import character
 import game_framework
@@ -41,6 +42,8 @@ class Stonegolem:
         self.timer = 0
         self.temp = 0
         self.delay = False
+        self.attck = 0
+        self.skill = 0
         self.build_behavior_tree()
         if Stonegolem.Stonegolem_sound == None:
             Stonegolem.Stonegolem_sound = load_wav("./Sound/Hitsound.mp3")
@@ -71,8 +74,6 @@ class Stonegolem:
                 0: self.check_zero_logic,
                 1: self.check_one_logic,
                 2: self.check_two_logic,
-                5: self.check_five_logic,
-                6: self.check_six_logic,
             }
 
             if self.state in logic_map:
@@ -100,13 +101,7 @@ class Stonegolem:
                 self.name = 'Die'
             self.frame = self.frame + 7.0 * 0.75 * game_framework.frame_time
             if self.frame > 7.0:
-                self.state = 5
-                self.temp = 0
-                self.frame = 0
-        elif self.state == 6:
-            if self.name != 'Idle':
-                self.name = 'Idle'
-            self.frame = (self.frame + 3.0 * 1.5 * game_framework.frame_time) % 3
+                game_world.remove_object(self)
 
     def draw(self):
         if -15 <= self.sx <= 1080 + 15:
@@ -222,32 +217,6 @@ class Stonegolem:
             return BehaviorTree.FAIL
         return BehaviorTree.SUCCESS
 
-    def check_five_logic(self):
-        if self.temp == 5:
-            self.state = 6
-            self.temp = 0
-            self.hp = 2
-            self.frame = 0
-            self.x = self.base_x
-            self.face_dir = random.randint(0, 1) * 2 - 1
-
-    def check_five(self):
-        if not self.state == 5:
-            return BehaviorTree.FAIL
-        return BehaviorTree.SUCCESS
-
-    def check_six_logic(self):
-        if self.stun == 0:
-            self.state = 1
-        else:
-            self.state = 3
-        self.temp = 0
-
-    def check_six(self):
-        if not self.state == 6:
-            return BehaviorTree.FAIL
-        return BehaviorTree.SUCCESS
-
     def build_behavior_tree(self):
         action_map = {
             0: self.check_zero,
@@ -255,8 +224,6 @@ class Stonegolem:
             2: self.check_two,
             3: self.check_three,
             4: self.check_four,
-            5: self.check_five,
-            6: self.check_six
         }
 
         def run_state_actions():
