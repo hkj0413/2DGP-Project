@@ -12,6 +12,7 @@ from normalsg_effect import NormalSGEffect
 from normalsg1 import NormalSG1
 from normalsg2 import NormalSG2
 from normalsg3 import NormalSG3
+from rcskillsg import RcskillSG
 from qskillsg_effect import QskillSGEffect
 from qskillsg import QskillSG
 from qskillsg_stun import QskillstunSG
@@ -888,6 +889,12 @@ class Hit:
         if take_hit(e):
             if Character.stance == 0 and (Character.state == 1 or Reload_SG):
                 Character.Rc_SG_sound.play()
+
+                rcskillsg = RcskillSG()
+                game_world.add_object(rcskillsg, 3)
+                for mob in mob_group:
+                    game_world.add_collision_pairs(f'rcskillsg:{mob}', rcskillsg, None)
+
                 Character.hp = max(0, Character.hp - max(0, (Character.damage - Character.shield_def)))
                 if Character.hp == 0:
                     Character.speed = 3
