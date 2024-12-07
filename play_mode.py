@@ -24,7 +24,7 @@ from pig import Pig
 
 character_created = False
 
-stage = 1
+stage = 3
 
 def handle_events():
     events = get_events()
@@ -188,6 +188,39 @@ stage_data = {
             (2, range(0, 36)),
         ],
     },
+
+    3: {
+        'floor_positions': [
+            (1, range(0, 36)),
+            (0, range(0, 36)),
+        ],
+
+        'ground_positions': [
+            (10, range(0, 5)),
+            (8, range(12, 24)),
+            (5, range(27, 30)),
+            (5, range(6, 9)),
+            (2, range(0, 36)),
+        ],
+
+        'spore_positions': [
+            (10, 3),
+            (13, 3),
+            (16, 3),
+            (19, 3),
+            (22, 3),
+            (25, 3),
+        ],
+
+        'slime_positions': [
+            (16, 9),
+            (20, 9),
+        ],
+
+        'pig_positions': [
+            (18, 9),
+        ],
+    },
 }
 
 def clear_collision_pairs():
@@ -264,7 +297,7 @@ def init(stage):
         # 포탈
         game_world.add_collision_pairs('server.character:portal', server.character, None)
 
-        portal = Portal(105, 4)
+        portal = Portal(105, 4, 0)
         game_world.add_object(portal, 0)
         game_world.add_collision_pairs('server.character:portal', None, portal)
 
@@ -380,9 +413,93 @@ def init(stage):
         # 포탈
         game_world.add_collision_pairs('server.character:portal', server.character, None)
 
-        portal = Portal(34, 16)
+        portal = Portal(34, 16, 0)
         game_world.add_object(portal, 0)
         game_world.add_collision_pairs('server.character:portal', None, portal)
+
+    elif stage == 3:
+        stage_info = stage_data[stage]
+
+        # 캐릭터
+        if not character_created:
+            server.character = Character()
+            game_world.add_object(server.character, 1)
+            character_created = True
+
+        # UI
+        ui = UI()
+        game_world.add_object(ui, 3)
+
+        server.background = Background(1)
+        game_world.add_object(server.background, 0)
+
+        game_world.add_collision_pairs('server.character:ladder', server.character, None)
+
+        # a, d 판정만 있는 바닥
+        game_world.add_collision_pairs('server.character:wall', server.character, None)
+
+        for j, i_range in stage_info['floor_positions']:
+            walls = [Wall(i, j, 1) for i in i_range]
+            game_world.add_objects(walls, 0)
+            for wall in walls:
+                game_world.add_collision_pairs('server.character:wall', None, wall)
+
+        # a, d, 점프, 추락 판정이 있는 블럭
+        game_world.add_collision_pairs('server.character:ground', server.character, None)
+
+        for j, i_range in stage_info['ground_positions']:
+            grounds = [Ground(i, j, 2) for i in i_range]
+            game_world.add_objects(grounds, 0)
+            for ground in grounds:
+                game_world.add_collision_pairs('server.character:ground', None, ground)
+
+        # 포탈
+        game_world.add_collision_pairs('server.character:portal', server.character, None)
+
+        portal = Portal(34, 4, 1)
+        game_world.add_object(portal, 0)
+        game_world.add_collision_pairs('server.character:portal', None, portal)
+
+        # 몹 스포아
+        game_world.add_collision_pairs('server.character:spore', server.character, None)
+
+        for i, j in stage_info['spore_positions']:
+            spores = [Spore(i, j)]
+            game_world.add_objects(spores, 2)
+            for spore in spores:
+                game_world.add_collision_pairs('server.character:spore', None, spore)
+                for projectile in projectile_group:
+                    game_world.add_collision_pairs(f'{projectile}:spore', None, spore)
+
+        # 몹 슬라임
+        game_world.add_collision_pairs('server.character:slime', server.character, None)
+
+        for i, j in stage_info['slime_positions']:
+            slimes = [Slime(i, j)]
+            game_world.add_objects(slimes, 2)
+            for slime in slimes:
+                game_world.add_collision_pairs('server.character:slime', None, slime)
+                for projectile in projectile_group:
+                    game_world.add_collision_pairs(f'{projectile}:slime', None, slime)
+
+        # 몹 돼지
+        game_world.add_collision_pairs('server.character:pig', server.character, None)
+
+        for i, j in stage_info['pig_positions']:
+            pigs = [Pig(i, j)]
+            game_world.add_objects(pigs, 2)
+            for pig in pigs:
+                game_world.add_collision_pairs('server.character:pig', None, pig)
+                for projectile in projectile_group:
+                    game_world.add_collision_pairs(f'{projectile}:pig', None, pig)
+
+        # 회복 아이템 k = 힐량
+        game_world.add_collision_pairs('server.character:heal', server.character, None)
+
+        heals = [Heal(2, 11, 4)]
+        game_world.add_objects(heals, 2)
+        for heal in heals:
+            game_world.add_collision_pairs('server.character:heal', None, heal)
 
 def finish():
     game_world.clear()
