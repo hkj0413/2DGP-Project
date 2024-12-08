@@ -10,6 +10,6 @@ data_files = [
 
 # 3. 데이타가 들어있는 폴더들을 지정하세요.
 data_folders = [
-    'Background', 'Bgm', 'Block', 'Effect', 'GSH18Mod', 'HKCAWS',
+    'Background', 'Bgm', 'Block', 'Boss', 'Effect', 'GSH18Mod', 'HKCAWS',
     'Icon', 'Item', 'Mob', 'Obstacle', 'R93', 'Sound', 'Voice',
 ]

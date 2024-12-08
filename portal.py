@@ -40,7 +40,8 @@ class Portal:
 
     def handle_collision(self, group, other):
         if group == 'server.character:portal':
-            if play_mode.stage <= 2:
-                Portal.sound.play()
-            elif 5 >= play_mode.stage >= 3 and server.character.medal >= 1:
-                Portal.sound.play()
+            if server.character.state == 0:
+                if play_mode.stage <= 2:
+                    Portal.sound.play()
+                elif 5 >= play_mode.stage >= 3 and server.character.medal >= 1:
+                    Portal.sound.play()

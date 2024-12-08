@@ -92,6 +92,19 @@ def handle_events():
             else:
                 dn = 18
             change_guide()
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_RIGHT and cn == 4:
+            if dn <= 19:
+                dn += 1
+            else:
+                dn = 19
+            change_guide()
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_LEFT and cn == 4:
+            if dn >= 20:
+                dn -= 1
+            else:
+                dn = 20
+            change_guide()
+
 
 def pause():
     pass

@@ -236,8 +236,7 @@ def change_stage(stage_number):
     all_objects = game_world.get_all_objects()
 
     for obj in all_objects:
-        if obj != server.character:
-            game_world.remove_object(obj)
+        game_world.remove_object(obj)
 
     clear_collision_pairs()
 
@@ -252,10 +251,8 @@ def init(stage):
         stage_info = stage_data[stage]
 
         # 캐릭터
-        if not character_created:
-            server.character = Character()
-            game_world.add_object(server.character, 1)
-            character_created = True
+        server.character = Character()
+        game_world.add_object(server.character, 1)
 
         # UI
         ui = UI()
@@ -382,10 +379,8 @@ def init(stage):
         stage_info = stage_data[stage]
 
         # 캐릭터
-        if not character_created:
-            server.character = Character()
-            game_world.add_object(server.character, 1)
-            character_created = True
+        server.character = Character()
+        game_world.add_object(server.character, 1)
 
         # UI
         ui = UI()
@@ -425,10 +420,8 @@ def init(stage):
         stage_info = stage_data[stage]
 
         # 캐릭터
-        if not character_created:
-            server.character = Character()
-            game_world.add_object(server.character, 1)
-            character_created = True
+        server.character = Character()
+        game_world.add_object(server.character, 1)
 
         # UI
         ui = UI()
@@ -489,10 +482,8 @@ def init(stage):
         stage_info = stage_data[stage]
 
         # 캐릭터
-        if not character_created:
-            server.character = Character()
-            game_world.add_object(server.character, 1)
-            character_created = True
+        server.character = Character()
+        game_world.add_object(server.character, 1)
 
         # UI
         ui = UI()
@@ -507,7 +498,7 @@ def init(stage):
         game_world.add_collision_pairs('server.character:wall', server.character, None)
 
         for j, i_range in stage_info['floor_positions']:
-            walls = [Wall(i, j, 1) for i in i_range]
+            walls = [Wall(i, j, 5) for i in i_range]
             game_world.add_objects(walls, 0)
             for wall in walls:
                 game_world.add_collision_pairs('server.character:wall', None, wall)
@@ -516,7 +507,7 @@ def init(stage):
         game_world.add_collision_pairs('server.character:ground', server.character, None)
 
         for j, i_range in stage_info['ground_positions']:
-            grounds = [Ground(i, j, 2) for i in i_range]
+            grounds = [Ground(i, j, 5) for i in i_range]
             game_world.add_objects(grounds, 0)
             for ground in grounds:
                 game_world.add_collision_pairs('server.character:ground', None, ground)
