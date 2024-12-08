@@ -36,7 +36,10 @@ class RcskillRF:
             return self.sx - 45.0, self.y - 45.0, self.sx + 45.0, self.y + 45.0
 
     def handle_collision(self, group, other):
-        mob_group = ['spore', 'slime', 'pig', 'stonegolem', 'skelldog', 'coldeye', 'wildboar', 'stonestatue']
+        mob_group = [
+            'spore', 'slime', 'pig', 'stonegolem', 'skelldog', 'coldeye', 'wildboar', 'stonestatue',
+            'bulldog', 'imp', 'fireboar', 'firemixgolem'
+        ]
         for mob in mob_group:
             if group == f'rcskillrf:{mob}':
                 other.take_damage(self.damage)

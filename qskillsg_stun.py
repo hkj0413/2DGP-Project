@@ -37,7 +37,10 @@ class QskillstunSG:
             return self.sx - 180.0 - 17.0, self.y - 64.0, self.sx, self.y + 34.0
 
     def handle_collision(self, group, other):
-        mob_group = ['spore', 'slime', 'pig', 'stonegolem', 'skelldog', 'coldeye', 'wildboar', 'stonestatue']
+        mob_group = [
+            'spore', 'slime', 'pig', 'stonegolem', 'skelldog', 'coldeye', 'wildboar', 'stonestatue',
+            'bulldog', 'imp', 'fireboar', 'firemixgolem'
+        ]
         for mob in mob_group:
             if group == f'qskillstunsg:{mob}':
                 other.take_stun(self.stun)

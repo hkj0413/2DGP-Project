@@ -12,6 +12,8 @@ from portal import Portal
 from character import Character
 from ui import UI
 from coconut import Coconut
+from stone import Stone
+from fireball import Fireball
 from heal import Heal
 from more_hp import MoreHP
 from enhance import Enhance
@@ -27,6 +29,10 @@ from skelldog import Skelldog
 from coldeye import Coldeye
 from wildboar import Wildboar
 from stonestatue import Stonestatue
+from bulldog import Bulldog
+from imp import Imp
+from fireboar import Fireboar
+from firemixgolem import Firemixgolem
 
 character_created = False
 
@@ -310,7 +316,7 @@ stage_data = {
             (2, range(72, 108)),
         ],
 
-        'coconut_positions': [
+        'stone_positions': [
             (16, 21, 1),
             (21, 21, 2),
             (34, 18, 1),
@@ -393,7 +399,40 @@ stage_data = {
             (2, range(0, 108)),
         ],
 
-        'coconut_positions': [
+        'bulldog_positions': [
+            (24, 3),
+            (30, 3),
+            (36, 3),
+            (42, 3),
+            (48, 3),
+            (54, 3),
+        ],
+
+        'imp_positions': [
+            (26, 3),
+            (31, 3),
+            (36, 3),
+            (41, 3),
+            (46, 3),
+            (51, 3),
+        ],
+
+        'fireboar_positions': [
+            (60, 3),
+            (66, 3),
+            (72, 3),
+            (78, 3),
+            (84, 3),
+            (90, 3),
+        ],
+
+        'firemixgolem_positions': [
+            (70, 6),
+            (80, 6),
+            (90, 6),
+        ],
+
+        'fireball_positions': [
             (6, 21, 1),
         ],
 
@@ -773,14 +812,14 @@ def init(stage):
                 for projectile in projectile_group:
                     game_world.add_collision_pairs(f'{projectile}:stonestatue', None, stonestatue)
 
-        # 낙하 장애물 코코넛 k = 박자
-        game_world.add_collision_pairs('server.character:coconut', server.character, None)
+        # 낙하 장애물 동멩이 k = 박자
+        game_world.add_collision_pairs('server.character:stone', server.character, None)
 
-        for i, j, k in stage_info['coconut_positions']:
-            coconuts = [Coconut(i, j, k)]
-            game_world.add_objects(coconuts, 2)
-            for coconut in coconuts:
-                game_world.add_collision_pairs('server.character:coconut', None, coconut)
+        for i, j, k in stage_info['stone_positions']:
+            stones = [Stone(i, j, k)]
+            game_world.add_objects(stones, 2)
+            for stone in stones:
+                game_world.add_collision_pairs('server.character:stone', None, stone)
 
         # 회복 아이템 k = 힐량
         game_world.add_collision_pairs('server.character:heal', server.character, None)
@@ -914,6 +953,59 @@ def init(stage):
         portal = Portal(105, 4, 2)
         game_world.add_object(portal, 0)
         game_world.add_collision_pairs('server.character:portal', None, portal)
+
+        # 몹 불독
+        game_world.add_collision_pairs('server.character:bulldog', server.character, None)
+
+        for i, j in stage_info['bulldog_positions']:
+            bulldogs = [Bulldog(i, j)]
+            game_world.add_objects(bulldogs, 2)
+            for bulldog in bulldogs:
+                game_world.add_collision_pairs('server.character:bulldog', None, bulldog)
+                for projectile in projectile_group:
+                    game_world.add_collision_pairs(f'{projectile}:bulldog', None, bulldog)
+
+        # 몹 임프
+        game_world.add_collision_pairs('server.character:imp', server.character, None)
+
+        for i, j in stage_info['imp_positions']:
+            imps = [Imp(i, j)]
+            game_world.add_objects(imps, 2)
+            for imp in imps:
+                game_world.add_collision_pairs('server.character:imp', None, imp)
+                for projectile in projectile_group:
+                    game_world.add_collision_pairs(f'{projectile}:imp', None, imp)
+
+        # 몹 파이어보어
+        game_world.add_collision_pairs('server.character:fireboar', server.character, None)
+
+        for i, j in stage_info['fireboar_positions']:
+            fireboars = [Fireboar(i, j)]
+            game_world.add_objects(fireboars, 2)
+            for fireboar in fireboars:
+                game_world.add_collision_pairs('server.character:fireboar', None, fireboar)
+                for projectile in projectile_group:
+                    game_world.add_collision_pairs(f'{projectile}:fireboar', None, fireboar)
+
+        # 몹 파이어믹스골렘
+        game_world.add_collision_pairs('server.character:firemixgolem', server.character, None)
+
+        for i, j in stage_info['firemixgolem_positions']:
+            firemixgolems = [Firemixgolem(i, j)]
+            game_world.add_objects(firemixgolems, 0)
+            for firemixgolem in firemixgolems:
+                game_world.add_collision_pairs('server.character:firemixgolem', None, firemixgolem)
+                for projectile in projectile_group:
+                    game_world.add_collision_pairs(f'{projectile}:firemixgolem', None, firemixgolem)
+
+        # 낙하 장애물 화염구 k = 박자
+        game_world.add_collision_pairs('server.character:fireball', server.character, None)
+
+        for i, j, k in stage_info['fireball_positions']:
+            fireballs = [Fireball(i, j, k)]
+            game_world.add_objects(fireballs, 2)
+            for fireball in fireballs:
+                game_world.add_collision_pairs('server.character:fireball', None, fireball)
 
         # 최대 체력 증가 아이템
         game_world.add_collision_pairs('server.character:morehp', server.character, None)
