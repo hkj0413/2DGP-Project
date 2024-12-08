@@ -85,7 +85,7 @@ screen_right = 1080
 random_angle = 0
 chance = 0
 
-mob_group = ['spore', 'slime', 'pig', 'stonegolem', 'stonestatue']
+mob_group = ['spore', 'slime', 'pig', 'stonegolem', 'skelldog', 'coldeye', 'wildboar', 'stonestatue']
 
 class Idle:
     @staticmethod

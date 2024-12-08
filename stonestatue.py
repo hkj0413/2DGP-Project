@@ -17,29 +17,26 @@ class Stonestatue:
             Stonestatue.images = {}
             for name in animation_names:
                 if name == 'Idle':
-                    Stonestatue.images[name] = [load_image("./Mob/Spore/"+ name + " (%d)" % i + ".png") for i in range(1, 2 + 1)]
+                    Stonestatue.images[name] = [load_image("./Mob/Stonestatue/"+ name + " (1)" + ".png")]
                 elif name == 'Walk':
-                    Stonestatue.images[name] = [load_image("./Mob/Spore/" + name + " (%d)" % i + ".png") for i in range(1, 4 + 1)]
+                    Stonestatue.images[name] = [load_image("./Mob/Stonestatue/"+ 'Idle' + " (1)" + ".png")]
                 elif name == 'Hit':
-                    Stonestatue.images[name] = [load_image("./Mob/Spore/"+ name + " (1)" + ".png")]
+                    Stonestatue.images[name] = [load_image("./Mob/Stonestatue/"+ name + " (1)" + ".png")]
                 elif name == 'Die':
-                    Stonestatue.images[name] = [load_image("./Mob/Spore/" + name + " (%d)" % i + ".png") for i in range(1, 4 + 1)]
+                    Stonestatue.images[name] = [load_image("./Mob/Stonestatue/" + name + " (%d)" % i + ".png") for i in range(1, 12 + 1)]
 
     def __init__(self, i=0.0, j=0):
         self.x = i * 30.0 + 15.0
         self.y = j * 30.0 + 15.0
         self.base_x = i * 30.0 + 15.0
         self.sx = 0
-        self.face_dir = random.randint(0, 1) * 2 - 1  # -1 or 1
-        self.state = random.randint(0, 1)
-        if self.state == 0:
-            self.frame = random.randint(0, 1)
-        elif self.state == 1:
-            self.frame = random.randint(0, 3)
+        self.face_dir = -1
+        self.state = 0
+        self.frame = 0
         self.name = 'Idle'
         self.prev_state = -1
         self.load_images()
-        self.hp = 2
+        self.hp = 24
         self.stun = 0
         self.timer = 0
         self.temp = 0
@@ -51,11 +48,10 @@ class Stonestatue:
 
     def update(self):
         self.sx = self.x - server.background.window_left
-        self.x = clamp(self.base_x - 90.0, self.x, self.base_x + 90.0)
 
         self.timer += game_framework.frame_time
 
-        if self.timer >= 1:
+        if self.timer >= 0.5:
             self.timer = 0
             self.temp += 1
             self.delay = False
@@ -65,6 +61,10 @@ class Stonestatue:
                     self.temp = 0
                 else:
                     self.state = 1
+                    if server.character.x < self.x:
+                        self.face_dir = -1
+                    elif server.character.x > self.x:
+                        self.face_dir = 1
 
             logic_map = {
                 0: self.check_zero_logic,
@@ -84,12 +84,11 @@ class Stonestatue:
         if self.state == 0:
             if self.name != 'Idle':
                 self.name = 'Idle'
-            self.frame = (self.frame + 2.0 * 1.5 * game_framework.frame_time) % 2
+            self.frame = 0
         elif self.state == 1:
             if self.name != 'Walk':
                 self.name = 'Walk'
-            self.frame = (self.frame + 4.0 * 1.5 * game_framework.frame_time) % 4
-            self.walk()
+            self.frame = 0
         elif self.state == 2 or self.state == 3:
             if self.name != 'Hit':
                 self.name = 'Hit'
@@ -97,35 +96,35 @@ class Stonestatue:
         elif self.state == 4:
             if self.name != 'Die':
                 self.name = 'Die'
-            self.frame = self.frame + 4.0 * 2.0 * game_framework.frame_time
-            if self.frame > 4.0:
+            self.frame = self.frame + 12.0 * 0.75 * game_framework.frame_time
+            if self.frame > 12.0:
                 self.state = 5
                 self.temp = 0
                 self.frame = 0
         elif self.state == 6:
             if self.name != 'Idle':
                 self.name = 'Idle'
-            self.frame = (self.frame + 2.0 * 1.5 * game_framework.frame_time) % 2
+            self.frame = 0
 
     def draw(self):
-        if -15 <= self.sx <= 1080 + 15:
+        if -20 <= self.sx <= 1080 + 20:
             if not self.state == 5:
                 if self.face_dir == 1:
-                    self.images[self.name][int(self.frame)].composite_draw(0, 'h', self.sx, self.y, 50, 50)
+                    self.images[self.name][int(self.frame)].composite_draw(0, 'h', self.sx - 10, self.y + 60, 75, 150)
                 elif self.face_dir == -1:
-                    self.images[self.name][int(self.frame)].composite_draw(0, '', self.sx, self.y, 50, 50)
+                    self.images[self.name][int(self.frame)].composite_draw(0, '', self.sx + 10, self.y + 60, 75, 150)
                 if character.God:
                     draw_rectangle(*self.get_rect())
 
     def get_bb(self):
-        return self.x - 15.0, self.y - 15.0, self.x + 15.0, self.y + 15.0
+        return self.x - 20.0, self.y - 15.0, self.x + 20.0, self.y + 115.0
 
     def get_rect(self):
-        return self.sx - 15.0, self.y - 15.0, self.sx + 15.0, self.y + 15.0
+        return self.sx - 20.0, self.y - 15.0, self.sx + 20.0, self.y + 115.0
 
     def handle_collision(self, group, other):
         if group == 'server.character:stonestatue' and (self.state == 0 or self.state == 1):
-            other.take_damage(1)
+            other.take_damage(4)
         elif group == 'normalrf:stonestatue' and (self.state == 0 or self.state == 1 or self.state == 3 or self.state == 6):
             self.take_damage(other.give_damage())
             other.get_count()
@@ -147,6 +146,10 @@ class Stonestatue:
                 self.stun = 0
             else:
                 self.state = 2
+                if server.character.x < self.x:
+                    self.face_dir = -1
+                elif server.character.x > self.x:
+                    self.face_dir = 1
             self.delay = True
             self.timer = 0
 
@@ -160,11 +163,6 @@ class Stonestatue:
             return BehaviorTree.SUCCESS
         else:
             return BehaviorTree.FAIL
-
-    def walk(self):
-        self.x += 1 * self.face_dir * character.RUN_SPEED_PPS * game_framework.frame_time
-        if self.x <= self.base_x - 90.0 or self.x >= self.base_x + 90:
-            self.face_dir *= -1
 
     def check_zero_logic(self):
         if self.temp == 4 or random.randint(1, 5) == 1:
@@ -209,13 +207,16 @@ class Stonestatue:
         return BehaviorTree.SUCCESS
 
     def check_five_logic(self):
-        if self.temp == 5:
+        if self.temp == 10:
             self.state = 6
             self.temp = 0
-            self.hp = 2
+            self.hp = 24
             self.frame = 0
             self.x = self.base_x
-            self.face_dir = random.randint(0, 1) * 2 - 1
+            if server.character.x < self.x:
+                self.face_dir = -1
+            elif server.character.x > self.x:
+                self.face_dir = 1
 
     def check_five(self):
         if not self.state == 5:
@@ -223,11 +224,12 @@ class Stonestatue:
         return BehaviorTree.SUCCESS
 
     def check_six_logic(self):
-        if self.stun == 0:
-            self.state = 1
-        else:
-            self.state = 3
-        self.temp = 0
+        if self.temp == 2:
+            if self.stun == 0:
+                self.state = 1
+            else:
+                self.state = 3
+            self.temp = 0
 
     def check_six(self):
         if not self.state == 6:
