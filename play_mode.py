@@ -26,7 +26,7 @@ from stonestatue import Stonestatue
 
 character_created = False
 
-stage = 1
+stage = 4
 
 def handle_events():
     events = get_events()
@@ -477,6 +477,13 @@ def init(stage):
         game_world.add_objects(heals, 2)
         for heal in heals:
             game_world.add_collision_pairs('server.character:heal', None, heal)
+
+        # 최대 체력 증가 아이템
+        game_world.add_collision_pairs('server.character:morehp', server.character, None)
+
+        morehp = MoreHP(21, 9)
+        game_world.add_object(morehp, 2)
+        game_world.add_collision_pairs('server.character:morehp', None, morehp)
 
     elif stage == 4:
         stage_info = stage_data[stage]

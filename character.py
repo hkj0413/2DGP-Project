@@ -2497,7 +2497,7 @@ class CHG:
             if God:
                 Character.equilibrium_cooldown = 1
             else:
-                Character.equilibrium_cooldown = 20
+                Character.equilibrium_cooldown = 8
             character.state_machine.add_event(('TIME_OUT', 0))
 
         elif get_time() - character.wait_time > 2.0 and count == 1:
@@ -2660,7 +2660,7 @@ class Character:
     dexterous_shot_cooldown = 0 # 민첩한 사격 쿨타임 2초 / 1초 (+2)
     at02_grenade_cooldown = 0 # AT02 유탄 쿨타임 4초
     bullet_rain_cooldown = 0 # 불렛 레인 쿨타임 6초 / 3초 (+4)
-    equilibrium_cooldown = 0 # 이퀄리브리엄 쿨타임 12초
+    equilibrium_cooldown = 0 # 이퀄리브리엄 쿨타임 8초
 
     def load_images(self):
         if Character.images == None:

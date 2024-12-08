@@ -11,7 +11,7 @@ class Guide:
         self.font = load_font('ENCR10B.TTF', 20)
         self.frame = k
         if Guide.image == None:
-            Guide.image = [load_image("./Background/" + 'Guide' + " (%d)" % i + ".png") for i in range(1, 21 + 1)]
+            Guide.image = [load_image("./Background/" + 'Guide' + " (%d)" % i + ".png") for i in range(1, 22 + 1)]
 
     def update(self):
         pass
