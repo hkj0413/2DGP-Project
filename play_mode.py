@@ -211,86 +211,100 @@ stage_data = {
 
     4: {
         'ladder_positions': [
-            (range(3, 18), 39),
-            (range(9, 16), 82),
-            (range(3, 12), 95),
-            (range(13, 22), 95),
-            (range(8, 17), 106),
-            (range(18, 26), 106),
+            (range(6, 16), 54),
         ],
 
         'wall_positions': [
-            (range(18, 23), 49),
-            (range(3, 12), 29),
-            (range(9, 27), 83),
-            (range(9, 22), 93),
+            (range(11, 15), 35),
+            (range(11, 20), 62),
+            (range(3, 10), 98),
         ],
 
         'floor_positions': [
-            (2, range(65, 68)),
-            (1, range(0, 30)),
-            (1, range(35, 44)),
-            (1, range(50, 57)),
-            (1, range(62, 85)),
-            (1, range(94, 108)),
-            (0, range(0, 30)),
-            (0, range(35, 44)),
-            (0, range(50, 57)),
-            (0, range(62, 85)),
-            (0, range(94, 108)),
+            (1, range(0, 45)),
+            (1, range(50, 65)),
+            (1, range(72, 108)),
+            (0, range(0, 45)),
+            (0, range(50, 65)),
+            (0, range(72, 108)),
         ],
 
         'ground_positions': [
-            (26, range(105, 108)),
-            (22, range(88, 106)),
-            (21, range(72, 80)),
-            (18, range(38, 41)),
-            (18, range(69, 70)),
-            (17, range(96, 107)),
-            (16, range(46, 48)),
-            (16, range(82, 83)),
-            (15, range(66, 67)),
-            (14, range(41, 45)),
-            (13, range(13, 21)),
-            (12, range(26, 30)),
-            (12, range(69, 70)),
-            (12, range(76, 79)),
-            (12, range(95, 106)),
-            (11, range(2, 4)),
-            (9, range(6, 8)),
-            (8, range(82, 84)),
-            (8, range(93, 94)),
-            (7, range(11, 16)),
-            (7, range(96, 107)),
-            (6, range(71, 80)),
-            (5, range(19, 26)),
-            (3, range(65, 68)),
-            (2, range(0, 30)),
-            (2, range(35, 44)),
-            (2, range(50, 57)),
-            (2, range(62, 65)),
-            (2, range(68, 85)),
-            (2, range(94, 108)),
+            (16, range(54, 55)),
+            (12, range(56, 60)),
+            (10, range(85, 99)),
+            (8, range(80, 82)),
+            (7, range(20, 23)),
+            (7, range(27, 32)),
+            (7, range(37, 44)),
+            (6, range(84, 91)),
+            (5, range(15, 18)),
+            (5, range(53, 55)),
+            (4, range(94, 96)),
+            (2, range(0, 45)),
+            (2, range(50, 65)),
+            (2, range(72, 108)),
+        ],
+
+        'coconut_positions': [
+            (16, 21, 1),
+            (21, 21, 2),
+            (34, 18, 1),
+            (47, 21, 3),
+            (60, 21, 2),
+            (66, 16, 1),
+            (68, 16, 2),
+            (70, 16, 3),
+            (82, 21, 1),
         ],
 
         'skelldog_positions': [
-            (6, 3),
-            (8, 3),
+            (9, 3),
+            (23, 3),
+            (27, 3),
+            (31, 3),
+            (55, 3),
+            (58, 3),
+            (79, 3),
+            (82, 3),
+            (85, 3),
+            (88, 3),
+            (90, 11),
         ],
 
         'coldeye_positions': [
-            (13, 3),
+            (8, 3),
             (16, 3),
+            (28, 3),
+            (32, 3),
+            (59, 3),
+            (84, 3),
+            (87, 3),
+            (88, 11),
         ],
 
         'wildboar_positions': [
-            (23, 3),
-            (26, 3),
+            (12, 3),
+            (20, 3),
+            (24, 3),
+            (40, 8),
+            (57, 3),
+            (87, 7),
+            (89, 3),
+            (93, 11),
         ],
 
         'stonestatue_positions': [
-            (31, 3),
-            (33, 3),
+            (30, 8),
+            (39, 3),
+            (77, 3),
+            (97, 11),
+        ],
+
+        'heal_positions': [
+            (42, 3, 6),
+            (58, 13, 6),
+            (95, 11, 6),
         ],
     },
 }
@@ -651,6 +665,45 @@ def init(stage):
                 game_world.add_collision_pairs('server.character:stonestatue', None, stonestatue)
                 for projectile in projectile_group:
                     game_world.add_collision_pairs(f'{projectile}:stonestatue', None, stonestatue)
+
+        # 낙하 장애물 코코넛 k = 박자
+        game_world.add_collision_pairs('server.character:coconut', server.character, None)
+
+        for i, j, k in stage_info['coconut_positions']:
+            coconuts = [Coconut(i, j, k)]
+            game_world.add_objects(coconuts, 2)
+            for coconut in coconuts:
+                game_world.add_collision_pairs('server.character:coconut', None, coconut)
+
+        # 회복 아이템 k = 힐량
+        game_world.add_collision_pairs('server.character:heal', server.character, None)
+
+        for i, j, k in stage_info['heal_positions']:
+            heals = [Heal(i, j, k)]
+            game_world.add_objects(heals, 2)
+            for heal in heals:
+                game_world.add_collision_pairs('server.character:heal', None, heal)
+
+        # 최대 체력 증가 아이템
+        game_world.add_collision_pairs('server.character:morehp', server.character, None)
+
+        morehp = MoreHP(76, 11)
+        game_world.add_object(morehp, 2)
+        game_world.add_collision_pairs('server.character:morehp', None, morehp)
+
+        # 캐릭터 강화 아이템
+        game_world.add_collision_pairs('server.character:enhance', server.character, None)
+
+        enhance = Enhance(68, 7)
+        game_world.add_object(enhance, 2)
+        game_world.add_collision_pairs('server.character:enhance', None, enhance)
+
+        # 다이아 몬드 아이템
+        game_world.add_collision_pairs('server.character:diamond', server.character, None)
+
+        diamond = Diamond(101, 3)
+        game_world.add_object(diamond, 2)
+        game_world.add_collision_pairs('server.character:diamond', None, diamond)
 
 def finish():
     game_world.clear()
