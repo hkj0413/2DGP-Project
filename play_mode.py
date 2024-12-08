@@ -22,6 +22,7 @@ from spore import Spore
 from slime import Slime
 from pig import Pig
 from stonegolem import Stonegolem
+from skelldog import Skelldog
 from stonestatue import Stonestatue
 
 character_created = False
@@ -220,8 +221,23 @@ stage_data = {
             (2, range(0, 36)),
         ],
 
+        'skelldog_positions': [
+            (6, 3),
+            (8, 3),
+        ],
+
+        'coldeye_positions': [
+            (13, 3),
+            (16, 3),
+        ],
+
+        'wildboar_positions': [
+            (23, 3),
+            (26, 3),
+        ],
+
         'stonestatue_positions': [
-            (17, 3),
+            (31, 3),
             (33, 3),
         ],
     },
@@ -519,12 +535,45 @@ def init(stage):
             for ground in grounds:
                 game_world.add_collision_pairs('server.character:ground', None, ground)
 
+        # 몹 스켈독
+        game_world.add_collision_pairs('server.character:skelldog', server.character, None)
+
+        for i, j in stage_info['skelldog_positions']:
+            skelldogs = [Skelldog(i, j)]
+            game_world.add_objects(skelldogs, 2)
+            for skelldog in skelldogs:
+                game_world.add_collision_pairs('server.character:skelldog', None, skelldog)
+                for projectile in projectile_group:
+                    game_world.add_collision_pairs(f'{projectile}:skelldog', None, skelldog)
+
+        # 몹 콜드아이
+        game_world.add_collision_pairs('server.character:coldeye', server.character, None)
+
+        for i, j in stage_info['coldeye_positions']:
+            coldeyes = [Stonestatue(i, j)]
+            game_world.add_objects(coldeyes, 2)
+            for coldeye in coldeyes:
+                game_world.add_collision_pairs('server.character:coldeye', None, coldeye)
+                for projectile in projectile_group:
+                    game_world.add_collision_pairs(f'{projectile}:coldeye', None, coldeye)
+
+        # 몹 와일드보어
+        game_world.add_collision_pairs('server.character:wildboar', server.character, None)
+
+        for i, j in stage_info['wildboar_positions']:
+            wildboars = [Stonestatue(i, j)]
+            game_world.add_objects(wildboars, 2)
+            for wildboar in wildboars:
+                game_world.add_collision_pairs('server.character:wildboar', None, wildboar)
+                for projectile in projectile_group:
+                    game_world.add_collision_pairs(f'{projectile}:wildboar', None, wildboar)
+
         # 몹 석상
         game_world.add_collision_pairs('server.character:stonestatue', server.character, None)
 
         for i, j in stage_info['stonestatue_positions']:
             stonestatues = [Stonestatue(i, j)]
-            game_world.add_objects(stonestatues, 2)
+            game_world.add_objects(stonestatues, 0)
             for stonestatue in stonestatues:
                 game_world.add_collision_pairs('server.character:stonestatue', None, stonestatue)
                 for projectile in projectile_group:

@@ -3,55 +3,59 @@ import character
 import game_framework
 import random
 
-from pico2d import load_image, draw_rectangle, load_wav
+from pico2d import load_image, draw_rectangle, clamp, load_wav
 from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
 
 animation_names = ['Idle', 'Walk', 'Hit', 'Die']
 
-class Stonestatue:
+class Skelldog:
     images = None
-    Stonestatue_sound = None
+    Skelldog_sound = None
 
     def load_images(self):
-        if Stonestatue.images == None:
-            Stonestatue.images = {}
+        if Skelldog.images == None:
+            Skelldog.images = {}
             for name in animation_names:
                 if name == 'Idle':
-                    Stonestatue.images[name] = [load_image("./Mob/Stonestatue/"+ name + " (1)" + ".png")]
+                    Skelldog.images[name] = [load_image("./Mob/Skelldog/"+ name + " (%d)" % i + ".png") for i in range(1, 3 + 1)]
                 elif name == 'Walk':
-                    Stonestatue.images[name] = [load_image("./Mob/Stonestatue/"+ 'Idle' + " (1)" + ".png")]
+                    Skelldog.images[name] = [load_image("./Mob/Skelldog/" + name + " (%d)" % i + ".png") for i in range(1, 5 + 1)]
                 elif name == 'Hit':
-                    Stonestatue.images[name] = [load_image("./Mob/Stonestatue/"+ name + " (1)" + ".png")]
+                    Skelldog.images[name] = [load_image("./Mob/Skelldog/"+ name + " (1)" + ".png")]
                 elif name == 'Die':
-                    Stonestatue.images[name] = [load_image("./Mob/Stonestatue/" + name + " (%d)" % i + ".png") for i in range(1, 12 + 1)]
+                    Skelldog.images[name] = [load_image("./Mob/Skelldog/" + name + " (%d)" % i + ".png") for i in range(1, 5 + 1)]
 
     def __init__(self, i=0.0, j=0):
         self.x = i * 30.0 + 15.0
         self.y = j * 30.0 + 15.0
         self.base_x = i * 30.0 + 15.0
         self.sx = 0
-        self.face_dir = -1
-        self.state = 0
-        self.frame = 0
+        self.face_dir = random.randint(0, 1) * 2 - 1  # -1 or 1
+        self.state = random.randint(0, 1)
+        if self.state == 0:
+            self.frame = random.randint(0, 1)
+        elif self.state == 1:
+            self.frame = random.randint(0, 3)
         self.name = 'Idle'
         self.prev_state = -1
         self.load_images()
-        self.hp = 24
+        self.hp = 3
         self.stun = 0
         self.timer = 0
         self.temp = 0
         self.delay = False
         self.build_behavior_tree()
-        if Stonestatue.Stonestatue_sound == None:
-            Stonestatue.Stonestatue_sound = load_wav("./Sound/Hitsound.mp3")
-            Stonestatue.Stonestatue_sound.set_volume(8)
+        if Skelldog.Skelldog_sound == None:
+            Skelldog.Skelldog_sound = load_wav("./Sound/Hitsound.mp3")
+            Skelldog.Skelldog_sound.set_volume(8)
 
     def update(self):
         self.sx = self.x - server.background.window_left
+        self.x = clamp(self.base_x - 150.0, self.x, self.base_x + 150.0)
 
         self.timer += game_framework.frame_time
 
-        if self.timer >= 0.5:
+        if self.timer >= 1:
             self.timer = 0
             self.temp += 1
             self.delay = False
@@ -84,11 +88,12 @@ class Stonestatue:
         if self.state == 0:
             if self.name != 'Idle':
                 self.name = 'Idle'
-            self.frame = 0
+            self.frame = (self.frame + 3.0 * 1.5 * game_framework.frame_time) % 3
         elif self.state == 1:
             if self.name != 'Walk':
                 self.name = 'Walk'
-            self.frame = 0
+            self.frame = (self.frame + 5.0 * 1.5 * game_framework.frame_time) % 5
+            self.walk()
         elif self.state == 2 or self.state == 3:
             if self.name != 'Hit':
                 self.name = 'Hit'
@@ -96,49 +101,49 @@ class Stonestatue:
         elif self.state == 4:
             if self.name != 'Die':
                 self.name = 'Die'
-            self.frame = self.frame + 12.0 * 0.75 * game_framework.frame_time
-            if self.frame > 12.0:
+            self.frame = self.frame + 5.0 * 1.25 * game_framework.frame_time
+            if self.frame > 5.0:
                 self.state = 5
                 self.temp = 0
                 self.frame = 0
         elif self.state == 6:
             if self.name != 'Idle':
                 self.name = 'Idle'
-            self.frame = 0
+            self.frame = (self.frame + 3.0 * 1.5 * game_framework.frame_time) % 3
 
     def draw(self):
-        if -20 <= self.sx <= 1080 + 20:
+        if -17 <= self.sx <= 1080 + 17:
             if not self.state == 5:
                 if self.face_dir == 1:
-                    self.images[self.name][int(self.frame)].composite_draw(0, 'h', self.sx - 10, self.y + 60, 75, 150)
+                    self.images[self.name][int(self.frame)].composite_draw(0, 'h', self.sx - 12, self.y + 13, 70, 60)
                 elif self.face_dir == -1:
-                    self.images[self.name][int(self.frame)].composite_draw(0, '', self.sx + 10, self.y + 60, 75, 150)
+                    self.images[self.name][int(self.frame)].composite_draw(0, '', self.sx + 12, self.y + 13, 70, 60)
                 if character.God:
                     draw_rectangle(*self.get_rect())
 
     def get_bb(self):
-        return self.x - 20.0, self.y - 15.0, self.x + 20.0, self.y + 115.0
+        return self.x - 17.0, self.y - 15.0, self.x + 17.0, self.y + 25.0
 
     def get_rect(self):
-        return self.sx - 20.0, self.y - 15.0, self.sx + 20.0, self.y + 115.0
+        return self.sx - 17.0, self.y - 15.0, self.sx + 17.0, self.y + 25.0
 
     def handle_collision(self, group, other):
-        if group == 'server.character:stonestatue' and (self.state == 0 or self.state == 1):
-            other.take_damage(4)
-        elif group == 'normalrf:stonestatue' and (self.state == 0 or self.state == 1 or self.state == 3 or self.state == 6):
+        if group == 'server.character:skelldog' and (self.state == 0 or self.state == 1):
+            other.take_damage(2)
+        elif group == 'normalrf:skelldog' and (self.state == 0 or self.state == 1 or self.state == 3 or self.state == 6):
             self.take_damage(other.give_damage())
             other.get_count()
-        elif group == 'normalrfsp:stonestatue' and (self.state == 0 or self.state == 1 or self.state == 3 or self.state == 6):
+        elif group == 'normalrfsp:skelldog' and (self.state == 0 or self.state == 1 or self.state == 3 or self.state == 6):
             self.take_damage(other.give_damage())
             other.get_count()
-        elif group == 'normalhg:stonestatue' and (self.state == 0 or self.state == 1 or self.state == 3 or self.state == 6):
+        elif group == 'normalhg:skelldog' and (self.state == 0 or self.state == 1 or self.state == 3 or self.state == 6):
             self.take_damage(other.give_damage())
             other.get_count()
 
     def take_damage(self, damage):
         if (self.state == 0 or self.state == 1 or self.state == 3 or self.state == 6) and not self.delay:
             self.hp = max(0, self.hp - damage)
-            Stonestatue.Stonestatue_sound.play()
+            Skelldog.Skelldog_sound.play()
             if self.hp <= 0:
                 self.state = 4
                 self.frame = 0
@@ -163,6 +168,11 @@ class Stonestatue:
             return BehaviorTree.SUCCESS
         else:
             return BehaviorTree.FAIL
+
+    def walk(self):
+        self.x += 2.5 * self.face_dir * character.RUN_SPEED_PPS * game_framework.frame_time
+        if self.x <= self.base_x - 150.0 or self.x >= self.base_x + 150:
+            self.face_dir *= -1
 
     def check_zero_logic(self):
         if self.temp == 4 or random.randint(1, 5) == 1:
@@ -207,16 +217,13 @@ class Stonestatue:
         return BehaviorTree.SUCCESS
 
     def check_five_logic(self):
-        if self.temp == 10:
+        if self.temp == 5:
             self.state = 6
             self.temp = 0
-            self.hp = 24
+            self.hp = 3
             self.frame = 0
             self.x = self.base_x
-            if server.character.x < self.x:
-                self.face_dir = -1
-            elif server.character.x > self.x:
-                self.face_dir = 1
+            self.face_dir = random.randint(0, 1) * 2 - 1
 
     def check_five(self):
         if not self.state == 5:
@@ -224,12 +231,11 @@ class Stonestatue:
         return BehaviorTree.SUCCESS
 
     def check_six_logic(self):
-        if self.temp == 2:
-            if self.stun == 0:
-                self.state = 1
-            else:
-                self.state = 3
-            self.temp = 0
+        if self.stun == 0:
+            self.state = 1
+        else:
+            self.state = 3
+        self.temp = 0
 
     def check_six(self):
         if not self.state == 6:
@@ -251,4 +257,4 @@ class Stonestatue:
             action = action_map.get(self.state, lambda: BehaviorTree.FAIL)
             return action()
 
-        self.bt = BehaviorTree(Action('stonestatue_AI', run_state_actions))
+        self.bt = BehaviorTree(Action('skelldog_AI', run_state_actions))
