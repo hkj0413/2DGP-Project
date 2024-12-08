@@ -7,7 +7,7 @@ from pico2d import load_image, load_wav
 from cskillsg import CskillSG
 from cskillsg_stun import CskillStunSG
 
-mob_group = ['spore', 'slime', 'pig', 'stonegolem']
+mob_group = ['spore', 'slime', 'pig', 'stonegolem', 'skelldog', 'coldeye', 'wildboar', 'stonestatue']
 
 class CskillSGEffect:
     image = None

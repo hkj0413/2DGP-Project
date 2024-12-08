@@ -37,7 +37,7 @@ class EskillSG3:
             return self.sx - 180.0 - 17.0, self.y - 64.0, self.sx - 121.0 - 17.0, self.y + 34.0
 
     def handle_collision(self, group, other):
-        mob_group = ['spore', 'slime', 'pig', 'stonegolem']
+        mob_group = ['spore', 'slime', 'pig', 'stonegolem', 'skelldog', 'coldeye', 'wildboar', 'stonestatue']
         for mob in mob_group:
             if group == f'eskillsg3:{mob}':
                 other.take_damage(self.damage)

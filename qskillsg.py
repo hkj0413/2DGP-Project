@@ -37,7 +37,7 @@ class QskillSG:
             return self.sx - 180.0 - 17.0, self.y - 64.0, self.sx, self.y + 34.0
 
     def handle_collision(self, group, other):
-        mob_group = ['spore', 'slime', 'pig', 'stonegolem']
+        mob_group = ['spore', 'slime', 'pig', 'stonegolem', 'skelldog', 'coldeye', 'wildboar', 'stonestatue']
         for mob in mob_group:
             if group == f'qskillsg:{mob}':
                 other.take_damage(self.damage)
