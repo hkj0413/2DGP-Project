@@ -210,17 +210,67 @@ stage_data = {
     },
 
     4: {
+        'ladder_positions': [
+            (range(3, 18), 39),
+            (range(9, 16), 82),
+            (range(3, 12), 95),
+            (range(13, 22), 95),
+            (range(8, 17), 106),
+            (range(18, 26), 106),
+        ],
+
+        'wall_positions': [
+            (range(18, 23), 49),
+            (range(3, 12), 29),
+            (range(9, 27), 83),
+            (range(9, 22), 93),
+        ],
+
         'floor_positions': [
-            (1, range(0, 36)),
-            (0, range(0, 36)),
+            (2, range(65, 68)),
+            (1, range(0, 30)),
+            (1, range(35, 44)),
+            (1, range(50, 57)),
+            (1, range(62, 85)),
+            (1, range(94, 108)),
+            (0, range(0, 30)),
+            (0, range(35, 44)),
+            (0, range(50, 57)),
+            (0, range(62, 85)),
+            (0, range(94, 108)),
         ],
 
         'ground_positions': [
-            (10, range(0, 5)),
-            (8, range(12, 24)),
-            (5, range(27, 30)),
-            (5, range(6, 9)),
-            (2, range(0, 36)),
+            (26, range(105, 108)),
+            (22, range(88, 106)),
+            (21, range(72, 80)),
+            (18, range(38, 41)),
+            (18, range(69, 70)),
+            (17, range(96, 107)),
+            (16, range(46, 48)),
+            (16, range(82, 83)),
+            (15, range(66, 67)),
+            (14, range(41, 45)),
+            (13, range(13, 21)),
+            (12, range(26, 30)),
+            (12, range(69, 70)),
+            (12, range(76, 79)),
+            (12, range(95, 106)),
+            (11, range(2, 4)),
+            (9, range(6, 8)),
+            (8, range(82, 84)),
+            (8, range(93, 94)),
+            (7, range(11, 16)),
+            (7, range(96, 107)),
+            (6, range(71, 80)),
+            (5, range(19, 26)),
+            (3, range(65, 68)),
+            (2, range(0, 30)),
+            (2, range(35, 44)),
+            (2, range(50, 57)),
+            (2, range(62, 65)),
+            (2, range(68, 85)),
+            (2, range(94, 108)),
         ],
 
         'skelldog_positions': [
@@ -517,11 +567,25 @@ def init(stage):
         server.background = Background(2)
         game_world.add_object(server.background, 0)
 
+        # 사다리
         game_world.add_collision_pairs('server.character:ladder', server.character, None)
 
-        # a, d 판정만 있는 바닥
+        for i_range, j in stage_info['ladder_positions']:
+            ladders = [Ladder(j, i, 7) for i in i_range]
+            game_world.add_objects(ladders, 0)
+            for ladder in ladders:
+                game_world.add_collision_pairs('server.character:ladder', None, ladder)
+
+        # a, d 판정만 있는 블럭
         game_world.add_collision_pairs('server.character:wall', server.character, None)
 
+        for i_range, j in stage_info['wall_positions']:
+            walls = [Wall(j, i, 6) for i in i_range]
+            game_world.add_objects(walls, 0)
+            for wall in walls:
+                game_world.add_collision_pairs('server.character:wall', None, wall)
+
+        # a, d 판정만 있는 바닥
         for j, i_range in stage_info['floor_positions']:
             walls = [Wall(i, j, 5) for i in i_range]
             game_world.add_objects(walls, 0)
@@ -536,6 +600,13 @@ def init(stage):
             game_world.add_objects(grounds, 0)
             for ground in grounds:
                 game_world.add_collision_pairs('server.character:ground', None, ground)
+
+        # 포탈
+        game_world.add_collision_pairs('server.character:portal', server.character, None)
+
+        portal = Portal(105, 4, 1)
+        game_world.add_object(portal, 0)
+        game_world.add_collision_pairs('server.character:portal', None, portal)
 
         # 몹 스켈독
         game_world.add_collision_pairs('server.character:skelldog', server.character, None)
