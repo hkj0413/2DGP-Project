@@ -1,7 +1,7 @@
 # pyinstaller 로 exe 를 build 하기 위한 설정
 
 # 1. 메인 파일 이름을 지정하세요.
-main_file = 'main.py'
+main_file = 'samchongsa.py'
 
 # 2. 데이타 파일들을 지정하세요.
 data_files = [
