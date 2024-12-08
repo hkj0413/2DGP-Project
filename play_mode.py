@@ -16,6 +16,7 @@ from heal import Heal
 from more_hp import MoreHP
 from enhance import Enhance
 from diamond import Diamond
+from medal import Medal
 
 from background import Background
 from spore import Spore
@@ -29,7 +30,7 @@ from stonestatue import Stonestatue
 
 character_created = False
 
-stage = 4
+stage = 1
 
 def handle_events():
     events = get_events()
@@ -40,6 +41,20 @@ def handle_events():
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_p:
             game_framework.push_mode(guide_mode)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_1:
+            change_stage(1)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_2:
+            change_stage(2)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_3:
+            change_stage(3)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_4:
+            change_stage(4)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_5:
+            change_stage(5)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_6:
+            change_stage(6)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_7:
+            change_stage(7)
         else:
             server.character.handle_event(event)
 
@@ -306,6 +321,49 @@ stage_data = {
             (58, 13, 6),
             (95, 11, 6),
         ],
+    },
+
+    5: {
+        'floor_positions': [
+            (1, range(0, 36)),
+            (0, range(0, 36)),
+         ],
+
+          'ground_positions': [
+            (2, range(0, 36)),
+          ],
+    },
+
+    6: {
+          'floor_positions': [
+            (1, range(0, 108)),
+            (0, range(0, 108)),
+        ],
+
+        'ground_positions': [
+            (2, range(0, 108)),
+        ],
+
+        'coconut_positions': [
+            (6, 21, 1),
+        ],
+
+        'heal_positions': [
+            (30, 3, 8),
+            (60, 3, 8),
+            (90, 3, 8),
+        ],
+    },
+
+    7: {
+        'floor_positions': [
+            (1, range(0, 36)),
+            (0, range(0, 36)),
+         ],
+
+          'ground_positions': [
+            (2, range(0, 36)),
+          ],
     },
 }
 
@@ -704,6 +762,171 @@ def init(stage):
         diamond = Diamond(101, 3)
         game_world.add_object(diamond, 2)
         game_world.add_collision_pairs('server.character:diamond', None, diamond)
+
+    elif stage == 5:
+        stage_info = stage_data[stage]
+
+        # 캐릭터
+        server.character = Character()
+        game_world.add_object(server.character, 1)
+
+        # UI
+        ui = UI()
+        game_world.add_object(ui, 3)
+
+        server.background = Background(3)
+        game_world.add_object(server.background, 0)
+
+        game_world.add_collision_pairs('server.character:ladder', server.character, None)
+
+        # a, d 판정만 있는 바닥
+        game_world.add_collision_pairs('server.character:wall', server.character, None)
+
+        for j, i_range in stage_info['floor_positions']:
+            walls = [Wall(i, j, 5) for i in i_range]
+            game_world.add_objects(walls, 0)
+            for wall in walls:
+                game_world.add_collision_pairs('server.character:wall', None, wall)
+
+        # a, d, 점프, 추락 판정이 있는 블럭
+        game_world.add_collision_pairs('server.character:ground', server.character, None)
+
+        for j, i_range in stage_info['ground_positions']:
+            grounds = [Ground(i, j, 5) for i in i_range]
+            game_world.add_objects(grounds, 0)
+            for ground in grounds:
+                game_world.add_collision_pairs('server.character:ground', None, ground)
+
+        # 포탈
+        game_world.add_collision_pairs('server.character:portal', server.character, None)
+
+        portal = Portal(34, 4, 2)
+        game_world.add_object(portal, 0)
+        game_world.add_collision_pairs('server.character:portal', None, portal)
+
+        # 최대 체력 증가 아이템
+        game_world.add_collision_pairs('server.character:morehp', server.character, None)
+
+        morehp = MoreHP(21, 3)
+        game_world.add_object(morehp, 2)
+        game_world.add_collision_pairs('server.character:morehp', None, morehp)
+
+        # 캐릭터 강화 아이템
+        game_world.add_collision_pairs('server.character:enhance', server.character, None)
+
+        enhance = Enhance(24, 3)
+        game_world.add_object(enhance, 2)
+        game_world.add_collision_pairs('server.character:enhance', None, enhance)
+
+        # 임시 메달
+        game_world.add_collision_pairs('server.character:medal', server.character, None)
+
+        medal = Medal(27, 3)
+        game_world.add_object(medal, 2)
+        game_world.add_collision_pairs('server.character:medal', None, medal)
+
+    elif stage == 6:
+        stage_info = stage_data[stage]
+
+        # 캐릭터
+        server.character = Character()
+        game_world.add_object(server.character, 1)
+
+        # UI
+        ui = UI()
+        game_world.add_object(ui, 3)
+
+        server.background = Background(4)
+        game_world.add_object(server.background, 0)
+
+        game_world.add_collision_pairs('server.character:ladder', server.character, None)
+
+        # a, d 판정만 있는 바닥
+        game_world.add_collision_pairs('server.character:wall', server.character, None)
+
+        for j, i_range in stage_info['floor_positions']:
+            walls = [Wall(i, j, 11) for i in i_range]
+            game_world.add_objects(walls, 0)
+            for wall in walls:
+                game_world.add_collision_pairs('server.character:wall', None, wall)
+
+        # a, d, 점프, 추락 판정이 있는 블럭
+        game_world.add_collision_pairs('server.character:ground', server.character, None)
+
+        for j, i_range in stage_info['ground_positions']:
+            grounds = [Ground(i, j, 10) for i in i_range]
+            game_world.add_objects(grounds, 0)
+            for ground in grounds:
+                game_world.add_collision_pairs('server.character:ground', None, ground)
+
+        # 포탈
+        game_world.add_collision_pairs('server.character:portal', server.character, None)
+
+        portal = Portal(105, 4, 2)
+        game_world.add_object(portal, 0)
+        game_world.add_collision_pairs('server.character:portal', None, portal)
+
+        # 최대 체력 증가 아이템
+        game_world.add_collision_pairs('server.character:morehp', server.character, None)
+
+        morehp = MoreHP(81, 3)
+        game_world.add_object(morehp, 2)
+        game_world.add_collision_pairs('server.character:morehp', None, morehp)
+
+        # 캐릭터 강화 아이템
+        game_world.add_collision_pairs('server.character:enhance', server.character, None)
+
+        enhance = Enhance(54, 3)
+        game_world.add_object(enhance, 2)
+        game_world.add_collision_pairs('server.character:enhance', None, enhance)
+
+        # 다이아 몬드 아이템
+        game_world.add_collision_pairs('server.character:diamond', server.character, None)
+
+        diamond = Diamond(27, 3)
+        game_world.add_object(diamond, 2)
+        game_world.add_collision_pairs('server.character:diamond', None, diamond)
+
+    elif stage == 7:
+        stage_info = stage_data[stage]
+
+        # 캐릭터
+        server.character = Character()
+        game_world.add_object(server.character, 1)
+
+        # UI
+        ui = UI()
+        game_world.add_object(ui, 3)
+
+        server.background = Background(5)
+        game_world.add_object(server.background, 0)
+
+        game_world.add_collision_pairs('server.character:ladder', server.character, None)
+
+        # a, d 판정만 있는 바닥
+        game_world.add_collision_pairs('server.character:wall', server.character, None)
+
+        for j, i_range in stage_info['floor_positions']:
+            walls = [Wall(i, j, 11) for i in i_range]
+            game_world.add_objects(walls, 0)
+            for wall in walls:
+                game_world.add_collision_pairs('server.character:wall', None, wall)
+
+        # a, d, 점프, 추락 판정이 있는 블럭
+        game_world.add_collision_pairs('server.character:ground', server.character, None)
+
+        for j, i_range in stage_info['ground_positions']:
+            grounds = [Ground(i, j, 10) for i in i_range]
+            game_world.add_objects(grounds, 0)
+            for ground in grounds:
+                game_world.add_collision_pairs('server.character:ground', None, ground)
+
+        # 포탈
+        game_world.add_collision_pairs('server.character:portal', server.character, None)
+
+        portal = Portal(34, 4, 3)
+        game_world.add_object(portal, 0)
+        game_world.add_collision_pairs('server.character:portal', None, portal)
 
 def finish():
     game_world.clear()

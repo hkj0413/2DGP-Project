@@ -27,7 +27,14 @@ class Portal:
     def draw(self):
         if -45 <= self.sx <= 1080 + 45:
             self.image.draw(self.sx, self.y, 90, 90)
-            if self.need == 1:
+            if self.need == 3:
+                self.image_medal.draw(self.sx - 27, self.y + 70, 37, 48)
+                self.image_medal.draw(self.sx, self.y + 70, 37, 48)
+                self.image_medal.draw(self.sx + 27, self.y + 70, 37, 48)
+            elif self.need == 2:
+                self.image_medal.draw(self.sx - 18, self.y + 70, 37, 48)
+                self.image_medal.draw(self.sx + 18, self.y + 70, 37, 48)
+            elif self.need == 1:
                 self.image_medal.draw(self.sx, self.y + 70, 37, 48)
             if character.God:
                 draw_rectangle(*self.get_rect())
@@ -39,9 +46,13 @@ class Portal:
         return self.sx - 15.0, self.y - 15.0, self.sx + 15.0, self.y + 15.0
 
     def handle_collision(self, group, other):
+        '''
         if group == 'server.character:portal':
             if server.character.state == 0:
                 if play_mode.stage <= 2:
                     Portal.sound.play()
                 elif 5 >= play_mode.stage >= 3 and server.character.medal >= 1:
                     Portal.sound.play()
+                elif play_mode.stage >= 6 and server.character.medal >= 2:
+                    Portal.sound.play()
+                    '''
