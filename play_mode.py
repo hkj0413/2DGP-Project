@@ -24,6 +24,7 @@ from pig import Pig
 from stonegolem import Stonegolem
 from skelldog import Skelldog
 from coldeye import Coldeye
+from wildboar import Wildboar
 from stonestatue import Stonestatue
 
 character_created = False
@@ -562,7 +563,7 @@ def init(stage):
         game_world.add_collision_pairs('server.character:wildboar', server.character, None)
 
         for i, j in stage_info['wildboar_positions']:
-            wildboars = [Stonestatue(i, j)]
+            wildboars = [Wildboar(i, j)]
             game_world.add_objects(wildboars, 2)
             for wildboar in wildboars:
                 game_world.add_collision_pairs('server.character:wildboar', None, wildboar)
