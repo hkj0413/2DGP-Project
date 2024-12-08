@@ -42,18 +42,67 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_p:
             game_framework.push_mode(guide_mode)
         elif event.type == SDL_KEYDOWN and event.key == SDLK_1:
+            if Character.stance == 0:
+                Character.voices['SG_Portal'][0].play()
+            elif Character.stance == 1:
+                Character.voices['RF_Portal'][0].play()
+            elif Character.stance == 2:
+                Character.voices['HG_Portal'][0].play()
+            Portal.sound.play()
             change_stage(1)
         elif event.type == SDL_KEYDOWN and event.key == SDLK_2:
+            if Character.stance == 0:
+                Character.voices['SG_Portal'][0].play()
+            elif Character.stance == 1:
+                Character.voices['RF_Portal'][0].play()
+            elif Character.stance == 2:
+                Character.voices['HG_Portal'][0].play()
+            Portal.sound.play()
             change_stage(2)
         elif event.type == SDL_KEYDOWN and event.key == SDLK_3:
+            if Character.stance == 0:
+                Character.voices['SG_Portal'][0].play()
+            elif Character.stance == 1:
+                Character.voices['RF_Portal'][0].play()
+            elif Character.stance == 2:
+                Character.voices['HG_Portal'][0].play()
+            Portal.sound.play()
             change_stage(3)
         elif event.type == SDL_KEYDOWN and event.key == SDLK_4:
+            if Character.stance == 0:
+                Character.voices['SG_Portal'][0].play()
+            elif Character.stance == 1:
+                Character.voices['RF_Portal'][0].play()
+            elif Character.stance == 2:
+                Character.voices['HG_Portal'][0].play()
+            Portal.sound.play()
             change_stage(4)
         elif event.type == SDL_KEYDOWN and event.key == SDLK_5:
+            if Character.stance == 0:
+                Character.voices['SG_Portal'][0].play()
+            elif Character.stance == 1:
+                Character.voices['RF_Portal'][0].play()
+            elif Character.stance == 2:
+                Character.voices['HG_Portal'][0].play()
+            Portal.sound.play()
             change_stage(5)
         elif event.type == SDL_KEYDOWN and event.key == SDLK_6:
+            if Character.stance == 0:
+                Character.voices['SG_Portal'][0].play()
+            elif Character.stance == 1:
+                Character.voices['RF_Portal'][0].play()
+            elif Character.stance == 2:
+                Character.voices['HG_Portal'][0].play()
+            Portal.sound.play()
             change_stage(6)
         elif event.type == SDL_KEYDOWN and event.key == SDLK_7:
+            if Character.stance == 0:
+                Character.voices['SG_Portal'][0].play()
+            elif Character.stance == 1:
+                Character.voices['RF_Portal'][0].play()
+            elif Character.stance == 2:
+                Character.voices['HG_Portal'][0].play()
+            Portal.sound.play()
             change_stage(7)
         else:
             server.character.handle_event(event)

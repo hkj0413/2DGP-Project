@@ -56,3 +56,4 @@ class Portal:
                 elif play_mode.stage >= 6 and server.character.medal >= 2:
                     Portal.sound.play()
                     '''
+        pass
