@@ -93,7 +93,7 @@ def handle_events():
                 dn = 18
             change_guide()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_RIGHT and cn == 4:
-            if dn <= 20:
+            if dn <= 21:
                 dn += 1
             else:
                 dn = 19
@@ -102,7 +102,7 @@ def handle_events():
             if dn >= 20:
                 dn -= 1
             else:
-                dn = 21
+                dn = 22
             change_guide()
 
 
