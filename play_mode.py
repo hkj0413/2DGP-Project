@@ -23,6 +23,7 @@ from slime import Slime
 from pig import Pig
 from stonegolem import Stonegolem
 from skelldog import Skelldog
+from coldeye import Coldeye
 from stonestatue import Stonestatue
 
 character_created = False
@@ -550,7 +551,7 @@ def init(stage):
         game_world.add_collision_pairs('server.character:coldeye', server.character, None)
 
         for i, j in stage_info['coldeye_positions']:
-            coldeyes = [Stonestatue(i, j)]
+            coldeyes = [Coldeye(i, j)]
             game_world.add_objects(coldeyes, 2)
             for coldeye in coldeyes:
                 game_world.add_collision_pairs('server.character:coldeye', None, coldeye)
